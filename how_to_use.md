@@ -27,15 +27,9 @@ Installation
     Unpack it on empty directory, already created by using <code>mkdir somedir</code>
 </li>
 <li>
-    Move on that directory and execute following commands:
-    <code>
-    python setup.py install
-    </code>
-    or
-    <code>
-    pip install .
-    </code>
+    Move on that directory and execute following command:
 </li>
+    <code>python setup.py install</code> or <code> pip install . </code>
 </ol>
 
 <h2>
