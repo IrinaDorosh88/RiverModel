@@ -67,7 +67,7 @@ initial_data
 <code>
 steps_to_predict
 </code>
-- argument of type int, allows to return count of predictions from inital value of data
+- argument of type int, allows to return list of predictions with this size from inital value of data
 </li>
 </ul>
 
