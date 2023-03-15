@@ -1,34 +1,27 @@
-import {
-  Component,
-  ViewChild,
-  ElementRef,
-  AfterViewInit,
-  OnDestroy,
-} from '@angular/core';
-import { Map } from 'maplibre-gl';
+import { Component, importProvidersFrom } from '@angular/core';
+import { ApplicationConfig } from '@angular/platform-browser';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideRouter, Routes } from '@angular/router';
+
+import { ENVIRONMENT_INITIALIZER } from './app-init';
+
+const APP_IMPORTS: any[] = [];
+const APP_ROUTES: Routes = [];
 
 @Component({
+  standalone: true,
+  imports: APP_IMPORTS,
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.scss'],
+  template: ` {{ title }} `,
 })
-export class AppComponent implements AfterViewInit, OnDestroy {
-  private map: Map | undefined;
-
-  @ViewChild('map')
-  private mapContainer!: ElementRef<HTMLElement>;
-
-  ngAfterViewInit() {
-    const initialState = { lng: 31.1828699, lat: 48.383022, zoom: 5.7 };
-    // this.map = new Map({
-    //   container: this.mapContainer.nativeElement,
-    //   style: `https://api.maptiler.com/maps/streets-v2/style.json?key=n88LfTJPWSHvvGGIETtw`,
-    //   center: [initialState.lng, initialState.lat],
-    //   zoom: initialState.zoom,
-    // });
-  }
-
-  ngOnDestroy() {
-    this.map?.remove();
-  }
+export class AppComponent {
+  public title = 'RiverModel';
 }
+
+export const APP_CONFIG: ApplicationConfig = {
+  providers: [
+    importProvidersFrom(BrowserAnimationsModule),
+    provideRouter(APP_ROUTES),
+    ENVIRONMENT_INITIALIZER,
+  ],
+};
