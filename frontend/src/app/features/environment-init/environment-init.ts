@@ -7,7 +7,7 @@ export let ENVIRONMENT: {
 export const ENVIRONMENT_INITIALIZER: Provider = {
   provide: APP_INITIALIZER,
   multi: true,
-  useFactory: () => async () => {
+  useValue: async () => {
     ENVIRONMENT = await fetch('assets/app-config.json').then((config) =>
       config.json()
     );

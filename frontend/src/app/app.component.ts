@@ -1,18 +1,27 @@
-import { Component, importProvidersFrom } from '@angular/core';
+import { Component, importProvidersFrom, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApplicationConfig } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideRouter, RouterModule, Routes } from '@angular/router';
-import { Observable, of } from 'rxjs';
+import { provideHttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
-const MATERIAL_MODULES = [MatButtonModule, MatIconModule, MatToolbarModule];
+const MATERIAL_MODULES = [
+  MatButtonModule,
+  MatDialogModule,
+  MatIconModule,
+  MatToolbarModule,
+];
 
-import { APP_VIEWS, HomeComponent } from './views';
-
-import { ENVIRONMENT_INITIALIZER } from './app-init';
+import { AuthorizationService } from '@app/features/authorization';
+import { User } from '@app/features/user';
+import { APP_VIEWS, HomeComponent, AuthorizationComponent } from '@app/views';
+import { ENVIRONMENT_INITIALIZER } from '@app/features/environment-init';
+import { USER_INITIALIZER } from '@app/features/authorization';
 
 @Component({
   standalone: true,
@@ -23,25 +32,57 @@ import { ENVIRONMENT_INITIALIZER } from './app-init';
       <span class="primary">LOGO HERE</span>
       <div class="flex-auto"></div>
       <ng-container *ngIf="user$ | async; else nonAuthorized">
-        <button mat-button><span>Sign out</span></button>
+        <button mat-button (click)="onLogoutClick()">
+          <span>Sign out</span>
+        </button>
       </ng-container>
       <ng-template #nonAuthorized>
-        <button mat-button><span>Sign in</span></button>
-        <button mat-button><span>Sign up</span></button>
+        <button mat-button (click)="onLoginClick()">
+          <span>Sign in</span>
+        </button>
+        <button mat-button (click)="onRegisterClick()">
+          <span>Sign up</span>
+        </button>
       </ng-template>
     </mat-toolbar>
     <div class="flex-auto">
       <router-outlet></router-outlet>
     </div>
   `,
-  host: { class: 'h-full d-flex flex-column' },
+  host: { class: 'height-full display-flex flex-column' },
 })
-export class AppComponent {
-  public title = 'RiverModel';
-  public user$: Observable<any | undefined>;
+export class AppComponent implements OnInit {
+  public user$!: Observable<User | undefined>;
 
-  constructor() {
-    this.user$ = of(undefined);
+  constructor(
+    private dialog: MatDialog,
+    private authorizationService: AuthorizationService
+  ) {}
+
+  public ngOnInit() {
+    this.user$ = this.authorizationService.user$;
+  }
+
+  public onLoginClick() {
+    this.openAuthorizationDialog();
+  }
+  public onRegisterClick() {
+    this.openAuthorizationDialog({ register: true });
+  }
+
+  public onLogoutClick() {
+    this.authorizationService.logout().subscribe({
+      next: (next) => {
+        console.log(next);
+      },
+    });
+  }
+
+  private openAuthorizationDialog(data?: any) {
+    this.dialog.open(AuthorizationComponent, {
+      maxWidth: '400px',
+      data,
+    });
   }
 }
 
@@ -53,6 +94,8 @@ export const APP_CONFIG: ApplicationConfig = {
   providers: [
     importProvidersFrom(BrowserAnimationsModule),
     provideRouter(APP_ROUTES),
+    provideHttpClient(),
     ENVIRONMENT_INITIALIZER,
+    // USER_INITIALIZER,
   ],
 };
