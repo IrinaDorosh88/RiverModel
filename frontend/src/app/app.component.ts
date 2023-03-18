@@ -18,10 +18,9 @@ const MATERIAL_MODULES = [
 ];
 
 import { AuthorizationService } from '@app/features/authorization';
-import { User } from '@app/features/user';
+import { User, USER_INITIALIZER } from '@app/features/user';
 import { APP_VIEWS, HomeComponent, AuthorizationComponent } from '@app/views';
 import { ENVIRONMENT_INITIALIZER } from '@app/features/environment-init';
-import { USER_INITIALIZER } from '@app/features/authorization';
 
 @Component({
   standalone: true,
@@ -60,7 +59,7 @@ export class AppComponent implements OnInit {
   ) {}
 
   public ngOnInit() {
-    this.user$ = this.authorizationService.user$;
+    this.user$ = User.get$();
   }
 
   public onLoginClick() {
@@ -74,6 +73,8 @@ export class AppComponent implements OnInit {
     this.authorizationService.logout().subscribe({
       next: (next) => {
         console.log(next);
+        User.unset();
+        localStorage.removeItem('token');
       },
     });
   }
@@ -96,6 +97,6 @@ export const APP_CONFIG: ApplicationConfig = {
     provideRouter(APP_ROUTES),
     provideHttpClient(),
     ENVIRONMENT_INITIALIZER,
-    // USER_INITIALIZER,
+    USER_INITIALIZER,
   ],
 };

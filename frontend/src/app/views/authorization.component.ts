@@ -25,6 +25,7 @@ const MATERIAL_MODULES = [
 ];
 
 import { AuthorizationService } from '@app/features/authorization';
+import { User } from '@app/features/user';
 
 @Component({
   standalone: true,
@@ -127,16 +128,16 @@ export class AuthorizationComponent implements OnInit {
       },
       {
         validators: (formGroup: FormGroup) => {
-          if (formGroup.controls['confirm'].enabled) {
-            if (formGroup.controls['confirm'].value === '')
-              formGroup.controls['confirm'].setErrors({ required: true });
-            else
-              formGroup.controls['confirm'].setErrors(
-                formGroup.controls['confirm'].value !==
-                  formGroup.controls['password'].value
-                  ? { notMatch: true }
-                  : null
-              );
+          if (
+            formGroup.controls['confirm'].enabled &&
+            formGroup.controls['confirm'].value !== ''
+          ) {
+            formGroup.controls['confirm'].setErrors(
+              formGroup.controls['confirm'].value !==
+                formGroup.controls['password'].value
+                ? { notMatch: true }
+                : null
+            );
           }
         },
       }
@@ -166,6 +167,8 @@ export class AuthorizationComponent implements OnInit {
       this.service.login(model).subscribe({
         next: (next) => {
           console.log(next);
+          User.fromObject(next);
+          localStorage.setItem('token', JSON.stringify(next));
           this.dialogRef.close();
         },
         error: (error) => {
