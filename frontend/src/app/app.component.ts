@@ -28,33 +28,36 @@ import { APP_VIEWS, AuthorizationComponent } from '@app/views';
   selector: 'app-root',
   template: `
     <app-loader></app-loader>
-    <mat-toolbar class="gap-3 flex-shrink-0" color="primary">
-      <span class="primary">LOGO HERE</span>
-      <div class="flex-auto"></div>
-      <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorizedUserButtons">
-        <button mat-flat-button (click)="onLogoutClick()">
-          <span>Sign out</span>
-        </button>
-      </ng-template>
-      <ng-template #nonAuthorizedUserButtons>
-        <button mat-flat-button (click)="onLoginClick()">
-          <span>Sign in</span>
-        </button>
-        <button mat-button (click)="onRegisterClick()">
-          <span>Sign up</span>
-        </button>
-      </ng-template>
-    </mat-toolbar>
-    <div class="flex-auto">
-      <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorizedUserView">
-        <app-home></app-home>
-      </ng-template>
-      <ng-template #nonAuthorizedUserView>
-        <app-description></app-description>
-      </ng-template>
+    <div class="height-full display-flex flex-direction-column gap-3">
+      <mat-toolbar class="gap-3 flex-shrink-0" color="primary">
+        <span class="mr-auto">LOGO HERE</span>
+        <ng-template
+          [ngIf]="user$ | async"
+          [ngIfElse]="nonAuthorizedUserButtons"
+        >
+          <button mat-flat-button (click)="onLogoutClick()">
+            <span>Sign out</span>
+          </button>
+        </ng-template>
+        <ng-template #nonAuthorizedUserButtons>
+          <button mat-flat-button (click)="onLoginClick()">
+            <span>Sign in</span>
+          </button>
+          <button mat-button (click)="onRegisterClick()">
+            <span>Sign up</span>
+          </button>
+        </ng-template>
+      </mat-toolbar>
+      <div class="flex-auto">
+        <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorizedUserView">
+          <app-home></app-home>
+        </ng-template>
+        <ng-template #nonAuthorizedUserView>
+          <app-description></app-description>
+        </ng-template>
+      </div>
     </div>
   `,
-  host: { class: 'height-full display-flex flex-column' },
 })
 export class AppComponent implements OnInit {
   public user$!: Observable<User | undefined>;
