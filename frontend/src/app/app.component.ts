@@ -31,12 +31,12 @@ import { APP_VIEWS, AuthorizationComponent } from '@app/views';
     <mat-toolbar class="gap-3 flex-shrink-0" color="primary">
       <span class="primary">LOGO HERE</span>
       <div class="flex-auto"></div>
-      <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorized">
+      <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorizedUserButtons">
         <button mat-flat-button (click)="onLogoutClick()">
           <span>Sign out</span>
         </button>
       </ng-template>
-      <ng-template #nonAuthorized>
+      <ng-template #nonAuthorizedUserButtons>
         <button mat-flat-button (click)="onLoginClick()">
           <span>Sign in</span>
         </button>
@@ -46,7 +46,12 @@ import { APP_VIEWS, AuthorizationComponent } from '@app/views';
       </ng-template>
     </mat-toolbar>
     <div class="flex-auto">
-      <app-home></app-home>
+      <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorizedUserView">
+        <app-home></app-home>
+      </ng-template>
+      <ng-template #nonAuthorizedUserView>
+        <app-description></app-description>
+      </ng-template>
     </div>
   `,
   host: { class: 'height-full display-flex flex-column' },
