@@ -2,8 +2,7 @@ import { Component, importProvidersFrom, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApplicationConfig } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { provideRouter, RouterModule, Routes } from '@angular/router';
-import { provideHttpClient } from '@angular/common/http';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -18,25 +17,27 @@ const MATERIAL_MODULES = [
 ];
 
 import { AuthorizationService } from '@app/features/authorization';
-import { User, USER_INITIALIZER } from '@app/features/user';
-import { APP_VIEWS, HomeComponent, AuthorizationComponent } from '@app/views';
 import { ENVIRONMENT_INITIALIZER } from '@app/features/environment-init';
+import { LoaderComponent, loaderInterceptorFn } from '@app/features/loading';
+import { User, USER_INITIALIZER } from '@app/features/user';
+import { APP_VIEWS, AuthorizationComponent } from '@app/views';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, RouterModule, ...MATERIAL_MODULES, ...APP_VIEWS],
+  imports: [CommonModule, ...MATERIAL_MODULES, LoaderComponent, ...APP_VIEWS],
   selector: 'app-root',
   template: `
+    <app-loader></app-loader>
     <mat-toolbar class="gap-3 flex-shrink-0" color="primary">
       <span class="primary">LOGO HERE</span>
       <div class="flex-auto"></div>
-      <ng-container *ngIf="user$ | async; else nonAuthorized">
-        <button mat-button (click)="onLogoutClick()">
+      <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorized">
+        <button mat-flat-button (click)="onLogoutClick()">
           <span>Sign out</span>
         </button>
-      </ng-container>
+      </ng-template>
       <ng-template #nonAuthorized>
-        <button mat-button (click)="onLoginClick()">
+        <button mat-flat-button (click)="onLoginClick()">
           <span>Sign in</span>
         </button>
         <button mat-button (click)="onRegisterClick()">
@@ -45,7 +46,7 @@ import { ENVIRONMENT_INITIALIZER } from '@app/features/environment-init';
       </ng-template>
     </mat-toolbar>
     <div class="flex-auto">
-      <router-outlet></router-outlet>
+      <app-home></app-home>
     </div>
   `,
   host: { class: 'height-full display-flex flex-column' },
@@ -87,15 +88,10 @@ export class AppComponent implements OnInit {
   }
 }
 
-const APP_ROUTES: Routes = [
-  { path: '', pathMatch: 'full', component: HomeComponent },
-];
-
 export const APP_CONFIG: ApplicationConfig = {
   providers: [
     importProvidersFrom(BrowserAnimationsModule),
-    provideRouter(APP_ROUTES),
-    provideHttpClient(),
+    provideHttpClient(withInterceptors([loaderInterceptorFn])),
     ENVIRONMENT_INITIALIZER,
     USER_INITIALIZER,
   ],
