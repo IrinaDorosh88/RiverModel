@@ -4,7 +4,7 @@ export let ENVIRONMENT: {
   API_HOST: string;
 };
 
-export const ENVIRONMENT_INITIALIZER: Provider = {
+export const ENVIRONMENT_INITIALIZER_PROVIDER: Provider = {
   provide: APP_INITIALIZER,
   multi: true,
   useValue: async () => {

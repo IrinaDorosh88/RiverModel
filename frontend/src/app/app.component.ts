@@ -17,9 +17,13 @@ const MATERIAL_MODULES = [
 ];
 
 import { AuthorizationService } from '@app/features/authorization';
-import { ENVIRONMENT_INITIALIZER } from '@app/features/environment-init';
+import { ENVIRONMENT_INITIALIZER_PROVIDER } from '@app/features/environment-init';
 import { LoaderComponent, loaderInterceptorFn } from '@app/features/loading';
-import { User, USER_INITIALIZER } from '@app/features/user';
+import {
+  NotificationService,
+  NOTIFICATION_PROVIDERS,
+} from '@app/features/notification';
+import { User, USER_INITIALIZER_PROVIDER } from '@app/features/user';
 import { APP_VIEWS, AuthorizationComponent } from '@app/views';
 
 @Component({
@@ -64,7 +68,8 @@ export class AppComponent implements OnInit {
 
   constructor(
     private dialog: MatDialog,
-    private authorizationService: AuthorizationService
+    private authorizationService: AuthorizationService,
+    private notificationService: NotificationService
   ) {}
 
   public ngOnInit() {
@@ -80,8 +85,8 @@ export class AppComponent implements OnInit {
 
   public onLogoutClick() {
     this.authorizationService.logout().subscribe({
-      next: (next) => {
-        console.log(next);
+      next: () => {
+        this.notificationService.notify('You are successfully signed out!');
         User.unset();
         localStorage.removeItem('token');
       },
@@ -100,7 +105,8 @@ export const APP_CONFIG: ApplicationConfig = {
   providers: [
     importProvidersFrom(BrowserAnimationsModule),
     provideHttpClient(withInterceptors([loaderInterceptorFn])),
-    ENVIRONMENT_INITIALIZER,
-    USER_INITIALIZER,
+    ENVIRONMENT_INITIALIZER_PROVIDER,
+    USER_INITIALIZER_PROVIDER,
+    ...NOTIFICATION_PROVIDERS,
   ],
 };

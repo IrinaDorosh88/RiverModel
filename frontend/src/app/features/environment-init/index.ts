@@ -1,1 +1,1 @@
-export { ENVIRONMENT, ENVIRONMENT_INITIALIZER } from './environment-init';
+export { ENVIRONMENT, ENVIRONMENT_INITIALIZER_PROVIDER } from './environment-init';

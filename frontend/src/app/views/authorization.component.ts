@@ -25,6 +25,7 @@ const MATERIAL_MODULES = [
 ];
 
 import { AuthorizationService } from '@app/features/authorization';
+import { NotificationService } from '@app/features/notification';
 import { User } from '@app/features/user';
 
 @Component({
@@ -110,7 +111,8 @@ export class AuthorizationComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) private data: { register: boolean } | undefined,
     private dialogRef: MatDialogRef<AuthorizationComponent>,
-    private service: AuthorizationService
+    private notificationService: NotificationService,
+    private service: AuthorizationService,
   ) {}
 
   public ngOnInit() {
@@ -153,8 +155,8 @@ export class AuthorizationComponent implements OnInit {
   public onSubmitClick(model: { email: string; password: string }) {
     if (this.register) {
       this.service.register(model).subscribe({
-        next: (next) => {
-          console.log(next);
+        next: () => {
+          this.notificationService.notify('You are successfully signed up!');
           this.onAuthorizationTypeToggle();
         },
         error: (error) => {
@@ -166,13 +168,13 @@ export class AuthorizationComponent implements OnInit {
     } else {
       this.service.login(model).subscribe({
         next: (next) => {
-          console.log(next);
+          this.notificationService.notify('You are successfully signed in!');
           User.fromObject(next);
           localStorage.setItem('token', JSON.stringify(next));
           this.dialogRef.close();
         },
-        error: (error) => {
-          console.log(error);
+        error: () => {
+          this.notificationService.notify('Invalid credentials!');
         },
       });
     }
