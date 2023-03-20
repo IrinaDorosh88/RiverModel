@@ -32,6 +32,10 @@ body {
   width: 100% !important;
 }
 
+.width-auto {
+  width: auto !important;
+}
+
 .height-full {
   height: 100% !important;
 }
@@ -84,9 +88,13 @@ body {
   margin: 0 !important;
 }
 
+.m-3 {
+  margin: 1rem !important;
+}
+
 .mx-auto {
-  margin-right: auto;
-  margin-left: auto;
+  margin-right: auto !important;
+  margin-left: auto !important;
 }
 
 .mb-3 {
@@ -102,9 +110,13 @@ body {
 }
 
 .cursor-pointer {
-  cursor: pointer;
+  cursor: pointer !important;
+}
+
+.text-align-center {
+  text-align: center !important;
 }
 
 .hover\:text-decoration-underline:hover {
-  text-decoration: underline;
+  text-decoration: underline !important;
 }

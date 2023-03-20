@@ -1,9 +1,14 @@
-import { Component } from "@angular/core";
+import { Component } from '@angular/core';
 
 @Component({
   standalone: true,
   selector: 'app-description',
-  template: ` Description `,
-  host: { class: 'height-full display-flex align-items-center justify-content-center' },
+  template: `
+    <div
+      class="height-full display-flex align-items-center justify-content-center"
+    >
+      Description
+    </div>
+  `,
 })
 export class DescriptionComponent {}

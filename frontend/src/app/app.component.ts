@@ -16,6 +16,11 @@ const MATERIAL_MODULES = [
   MatToolbarModule,
 ];
 
+import { AuthorizationComponent } from '@app/views/authorization.component';
+import { DescriptionComponent } from '@app/views/description.component';
+import { HomeComponent } from '@app/views/home.component';
+const VIEWS = [AuthorizationComponent, DescriptionComponent, HomeComponent];
+
 import { AuthorizationService } from '@app/features/authorization';
 import { ENVIRONMENT_INITIALIZER_PROVIDER } from '@app/features/environment-init';
 import { LoaderComponent, loaderInterceptorFn } from '@app/features/loading';
@@ -24,15 +29,14 @@ import {
   NOTIFICATION_PROVIDERS,
 } from '@app/features/notification';
 import { User, USER_INITIALIZER_PROVIDER } from '@app/features/user';
-import { APP_VIEWS, AuthorizationComponent } from '@app/views';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ...MATERIAL_MODULES, LoaderComponent, ...APP_VIEWS],
+  imports: [CommonModule, ...MATERIAL_MODULES, LoaderComponent, ...VIEWS],
   selector: 'app-root',
   template: `
     <app-loader></app-loader>
-    <div class="height-full display-flex flex-direction-column gap-3">
+    <div class="height-full display-flex flex-direction-column">
       <mat-toolbar class="gap-3 flex-shrink-0" color="primary">
         <span class="mr-auto">LOGO HERE</span>
         <ng-template
