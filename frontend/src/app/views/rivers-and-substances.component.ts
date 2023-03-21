@@ -17,23 +17,32 @@ const MATERIAL_MODULES = [
   imports: [CommonModule, ...MATERIAL_MODULES],
   selector: 'app-rivers-and-substances',
   template: `
-    <mat-toolbar class="gap-2 width-auto m-3" style="border-radius: 1rem">
-      <button
-        mat-mini-fab
-        color="primary"
-        class="mr-auto"
-        style="border-radius: 1rem;"
-      >
-        <mat-icon>add</mat-icon>
-      </button>
-      <button mat-mini-fab color="accent">
-        <mat-icon>plus_one</mat-icon>
-      </button>
-      <button mat-mini-fab color="accent">
-        <mat-icon>plus_one</mat-icon>
-      </button>
-    </mat-toolbar>
-    <div class="text-align-center p-5">Rivers & Substances Page</div>
+    <div class="height-full display-flex flex-direction-column">
+      <mat-toolbar class="gap-2 width-auto m-3" style="border-radius: 1rem">
+        <button
+          mat-mini-fab
+          color="primary"
+          class="mr-auto"
+          style="border-radius: 1rem;"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
+      </mat-toolbar>
+      <div class="flex-auto display-flex flex-wrap flex-wrap">
+        <div
+          class="display-flex align-items-center justify-content-center"
+          style="flex: 1; font-size: 2rem; color: white; background-color: red"
+        >
+          Rivers HERE
+        </div>
+        <div
+          class="display-flex align-items-center justify-content-center"
+          style="flex: 1; font-size: 2rem; color: white; background-color: green"
+        >
+          Substances HERE
+        </div>
+      </div>
+    </div>
   `,
 })
 export class RiversAndSubstancesComponent {}

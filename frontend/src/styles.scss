@@ -26,6 +26,10 @@ body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
 }
 
+.mat-mdc-tab-body-wrapper {
+  height: 100%;
+}
+
 /*---------------------*/
 
 .width-full {
@@ -46,6 +50,10 @@ body {
 
 .flex-direction-column {
   flex-direction: column !important;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
 }
 
 .align-items-center {

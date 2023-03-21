@@ -17,23 +17,32 @@ const MATERIAL_MODULES = [
   imports: [CommonModule, ...MATERIAL_MODULES],
   selector: 'app-chart',
   template: `
-    <mat-toolbar class="gap-2 width-auto m-3" style="border-radius: 1rem">
-      <button
-        mat-mini-fab
-        color="primary"
-        class="mr-auto"
-        style="border-radius: 1rem;"
-      >
-        <mat-icon>add</mat-icon>
-      </button>
-      <button mat-mini-fab color="accent">
-        <mat-icon>plus_one</mat-icon>
-      </button>
-      <button mat-mini-fab color="accent">
-        <mat-icon>plus_one</mat-icon>
-      </button>
-    </mat-toolbar>
-    <div class="text-align-center p-5">Chart Page</div>
+    <div class="height-full display-flex flex-direction-column">
+      <mat-toolbar class="gap-2 width-auto m-3" style="border-radius: 1rem">
+        <button
+          mat-mini-fab
+          color="primary"
+          class="mr-auto"
+          style="border-radius: 1rem;"
+        >
+          <mat-icon>add</mat-icon>
+        </button>
+      </mat-toolbar>
+      <div class="flex-auto display-flex flex-wrap flex-wrap">
+        <div
+          class="display-flex align-items-center justify-content-center"
+          style="flex: 3; font-size: 2rem;color: white; background-color: green"
+        >
+          Chart HERE
+        </div>
+        <div
+          class="display-flex align-items-center justify-content-center"
+          style="flex: 2; font-size: 2rem; color: white; background-color: blue"
+        >
+          Calculations HERE
+        </div>
+      </div>
+    </div>
   `,
 })
 export class ChartComponent {}

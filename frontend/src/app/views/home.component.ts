@@ -14,7 +14,7 @@ const VIEWS = [ChartComponent, MapComponent, RiversAndSubstancesComponent];
   imports: [CommonModule, ...MATERIAL_MODULES, ...VIEWS],
   selector: 'app-home',
   template: `
-    <mat-tab-group class="flex-auto">
+    <mat-tab-group class="height-full">
       <mat-tab label="Rivers & Substances">
         <ng-template matTabContent>
           <app-rivers-and-substances></app-rivers-and-substances>

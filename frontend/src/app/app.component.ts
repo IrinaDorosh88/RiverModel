@@ -38,7 +38,7 @@ import { User, USER_INITIALIZER_PROVIDER } from '@app/features/user';
     <app-loader></app-loader>
     <div class="height-full display-flex flex-direction-column">
       <mat-toolbar class="gap-3 flex-shrink-0" color="primary">
-        <span class="mr-auto">LOGO HERE</span>
+        <span class="mr-auto">Logo HERE</span>
         <ng-template
           [ngIf]="user$ | async"
           [ngIfElse]="nonAuthorizedUserButtons"
