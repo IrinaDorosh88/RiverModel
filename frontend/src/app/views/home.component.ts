@@ -30,7 +30,11 @@ export const HOME_TOOLBAR_ACTION$$ = new Subject<{
   selector: 'app-home',
   template: `
     <div class="height-full display-flex flex-direction-column">
-      <div class="p-3 display-flex gap-2" [ngSwitch]="selectedTabIndex">
+      <div
+        class="p-3 display-flex gap-2"
+        style="min-height: 5rem"
+        [ngSwitch]="selectedTabIndex"
+      >
         <ng-container *ngSwitchCase="0">
           <button
             mat-mini-fab
@@ -40,21 +44,20 @@ export const HOME_TOOLBAR_ACTION$$ = new Subject<{
           >
             <mat-icon>add</mat-icon>
           </button>
-        </ng-container>
-        <ng-container *ngSwitchCase="1">
           <button
             mat-mini-fab
-            color="accent"
+            color="warn"
             style="border-radius: 1rem;"
             (click)="onToolbarActionInvoked('CREATE')"
           >
             <mat-icon>add</mat-icon>
           </button>
         </ng-container>
+        <ng-container *ngSwitchCase="1"></ng-container>
         <ng-container *ngSwitchCase="2">
           <button
             mat-mini-fab
-            color="warn"
+            color="accent"
             style="border-radius: 1rem;"
             (click)="onToolbarActionInvoked('CREATE')"
           >
