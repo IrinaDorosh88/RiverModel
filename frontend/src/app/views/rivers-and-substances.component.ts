@@ -11,18 +11,31 @@ import { HOME_TOOLBAR_ACTION$$ } from './home.component';
   imports: [CommonModule, ...MATERIAL_MODULES],
   selector: 'app-rivers-and-substances',
   template: `
-    <div class="height-full display-flex flex-wrap">
+    <div
+      class="height-full p-5 display-flex flex-wrap gap-5"
+      style="overflow-y: auto;"
+    >
       <div
-        class="display-flex align-items-center justify-content-center"
-        style="flex: 1; font-size: 2rem; color: white; background-color: red"
+        class="height-full"
+        style="flex: 1; border: 0.5rem solid #fff; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"
       >
-        Rivers HERE
+        <div
+          class="height-full display-flex align-items-center justify-content-center"
+          style="font-size: 2rem; color: white; background-color: red"
+        >
+          Rivers HERE
+        </div>
       </div>
       <div
-        class="display-flex align-items-center justify-content-center"
-        style="flex: 1; font-size: 2rem; color: white; background-color: green"
+        class="height-full"
+        style="flex: 1; border: 0.5rem solid #fff; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"
       >
-        Substances HERE
+        <div
+          class="height-full display-flex align-items-center justify-content-center"
+          style="font-size: 2rem; color: white; background-color: green"
+        >
+          Substances HERE
+        </div>
       </div>
     </div>
   `,

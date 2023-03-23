@@ -30,13 +30,25 @@ const COUNTRIES = [
   imports: [CommonModule, ...MATERIAL_MODULES],
   selector: 'app-map',
   template: `
-    <div class="height-full display-flex flex-wrap">
-      <div #map style="flex: 3;"></div>
+    <div
+      class="height-full p-5 display-flex flex-wrap gap-5"
+      style="overflow-y: auto;"
+    >
       <div
-        class="display-flex align-items-center justify-content-center"
-        style="flex: 2; font-size: 2rem; color: white; background-color: red"
+        #map
+        class="height-full"
+        style="flex: 3; border: 0.5rem solid #fff; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"
+      ></div>
+      <div
+        class="height-full"
+        style="flex: 2; border: 0.5rem solid #fff; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"
       >
-        Markers HERE
+        <div
+          class="height-full display-flex align-items-center justify-content-center"
+          style="font-size: 2rem; color: white; background-color: red"
+        >
+          Markers HERE
+        </div>
       </div>
     </div>
   `,
@@ -66,6 +78,7 @@ export class MapComponent {
     //   style: `https://api.maptiler.com/maps/streets-v2/style.json?key=n88LfTJPWSHvvGGIETtw`,
     //   center: [initialState.lng, initialState.lat],
     //   zoom: initialState.zoom,
+    //   attributionControl: false,
     // });
     // this.map.on('load', (e) => {
     //   COUNTRIES.forEach((item) => {
