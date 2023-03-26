@@ -1,27 +1,22 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
-import { Map, Marker, Popup } from 'maplibre-gl';
+import { LngLatLike, Map, Marker, Popup } from 'maplibre-gl';
 
-const MATERIAL_MODULES: any[] = [];
+import { MatButtonModule } from '@angular/material/button';
+import { MatIconModule } from '@angular/material/icon';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+const MATERIAL_MODULES = [
+  MatButtonModule,
+  MatIconModule,
+  MatProgressSpinnerModule,
+];
 
-import { TOOLBAR_ACTION$$ } from '@app/views/toolbar';
-
-const COUNTRIES = [
+const MARKERS = [
   {
-    country: 'Albania',
-    latitude: 41,
-    longitude: 20,
-  },
-  {
-    country: 'Algeria',
-    latitude: 28,
-    longitude: 3,
-  },
-  {
-    country: 'American Samoa',
-    latitude: -14.3333,
-    longitude: -170,
+    country: 'Chernivtsi',
+    lng: 25.94034,
+    lat: 48.29149,
   },
 ];
 
@@ -35,7 +30,7 @@ const COUNTRIES = [
         class="height-full p-2 background-color-white"
         style="flex: 3; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"
       >
-        <div #map class="height-full"></div>
+        <div #mapContainer class="height-full"></div>
       </div>
       <div
         class="height-full p-2 background-color-white"
@@ -52,68 +47,126 @@ const COUNTRIES = [
   `,
 })
 export class MapComponent {
-  private readonly TOOLBAR_ACTION_MAPPER: {
-    [key: string]: (...params: any) => void;
-  } = {
-    CREATE: this.onCreateClick.bind(this),
-  };
-
-  @ViewChild('map')
+  @ViewChild('mapContainer')
   private mapContainer!: ElementRef<HTMLElement>;
+
+  // private readonly TOOLBAR_ACTION_MAPPER: {
+  //   [key: string]: (...params: any) => void;
+  // } = {};
   private map!: Map;
+  private popup: Popup;
+
+  constructor() {
+    this.popup = new Popup({ closeButton: false, closeOnClick: false });
+  }
 
   public ngOnInit() {
-    this.subscription = TOOLBAR_ACTION$$.subscribe({
-      next: ({ key, params }) => this.TOOLBAR_ACTION_MAPPER[key](...params),
-    });
+    // this.subscription = TOOLBAR_ACTION$$.subscribe({
+    //   next: ({ key, params }) => this.TOOLBAR_ACTION_MAPPER[key]?.(...params),
+    // });
   }
 
   ngAfterViewInit() {
-    // const initialState = { lng: 31.1828699, lat: 48.383022, zoom: 5.7 };
-    // this.map = new Map({
-    //   container: this.mapContainer.nativeElement,
-    //   style: `https://api.maptiler.com/maps/streets-v2/style.json?key=n88LfTJPWSHvvGGIETtw`,
-    //   center: [initialState.lng, initialState.lat],
-    //   zoom: initialState.zoom,
-    //   attributionControl: false,
-    // });
-    // this.map.on('load', (e) => {
-    //   COUNTRIES.forEach((item) => {
-    //     const marker = new Marker().setLngLat([item.longitude, item.latitude]);
-    //     marker.getElement().addEventListener('click', (e) => {
-    //       e.stopPropagation();
-    //       console.log({
-    //         layer: 'Marker',
-    //         lngLat: { lng: item.longitude, lat: item.latitude },
-    //       });
-    //       marker.remove();
-    //     });
-    //     marker.addTo(this.map);
-    //   });
-    // });
-    // this.map.on('click', (e) => {
-    //   console.log({ layer: 'Map', lngLat: e.lngLat });
-    //   const popup = new Popup();
-    //   const buttonE = document.createElement('button');
-    //   buttonE.textContent = 'Click Me';
-    //   buttonE.addEventListener('click', () => {
-    //     this.onCreateMarkerClick(e.lngLat);
-    //     popup._closeButton.click();
-    //   });
-    //   popup.setLngLat(e.lngLat).setDOMContent(buttonE).addTo(this.map);
-    // });
+    const initialState = { lng: 31.1828699, lat: 48.383022, zoom: 5.7 };
+    this.map = new Map({
+      container: this.mapContainer.nativeElement,
+      style: `https://api.maptiler.com/maps/streets-v2/style.json?key=n88LfTJPWSHvvGGIETtw`,
+      center: [initialState.lng, initialState.lat],
+      zoom: initialState.zoom,
+      attributionControl: false,
+    })
+      .on('load', () => {
+        MARKERS.forEach((item) => {
+          const marker = new Marker().setLngLat(item);
+          marker.addTo(this.map);
+          marker.getElement().addEventListener('click', (e) => {
+            e.stopPropagation();
+            this.openPopup(item);
+          });
+        });
+      })
+      .on('click', (e) => {
+        this.openPopup(e.lngLat, true);
+      });
   }
 
-  private subscription!: Subscription;
+  // private subscription!: Subscription;
   public ngOnDestroy(): void {
-    this.subscription.unsubscribe();
-  }
-
-  private onCreateClick() {
-    console.log('Hello from Map!');
+    // this.subscription.unsubscribe();
   }
 
   public onCreateMarkerClick(coordinates: { lng: number; lat: number }) {
     console.log('Create new Marker!', coordinates);
+  }
+
+  private openPopup(lngLat: LngLatLike, creation?: true | undefined) {
+    this.popup
+      .setLngLat(lngLat)
+      .setDOMContent(this.getPopupContent(lngLat, creation))
+      .addTo(this.map);
+  }
+
+  private closePopup() {
+    this.popup.remove();
+  }
+
+  private getPopupContent(
+    context: any,
+    creation?: true | undefined
+  ): HTMLElement {
+    if (creation) {
+      const result = this.getButton('add');
+      result.addEventListener('click', () => {
+        this.closePopup();
+        this.onCreateClick(context);
+      });
+      return result;
+    } else {
+      const buttonE1 = this.getButton('edit');
+      buttonE1.addEventListener('click', () => {
+        this.closePopup();
+        this.onEditClick(context);
+      });
+      const buttonE2 = this.getButton('delete');
+      buttonE2.addEventListener('click', () => {
+        this.closePopup();
+        this.onDeleteClick(context);
+      });
+      const result = document.createElement('div');
+      result.classList.add('display-flex', 'gap-2');
+      result.appendChild(buttonE1);
+      result.appendChild(buttonE2);
+      return result;
+    }
+  }
+
+  private getButton(type: 'add' | 'edit' | 'delete') {
+    const result = document.createElement('button');
+    result.textContent = type;
+    result.classList.add('material-icons', 'map-mini-fab-button');
+    switch (type) {
+      case 'add':
+        result.classList.add('background-color-primary');
+        break;
+      case 'edit':
+        result.classList.add('background-color-accent');
+        break;
+      case 'delete':
+        result.classList.add('background-color-warn');
+        break;
+    }
+    return result;
+  }
+
+  private onCreateClick(lngLat: LngLatLike) {
+    console.log({ CREATE: lngLat });
+  }
+
+  private onEditClick(item: any & LngLatLike) {
+    console.log({ EDIT: item });
+  }
+
+  private onDeleteClick(item: any & LngLatLike) {
+    console.log({ DELETE: item });
   }
 }
