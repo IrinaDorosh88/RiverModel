@@ -1,1 +1,3 @@
-export { ApiClient } from './api-client';
+export { AuthorizationService } from './authorization.service';
+export { RiversService, RiversServiceModel } from './rivers.service';
+export { SubstancesService, SubstancesServiceModel } from './substances.service';

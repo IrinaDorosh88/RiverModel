@@ -16,12 +16,12 @@ const MATERIAL_MODULES = [
   MatToolbarModule,
 ];
 
-import { AuthorizationComponent } from '@app/views/authorization.component';
-import { DescriptionComponent } from '@app/views/description.component';
-import { HomeComponent } from '@app/views/home.component';
+import { AuthorizationComponent } from '@app/views/authorization';
+import { DescriptionComponent } from '@app/views/description';
+import { HomeComponent } from '@app/views/home';
 const VIEWS = [AuthorizationComponent, DescriptionComponent, HomeComponent];
 
-import { AuthorizationService } from '@app/features/authorization';
+import { AuthorizationService } from '@app/features/api-client';
 import { ENVIRONMENT_INITIALIZER_PROVIDER } from '@app/features/environment-init';
 import { LoaderComponent, loaderInterceptorFn } from '@app/features/loading';
 import {

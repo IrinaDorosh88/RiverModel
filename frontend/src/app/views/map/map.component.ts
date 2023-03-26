@@ -5,7 +5,7 @@ import { Map, Marker, Popup } from 'maplibre-gl';
 
 const MATERIAL_MODULES: any[] = [];
 
-import { HOME_TOOLBAR_ACTION$$ } from './home.component';
+import { TOOLBAR_ACTION$$ } from '@app/views/toolbar';
 
 const COUNTRIES = [
   {
@@ -30,18 +30,16 @@ const COUNTRIES = [
   imports: [CommonModule, ...MATERIAL_MODULES],
   selector: 'app-map',
   template: `
-    <div
-      class="height-full p-5 display-flex flex-wrap gap-5"
-      style="overflow-y: auto;"
-    >
+    <div class="height-full p-5 display-flex flex-wrap gap-5 overflow-y-auto">
       <div
-        #map
-        class="height-full"
-        style="flex: 3; border: 0.5rem solid #fff; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"
-      ></div>
+        class="height-full p-2 background-color-white"
+        style="flex: 3; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"
+      >
+        <div #map class="height-full"></div>
+      </div>
       <div
-        class="height-full"
-        style="flex: 2; border: 0.5rem solid #fff; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"
+        class="height-full p-2 background-color-white"
+        style="flex: 2; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"
       >
         <div
           class="height-full display-flex align-items-center justify-content-center"
@@ -54,7 +52,7 @@ const COUNTRIES = [
   `,
 })
 export class MapComponent {
-  private readonly HOME_TOOLBAR_ACTION_MAPPER: {
+  private readonly TOOLBAR_ACTION_MAPPER: {
     [key: string]: (...params: any) => void;
   } = {
     CREATE: this.onCreateClick.bind(this),
@@ -65,9 +63,8 @@ export class MapComponent {
   private map!: Map;
 
   public ngOnInit() {
-    this.subscription = HOME_TOOLBAR_ACTION$$.subscribe({
-      next: ({ key, params }) =>
-        this.HOME_TOOLBAR_ACTION_MAPPER[key](...params),
+    this.subscription = TOOLBAR_ACTION$$.subscribe({
+      next: ({ key, params }) => this.TOOLBAR_ACTION_MAPPER[key](...params),
     });
   }
 

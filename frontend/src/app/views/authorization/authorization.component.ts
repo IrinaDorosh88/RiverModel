@@ -24,7 +24,7 @@ const MATERIAL_MODULES = [
   MatInputModule,
 ];
 
-import { AuthorizationService } from '@app/features/authorization';
+import { AuthorizationService } from '@app/features/api-client';
 import { NotificationService } from '@app/features/notification';
 import { User } from '@app/features/user';
 

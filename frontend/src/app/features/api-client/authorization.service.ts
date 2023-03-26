@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-
-import { ApiClient } from '@app/features/api-client';
 import { Observable, of } from 'rxjs';
+
+import { ApiClient } from './api-client';
 
 @Injectable({
   providedIn: 'root',

@@ -22,8 +22,10 @@ html,
 body {
   height: 100%;
 }
+
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #eee;
 }
 
 .mat-mdc-tab-body-wrapper {
@@ -92,6 +94,10 @@ body {
   background-color: white !important;
 }
 
+.p-2 {
+  padding: 0.5rem !important;
+}
+
 .p-3 {
   padding: 1rem !important;
 }
@@ -135,6 +141,10 @@ body {
 
 .text-align-center {
   text-align: center !important;
+}
+
+.overflow-y-auto {
+  overflow-y: auto;
 }
 
 .hover\:text-decoration-underline:hover {
