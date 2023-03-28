@@ -35,10 +35,10 @@ import { RiverFormComponent } from './river-form.component';
         <th *matHeaderCellDef mat-header-cell>Actions</th>
         <td *matCellDef="let item" mat-cell>
           <div class="display-flex gap-2">
-            <button mat-mini-fab color="accent" (click)="onEditClick(item)">
+            <button mat-mini-fab color="accent" (click)="onEditClicked(item)">
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-mini-fab color="warn" (click)="onDeleteClick(item)">
+            <button mat-mini-fab color="warn" (click)="onDeleteClicked(item)">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
@@ -67,7 +67,7 @@ export class RiversComponent implements OnInit, OnDestroy {
     private readonly service: RiversService
   ) {
     this.TOOLBAR_ACTION_MAPPER = {
-      NEW_RIVER: this.onCreateClick.bind(this),
+      NEW_RIVER: this.onCreateClicked.bind(this),
     };
     this.DISPLAYED_COLUMNS = ['index', 'name', 'actions'];
     this.DATA_SOURCE = new MatTableDataSource([] as any[]);
@@ -88,15 +88,15 @@ export class RiversComponent implements OnInit, OnDestroy {
     this.SUBSCRIPTIONS.unsubscribe();
   }
 
-  private onCreateClick() {
+  private onCreateClicked() {
     this.openDialog();
   }
 
-  public onEditClick(item: RiversServiceModel['getEntitiesResult']) {
+  public onEditClicked(item: RiversServiceModel['getEntitiesResult']) {
     this.openDialog(item);
   }
 
-  public onDeleteClick(item: RiversServiceModel['getEntitiesResult']) {
+  public onDeleteClicked(item: RiversServiceModel['getEntitiesResult']) {
     this.confirmationDialogService.open({
       title: `Delete ${item.name}`,
       confirmCallback: () => {

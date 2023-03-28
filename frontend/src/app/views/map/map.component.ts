@@ -26,16 +26,10 @@ const MARKERS = [
   selector: 'app-map',
   template: `
     <div class="height-full p-5 display-flex flex-wrap gap-5 overflow-y-auto">
-      <div
-        class="card-box-shadow p-2 background-color-white"
-        style="flex: 3;"
-      >
+      <div class="card-box-shadow p-2 background-color-white" style="flex: 3;">
         <div #mapContainer class="height-full"></div>
       </div>
-      <div
-        class="card-box-shadow p-2 background-color-white"
-        style="flex: 2;"
-      >
+      <div class="card-box-shadow p-2 background-color-white" style="flex: 2;">
         <div
           class="height-full display-flex align-items-center justify-content-center"
           style="font-size: 2rem; color: white; background-color: red"
@@ -115,58 +109,74 @@ export class MapComponent {
     creation?: true | undefined
   ): HTMLElement {
     if (creation) {
-      const result = this.getButton('add');
+      const result = this.getButton('add_location_alt');
       result.addEventListener('click', () => {
         this.closePopup();
-        this.onCreateClick(context);
+        this.onCreateClicked(context);
       });
       return result;
     } else {
-      const buttonE1 = this.getButton('edit');
+      const buttonE1 = this.getButton('edit_location_alt');
       buttonE1.addEventListener('click', () => {
         this.closePopup();
-        this.onEditClick(context);
+        this.onEditClicked(context);
       });
-      const buttonE2 = this.getButton('delete');
+      const buttonE2 = this.getButton('wrong_location');
       buttonE2.addEventListener('click', () => {
         this.closePopup();
-        this.onDeleteClick(context);
+        this.onDeleteClicked(context);
+      });
+      const buttonE3 = this.getButton('post_add');
+      buttonE3.addEventListener('click', () => {
+        this.closePopup();
+        this.onAddMeasurementsClicked(context);
       });
       const result = document.createElement('div');
       result.classList.add('display-flex', 'gap-2');
       result.appendChild(buttonE1);
       result.appendChild(buttonE2);
+      result.appendChild(buttonE3);
       return result;
     }
   }
 
-  private getButton(type: 'add' | 'edit' | 'delete') {
+  private getButton(
+    type:
+      | 'add_location_alt'
+      | 'edit_location_alt'
+      | 'wrong_location'
+      | 'post_add'
+  ) {
     const result = document.createElement('button');
     result.textContent = type;
     result.classList.add('material-icons', 'map-mini-fab-button');
     switch (type) {
-      case 'add':
-        result.classList.add('background-color-primary');
-        break;
-      case 'edit':
+      case 'edit_location_alt':
         result.classList.add('background-color-accent');
         break;
-      case 'delete':
+      case 'wrong_location':
         result.classList.add('background-color-warn');
+        break;
+      default:
+        result.classList.add('background-color-primary');
         break;
     }
     return result;
   }
 
-  private onCreateClick(lngLat: LngLatLike) {
+  private onCreateClicked(lngLat: LngLatLike) {
     console.log({ CREATE: lngLat });
   }
 
-  private onEditClick(item: any & LngLatLike) {
+  private onEditClicked(item: any & LngLatLike) {
     console.log({ EDIT: item });
   }
 
-  private onDeleteClick(item: any & LngLatLike) {
+  private onDeleteClicked(item: any & LngLatLike) {
     console.log({ DELETE: item });
+  }
+
+  private onAddMeasurementsClicked(item: any & LngLatLike) {
+    console.log({ ADD_MEASUREMENTS: item });
   }
 }

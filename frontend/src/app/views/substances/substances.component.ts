@@ -43,10 +43,10 @@ import { TOOLBAR_ACTION$$ } from '@app/views/toolbar';
         <th *matHeaderCellDef mat-header-cell>Actions</th>
         <td *matCellDef="let item" mat-cell>
           <div class="display-flex gap-2">
-            <button mat-mini-fab color="accent" (click)="onEditClick(item)">
+            <button mat-mini-fab color="accent" (click)="onEditClicked(item)">
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-mini-fab color="warn" (click)="onDeleteClick(item)">
+            <button mat-mini-fab color="warn" (click)="onDeleteClicked(item)">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
@@ -65,7 +65,7 @@ export class SubstancesComponent implements OnInit, OnDestroy {
   private readonly TOOLBAR_ACTION_MAPPER: {
     [key: string]: (...params: any) => void;
   } = {
-    NEW_SUBSTANCE: this.onCreateClick.bind(this),
+    NEW_SUBSTANCE: this.onCreateClicked.bind(this),
   };
 
   constructor(
@@ -90,15 +90,15 @@ export class SubstancesComponent implements OnInit, OnDestroy {
     this.subscription.unsubscribe();
   }
 
-  private onCreateClick() {
+  private onCreateClicked() {
     console.log({ CREATE: 'Hello from SUBSTANCES!' });
   }
 
-  public onEditClick(item: any) {
+  public onEditClicked(item: any) {
     console.log({ EDIT: item });
   }
 
-  public onDeleteClick(item: any) {
+  public onDeleteClicked(item: any) {
     this.confirmationDialogService.open({
       title: `${item.name} Substance`,
       confirmCallback: () => {

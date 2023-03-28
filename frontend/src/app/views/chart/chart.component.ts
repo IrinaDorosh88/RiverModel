@@ -41,7 +41,7 @@ export class ChartComponent {
   private readonly TOOLBAR_ACTION_MAPPER: {
     [key: string]: (...params: any[]) => void;
   } = {
-    CREATE: this.onCreateClick.bind(this),
+    CREATE: this.onCreateClicked.bind(this),
   };
 
   public ngOnInit() {
@@ -55,7 +55,7 @@ export class ChartComponent {
     this.subscription.unsubscribe();
   }
 
-  private onCreateClick() {
+  private onCreateClicked() {
     console.log('Hello from Chart!');
   }
 }
