@@ -25,11 +25,20 @@ body {
 
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-color: #eee;
 }
 
 .mat-mdc-tab-body-wrapper {
   height: 100%;
+}
+
+// custom
+
+body {
+  background-color: #eee;
+}
+
+.card-box-shadow {
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 
 .background-color-primary {
@@ -50,6 +59,7 @@ button.map-mini-fab-button {
   border: none;
   border-radius: 50%;
   color: white;
+  cursor: pointer;
 }
 
 /*---------------------*/
@@ -88,6 +98,10 @@ button.map-mini-fab-button {
 
 .justify-content-space-between {
   justify-content: space-between !important;
+}
+
+.justify-content-end {
+  justify-content: end !important;
 }
 
 .gap-2 {

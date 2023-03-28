@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { of, Subscription, tap } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -8,6 +8,8 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 const MATERIAL_MODULES = [MatButtonModule, MatIconModule, MatTableModule];
 
 import { SubstancesService } from '@app/features/api-client';
+import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
+import { NotificationService } from '@app/features/notification';
 
 import { TOOLBAR_ACTION$$ } from '@app/views/toolbar';
 
@@ -66,7 +68,11 @@ export class SubstancesComponent implements OnInit, OnDestroy {
     NEW_SUBSTANCE: this.onCreateClick.bind(this),
   };
 
-  constructor(private service: SubstancesService) {
+  constructor(
+    private confirmationDialogService: ConfirmationDialogService,
+    private notificationService: NotificationService,
+    private service: SubstancesService
+  ) {
     this.displayedColumns = ['index', 'name', 'weight', 'symbol', 'actions'];
     this.dataSource = new MatTableDataSource([] as any);
   }
@@ -93,14 +99,23 @@ export class SubstancesComponent implements OnInit, OnDestroy {
   }
 
   public onDeleteClick(item: any) {
-    console.log({ DELETE: item });
+    this.confirmationDialogService.open({
+      title: `${item.name} Substance`,
+      confirmCallback: () => {
+        return this.service.deleteEntity(item.id).pipe(
+          tap(() => {
+            this.notificationService.notify(`${item.name} successfully deleted!`);
+          })
+        );
+      },
+    });
   }
 
   private refreshEntities() {
     this.service.getEntities().subscribe({
-      next: data => {
+      next: (data) => {
         this.dataSource.data = data;
-      }
-    })
+      },
+    });
   }
 }

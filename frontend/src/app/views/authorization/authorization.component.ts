@@ -33,19 +33,24 @@ import { User } from '@app/features/user';
   imports: [CommonModule, ReactiveFormsModule, ...MATERIAL_MODULES],
   selector: 'app-login',
   template: `
-    <form class="background-color-white" [formGroup]="formGroup">
+    <form
+      spellcheck="false"
+      class="background-color-white"
+      [formGroup]="FORM_GROUP"
+    >
       <h2 mat-dialog-title>{{ register ? 'SIGN UP' : 'SIGN IN' }}</h2>
 
       <div mat-dialog-content>
-        <mat-form-field class="width-full" appearance="fill">
+        <mat-form-field class="width-full">
           <mat-label>Email</mat-label>
           <input matInput formControlName="email" />
-          <mat-error *ngIf="formGroup.controls['email'].invalid">{{
-            formGroup.controls['email'].errors!['email'] ?? 'Email is required.'
+          <mat-error *ngIf="FORM_GROUP.controls['email'].invalid">{{
+            FORM_GROUP.controls['email'].errors!['email'] ??
+              'Email is required.'
           }}</mat-error>
         </mat-form-field>
 
-        <mat-form-field class="width-full" appearance="fill">
+        <mat-form-field class="width-full">
           <mat-label>Password</mat-label>
           <input
             matInput
@@ -55,12 +60,12 @@ import { User } from '@app/features/user';
           <mat-icon matSuffix (click)="passwordHidden = !passwordHidden">{{
             passwordHidden ? 'visibility_off' : 'visibility'
           }}</mat-icon>
-          <mat-error *ngIf="formGroup.controls['password'].invalid"
+          <mat-error *ngIf="FORM_GROUP.controls['password'].invalid"
             >Password is required.</mat-error
           >
         </mat-form-field>
 
-        <mat-form-field *ngIf="register" class="width-full" appearance="fill">
+        <mat-form-field *ngIf="register" class="width-full">
           <mat-label>Confirm</mat-label>
           <input
             matInput
@@ -70,9 +75,9 @@ import { User } from '@app/features/user';
           <mat-icon matSuffix (click)="confirmHidden = !confirmHidden">{{
             confirmHidden ? 'visibility_off' : 'visibility'
           }}</mat-icon>
-          <mat-error *ngIf="formGroup.controls['confirm'].invalid">
+          <mat-error *ngIf="FORM_GROUP.controls['confirm'].invalid">
             {{
-              formGroup.controls['confirm'].errors!['required']
+              FORM_GROUP.controls['confirm'].errors!['required']
                 ? 'Passwords confirm is required.'
                 : 'Passwords do not match.'
             }}
@@ -91,8 +96,8 @@ import { User } from '@app/features/user';
           mat-flat-button
           color="primary"
           type="submit"
-          [disabled]="formGroup.invalid"
-          (click)="onSubmitClick(formGroup.value)"
+          [disabled]="FORM_GROUP.invalid || isFormSubmitted"
+          (click)="onSubmitClick(FORM_GROUP.value)"
         >
           Submit
         </button>
@@ -102,24 +107,29 @@ import { User } from '@app/features/user';
   `,
 })
 export class AuthorizationComponent implements OnInit {
-  public passwordHidden: boolean = true;
-  public confirmHidden: boolean = true;
+  public isFormSubmitted: boolean;
+  public passwordHidden: boolean;
+  public confirmHidden: boolean;
 
+  public FORM_GROUP!: FormGroup;
   public register!: boolean;
-  public formGroup!: FormGroup;
 
   constructor(
     @Inject(MAT_DIALOG_DATA) private data: { register: boolean } | undefined,
     private dialogRef: MatDialogRef<AuthorizationComponent>,
     private notificationService: NotificationService,
-    private service: AuthorizationService,
-  ) {}
+    private service: AuthorizationService
+  ) {
+    this.isFormSubmitted = false;
+    this.passwordHidden = true;
+    this.confirmHidden = true;
+  }
 
   public ngOnInit() {
     this.register = this.data?.register ?? false;
 
     const fb = new FormBuilder();
-    this.formGroup = fb.group(
+    this.FORM_GROUP = fb.group(
       {
         email: fb.control('', Validators.required),
         password: fb.control('', Validators.required),
@@ -129,14 +139,14 @@ export class AuthorizationComponent implements OnInit {
         ),
       },
       {
-        validators: (formGroup: FormGroup) => {
+        validators: (FORM_GROUP: FormGroup) => {
           if (
-            formGroup.controls['confirm'].enabled &&
-            formGroup.controls['confirm'].value !== ''
+            FORM_GROUP.controls['confirm'].enabled &&
+            FORM_GROUP.controls['confirm'].value !== ''
           ) {
-            formGroup.controls['confirm'].setErrors(
-              formGroup.controls['confirm'].value !==
-                formGroup.controls['password'].value
+            FORM_GROUP.controls['confirm'].setErrors(
+              FORM_GROUP.controls['confirm'].value !==
+                FORM_GROUP.controls['password'].value
                 ? { notMatch: true }
                 : null
             );
@@ -148,11 +158,12 @@ export class AuthorizationComponent implements OnInit {
 
   public onAuthorizationTypeToggle() {
     this.register = !this.register;
-    this.formGroup.controls['confirm'].reset('');
-    this.formGroup.controls['confirm'][this.register ? 'enable' : 'disable']();
+    this.FORM_GROUP.controls['confirm'].reset('');
+    this.FORM_GROUP.controls['confirm'][this.register ? 'enable' : 'disable']();
   }
 
   public onSubmitClick(model: { email: string; password: string }) {
+    this.isFormSubmitted = true;
     if (this.register) {
       this.service.register(model).subscribe({
         next: () => {
@@ -161,8 +172,9 @@ export class AuthorizationComponent implements OnInit {
         },
         error: (error) => {
           Object.entries(error.error).forEach(([key, value]) => {
-            this.formGroup.controls[key].setErrors({ [key]: value });
+            this.FORM_GROUP.controls[key].setErrors({ [key]: value });
           });
+          this.isFormSubmitted = false;
         },
       });
     } else {
@@ -175,6 +187,7 @@ export class AuthorizationComponent implements OnInit {
         },
         error: () => {
           this.notificationService.notify('Invalid credentials!');
+          this.isFormSubmitted = false;
         },
       });
     }

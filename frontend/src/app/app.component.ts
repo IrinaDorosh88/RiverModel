@@ -71,7 +71,7 @@ export class AppComponent implements OnInit {
   public user$!: Observable<User | undefined>;
 
   constructor(
-    private dialog: MatDialog,
+    private matDialog: MatDialog,
     private authorizationService: AuthorizationService,
     private notificationService: NotificationService
   ) {}
@@ -98,8 +98,8 @@ export class AppComponent implements OnInit {
   }
 
   private openAuthorizationDialog(data?: any) {
-    this.dialog.open(AuthorizationComponent, {
-      maxWidth: '400px',
+    this.matDialog.open(AuthorizationComponent, {
+      width: '400px',
       data,
     });
   }
@@ -112,5 +112,6 @@ export const APP_CONFIG: ApplicationConfig = {
     ENVIRONMENT_INITIALIZER_PROVIDER,
     USER_INITIALIZER_PROVIDER,
     ...NOTIFICATION_PROVIDERS,
+    importProvidersFrom(MatDialogModule),
   ],
 };

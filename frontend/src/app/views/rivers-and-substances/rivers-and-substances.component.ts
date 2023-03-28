@@ -11,14 +11,14 @@ const VIEWS = [RiversComponent, SubstancesComponent];
   template: `
     <div class="height-full p-5 display-flex flex-wrap gap-5 overflow-y-auto">
       <div
-        class="height-full p-2 background-color-white"
-        style="flex: 2; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"
+        class="card-box-shadow p-2 background-color-white"
+        style="flex: 2;"
       >
         <app-rivers></app-rivers>
       </div>
       <div
-        class="height-full p-2 background-color-white"
-        style="flex: 3; box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;"
+        class="card-box-shadow p-2 background-color-white"
+        style="flex: 3;"
       >
         <app-substances></app-substances>
       </div>
