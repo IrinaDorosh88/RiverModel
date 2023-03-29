@@ -34,7 +34,7 @@ const MARKERS = [
           class="height-full display-flex align-items-center justify-content-center"
           style="font-size: 2rem; color: white; background-color: red"
         >
-          Markers HERE
+          Measurements HERE
         </div>
       </div>
     </div>
