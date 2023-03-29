@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 const MATERIAL_MODULES = [MatButtonModule, MatIconModule, MatTableModule];
 
-import { RiversService, RiversCRUDModel } from '@app/features/api-client';
+import { RiverService, RiverCRUDModel } from '@app/features/api-client';
 import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
 import { NotificationService } from '@app/features/notification';
 
@@ -51,26 +51,20 @@ import { RiverFormComponent } from './river-form.component';
   `,
 })
 export class RiversComponent implements OnInit, OnDestroy {
-  private readonly TOOLBAR_ACTION_MAPPER: {
-    [key: string]: (...params: any) => void;
-  };
-  public readonly DISPLAYED_COLUMNS: string[];
-  public readonly DATA_SOURCE: MatTableDataSource<
-    RiversCRUDModel['getEntitiesResult']
-  >;
-  private readonly SUBSCRIPTIONS: Subscription;
+  public readonly DISPLAYED_COLUMNS;
+  public readonly DATA_SOURCE;
+  private readonly SUBSCRIPTIONS;
 
   constructor(
     private readonly matDialog: MatDialog,
     private readonly confirmationDialogService: ConfirmationDialogService,
     private readonly notificationService: NotificationService,
-    private readonly service: RiversService
+    private readonly service: RiverService
   ) {
-    this.TOOLBAR_ACTION_MAPPER = {
-      NEW_RIVER: this.onCreateClicked.bind(this),
-    };
     this.DISPLAYED_COLUMNS = ['index', 'name', 'actions'];
-    this.DATA_SOURCE = new MatTableDataSource([] as any[]);
+    this.DATA_SOURCE = new MatTableDataSource<
+      RiverCRUDModel['getEntitiesResult']
+    >([]);
     this.SUBSCRIPTIONS = new Subscription();
   }
 
@@ -79,7 +73,13 @@ export class RiversComponent implements OnInit, OnDestroy {
 
     this.SUBSCRIPTIONS.add(
       TOOLBAR_ACTION$$.subscribe({
-        next: ({ key, params }) => this.TOOLBAR_ACTION_MAPPER[key]?.(...params),
+        next: ({ key }) => {
+          switch (key) {
+            case 'NEW_RIVER':
+              this.onCreateClicked();
+              break;
+          }
+        },
       })
     );
   }
@@ -92,11 +92,11 @@ export class RiversComponent implements OnInit, OnDestroy {
     this.openDialog();
   }
 
-  public onEditClicked(item: RiversCRUDModel['getEntitiesResult']) {
+  public onEditClicked(item: RiverCRUDModel['getEntitiesResult']) {
     this.openDialog(item);
   }
 
-  public onDeleteClicked(item: RiversCRUDModel['getEntitiesResult']) {
+  public onDeleteClicked(item: RiverCRUDModel['getEntitiesResult']) {
     this.confirmationDialogService.open({
       title: `Delete ${item.name}`,
       confirmCallback: () => {
@@ -111,24 +111,15 @@ export class RiversComponent implements OnInit, OnDestroy {
     });
   }
 
-  private refreshEntities() {
-    this.service.getEntities().subscribe({
-      next: (data) => {
-        this.DATA_SOURCE.data = data;
-      },
-    });
-  }
-
   private openDialog(data?: any) {
     this.matDialog
-      .open<
+      .open<RiverFormComponent, RiverCRUDModel['getEntitiesResult'], boolean>(
         RiverFormComponent,
-        RiversCRUDModel['getEntitiesResult'],
-        boolean
-      >(RiverFormComponent, {
-        width: '400px',
-        data,
-      })
+        {
+          width: '400px',
+          data,
+        }
+      )
       .afterClosed()
       .subscribe({
         next: (next) => {
@@ -137,5 +128,13 @@ export class RiversComponent implements OnInit, OnDestroy {
           }
         },
       });
+  }
+
+  private refreshEntities() {
+    this.service.getEntities().subscribe({
+      next: (data) => {
+        this.DATA_SOURCE.data = data;
+      },
+    });
   }
 }

@@ -4,14 +4,14 @@ import { delay, Observable, of } from 'rxjs';
 import { HttpClientQueryParams } from '@app/features/http-client-extensions';
 import { CRUDApiClient, CRUDApiClientModel } from './crud-api-client';
 
-export interface RiversCRUDModel extends CRUDApiClientModel {
+export interface RiverCRUDModel extends CRUDApiClientModel {
   getEntitiesResult: { id: number; name: string };
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class RiversService extends CRUDApiClient<RiversCRUDModel> {
+export class RiverService extends CRUDApiClient<RiverCRUDModel> {
   constructor() {
     super('rivers');
   }

@@ -1,12 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Observable, tap } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -22,7 +16,7 @@ const MATERIAL_MODULES = [
   MatInputModule,
 ];
 
-import { RiverCRUDModel, RiverService } from '@app/features/api-client';
+import { SubstanceCRUDModel, SubstanceService } from '@app/features/api-client';
 import { NotificationService } from '@app/features/notification';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -42,6 +36,32 @@ import { MatInputModule } from '@angular/material/input';
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
+        <mat-form-field class="width-full">
+          <mat-label>Min</mat-label>
+          <input matInput type="number" formControlName="min" [attr.min]="0" />
+          <mat-error *ngIf="FORM_GROUP.controls['min'].errors as errors">
+            {{ errors['message'] }}
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="width-full">
+          <mat-label>Max</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="max"
+            [attr.min]="FORM_GROUP.controls['min'].value"
+          />
+          <mat-error *ngIf="FORM_GROUP.controls['max'].errors as errors">
+            {{ errors['message'] }}
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="width-full">
+          <mat-label>Unit</mat-label>
+          <input matInput formControlName="unit" />
+          <mat-error *ngIf="FORM_GROUP.controls['unit'].errors as errors">
+            {{ errors['message'] }}
+          </mat-error>
+        </mat-form-field>
       </div>
       <div mat-dialog-actions class="justify-content-end gap-2">
         <button
@@ -58,28 +78,56 @@ import { MatInputModule } from '@angular/material/input';
     </form>
   `,
 })
-export class RiverFormComponent implements OnInit {
+export class SubstanceFormComponent implements OnInit {
   public readonly FORM_GROUP: FormGroup;
-
-  public TITLE!: string;
-  public SUBMIT_BUTTON_COLOR!: string;
-  private HANDLE_ENTITY!: () => Observable<any>;
-
   public isFormSubmitted: boolean;
 
+  public TITLE!: string;
+  public SUBMIT_BUTTON_COLOR!: 'primary' | 'accent';
+  private HANDLE_ENTITY!: () => Observable<any>;
+
   constructor(
-    private dialogRef: MatDialogRef<RiverFormComponent>,
+    private dialogRef: MatDialogRef<SubstanceFormComponent>,
     @Inject(MAT_DIALOG_DATA)
-    private data: RiverCRUDModel['getEntitiesResult'] | undefined,
+    private data: SubstanceCRUDModel['getEntitiesResult'] | undefined,
     private notificationService: NotificationService,
-    private service: RiverService
+    private service: SubstanceService
   ) {
     const fb = new FormBuilder();
-    this.FORM_GROUP = fb.group({
-      name: fb.control('', (name) =>
-        name.value === '' ? { message: 'Name is required.' } : null
-      ),
-    });
+    this.FORM_GROUP = fb.group(
+      {
+        name: fb.control('', (name) =>
+          name.value === '' ? { message: 'Name is required.' } : null
+        ),
+        min: fb.control(0),
+        max: fb.control(0),
+        unit: fb.control('', (unit) =>
+          unit.value === '' ? { message: 'Unit is required.' } : null
+        ),
+      },
+      {
+        validators: (formGroup: FormGroup) => {
+          const { min, max } = formGroup.controls;
+          // Min
+          let minValue = min.value;
+          if (min.value == null || Number.isNaN(+min.value)) {
+            min.setErrors({ message: 'Min must be a number.' });
+            minValue = 0;
+          } else if (min.value < 0) {
+            min.setErrors({ message: 'Min must be greater or equal to 0.' });
+            minValue = 0;
+          }
+          // Max
+          if (max.value == null || Number.isNaN(+max.value)) {
+            max.setErrors({ message: 'Max must be a number.' });
+          } else if (max.value < minValue) {
+            max.setErrors({
+              message: `Min must be greater or equal to ${minValue}.`,
+            });
+          }
+        },
+      }
+    );
     this.isFormSubmitted = false;
   }
 
@@ -90,7 +138,7 @@ export class RiverFormComponent implements OnInit {
       this.SUBMIT_BUTTON_COLOR = 'accent';
       this.HANDLE_ENTITY = this.putEntity;
     } else {
-      this.TITLE = `New River`;
+      this.TITLE = `New Substance`;
       this.SUBMIT_BUTTON_COLOR = 'primary';
       this.HANDLE_ENTITY = this.postEntity;
     }
