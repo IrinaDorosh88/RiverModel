@@ -1,9 +1,11 @@
 import { Injectable } from '@angular/core';
-import { delay, Observable, of } from 'rxjs';
-import { HttpClientQueryParams } from '../http-client-extensions';
+import { of } from 'rxjs';
+
+import { HttpClientQueryParams } from '@app/features/http-client-extensions';
+
 import { CRUDApiClient, CRUDApiClientModel } from './crud-api-client';
 
-export interface SubstancesServiceModel extends CRUDApiClientModel {
+export interface SubstancesCRUDModel extends CRUDApiClientModel {
   getEntitiesResult: {
     id: number;
     name: string;
@@ -15,7 +17,7 @@ export interface SubstancesServiceModel extends CRUDApiClientModel {
 @Injectable({
   providedIn: 'root',
 })
-export class SubstancesService extends CRUDApiClient<SubstancesServiceModel> {
+export class SubstancesService extends CRUDApiClient<SubstancesCRUDModel> {
   constructor() {
     super('sustances');
   }

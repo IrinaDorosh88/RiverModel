@@ -1,16 +1,17 @@
 import { Injectable } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
-import { HttpClientQueryParams } from '../http-client-extensions';
+
+import { HttpClientQueryParams } from '@app/features/http-client-extensions';
 import { CRUDApiClient, CRUDApiClientModel } from './crud-api-client';
 
-export interface RiversServiceModel extends CRUDApiClientModel {
+export interface RiversCRUDModel extends CRUDApiClientModel {
   getEntitiesResult: { id: number; name: string };
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class RiversService extends CRUDApiClient<RiversServiceModel> {
+export class RiversService extends CRUDApiClient<RiversCRUDModel> {
   constructor() {
     super('rivers');
   }

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 
-import { RiversComponent } from '@app/views/rivers';
-import { SubstancesComponent } from '@app/views/substances';
+import { RiversComponent } from './rivers';
+import { SubstancesComponent } from './substances';
 const VIEWS = [RiversComponent, SubstancesComponent];
 
 @Component({

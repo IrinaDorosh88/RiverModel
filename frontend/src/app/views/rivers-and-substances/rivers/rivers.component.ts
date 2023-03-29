@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 const MATERIAL_MODULES = [MatButtonModule, MatIconModule, MatTableModule];
 
-import { RiversService, RiversServiceModel } from '@app/features/api-client';
+import { RiversService, RiversCRUDModel } from '@app/features/api-client';
 import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
 import { NotificationService } from '@app/features/notification';
 
@@ -56,7 +56,7 @@ export class RiversComponent implements OnInit, OnDestroy {
   };
   public readonly DISPLAYED_COLUMNS: string[];
   public readonly DATA_SOURCE: MatTableDataSource<
-    RiversServiceModel['getEntitiesResult']
+    RiversCRUDModel['getEntitiesResult']
   >;
   private readonly SUBSCRIPTIONS: Subscription;
 
@@ -92,11 +92,11 @@ export class RiversComponent implements OnInit, OnDestroy {
     this.openDialog();
   }
 
-  public onEditClicked(item: RiversServiceModel['getEntitiesResult']) {
+  public onEditClicked(item: RiversCRUDModel['getEntitiesResult']) {
     this.openDialog(item);
   }
 
-  public onDeleteClicked(item: RiversServiceModel['getEntitiesResult']) {
+  public onDeleteClicked(item: RiversCRUDModel['getEntitiesResult']) {
     this.confirmationDialogService.open({
       title: `Delete ${item.name}`,
       confirmCallback: () => {
@@ -123,7 +123,7 @@ export class RiversComponent implements OnInit, OnDestroy {
     this.matDialog
       .open<
         RiverFormComponent,
-        RiversServiceModel['getEntitiesResult'],
+        RiversCRUDModel['getEntitiesResult'],
         boolean
       >(RiverFormComponent, {
         width: '400px',
