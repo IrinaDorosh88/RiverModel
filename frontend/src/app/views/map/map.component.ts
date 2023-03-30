@@ -1,23 +1,26 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subscription } from 'rxjs';
-import { LngLatLike, Map, Marker, Popup } from 'maplibre-gl';
+import { Map, Marker, Popup } from 'maplibre-gl';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDialog } from '@angular/material/dialog';
+
+import { LocationService } from '@app/features/api-client';
+import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
+import { NotificationService } from '@app/features/notification';
+
+import {
+  LocationFormComponent,
+  LocationFormData,
+} from './location-form.component';
+import { tap } from 'rxjs';
+
 const MATERIAL_MODULES = [
   MatButtonModule,
   MatIconModule,
   MatProgressSpinnerModule,
-];
-
-const MARKERS = [
-  {
-    country: 'Chernivtsi',
-    lng: 25.94034,
-    lat: 48.29149,
-  },
 ];
 
 @Component({
@@ -50,7 +53,12 @@ export class MapComponent {
   private map!: Map;
   private popup: Popup;
 
-  constructor() {
+  constructor(
+    private matDialog: MatDialog,
+    private confirmationDialogService: ConfirmationDialogService,
+    private notificationService: NotificationService,
+    private locationService: LocationService
+  ) {
     this.popup = new Popup({ closeButton: false, closeOnClick: false });
   }
 
@@ -70,17 +78,27 @@ export class MapComponent {
       attributionControl: false,
     })
       .on('load', () => {
-        MARKERS.forEach((item) => {
-          const marker = new Marker().setLngLat(item);
-          marker.addTo(this.map);
-          marker.getElement().addEventListener('click', (e) => {
-            e.stopPropagation();
-            this.openPopup(item);
-          });
+        this.locationService.getEntities().subscribe({
+          next: (next) => {
+            next.forEach((item) => {
+              const marker = new Marker().setLngLat([
+                item.longitude,
+                item.latitude,
+              ]);
+              marker.addTo(this.map);
+              marker.getElement().addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.openPopup(item);
+              });
+            });
+          },
         });
       })
       .on('click', (e) => {
-        this.openPopup(e.lngLat, true);
+        this.openPopup(
+          { longitude: e.lngLat.lng, latitude: e.lngLat.lat },
+          true
+        );
       });
   }
 
@@ -93,9 +111,9 @@ export class MapComponent {
     console.log('Create new Marker!', coordinates);
   }
 
-  private openPopup(lngLat: LngLatLike, creation?: true | undefined) {
+  private openPopup(lngLat: any, creation?: true | undefined) {
     this.popup
-      .setLngLat(lngLat)
+      .setLngLat([lngLat.longitude, lngLat.latitude])
       .setDOMContent(this.getPopupContent(lngLat, creation))
       .addTo(this.map);
   }
@@ -164,19 +182,53 @@ export class MapComponent {
     return result;
   }
 
-  private onCreateClicked(lngLat: LngLatLike) {
-    console.log({ CREATE: lngLat });
+  private onCreateClicked(lngLat: any) {
+    this.openDialog({
+      coordinates: { longitude: lngLat.longitude, latitude: lngLat.latitude },
+    });
   }
 
-  private onEditClicked(item: any & LngLatLike) {
-    console.log({ EDIT: item });
+  private onEditClicked(entity: any) {
+    this.openDialog({ entity });
   }
 
-  private onDeleteClicked(item: any & LngLatLike) {
-    console.log({ DELETE: item });
+  private onDeleteClicked(item: any) {
+    this.confirmationDialogService.open({
+      title: `Delete ${item.name}`,
+      confirmCallback: () => {
+        return this.locationService.deleteEntity(item.id).pipe(
+          tap(() => {
+            this.notificationService.notify(
+              `${item.name} is successfully deleted!`
+            );
+          })
+        );
+      },
+    });
   }
 
-  private onAddMeasurementsClicked(item: any & LngLatLike) {
+  private onAddMeasurementsClicked(item: any) {
     console.log({ ADD_MEASUREMENTS: item });
   }
+
+  private openDialog(data: LocationFormData) {
+    this.matDialog
+      .open<LocationFormComponent, LocationFormData, boolean>(
+        LocationFormComponent,
+        {
+          width: '400px',
+          data,
+        }
+      )
+      .afterClosed()
+      .subscribe({
+        next: (next) => {
+          if (next) {
+            this.refreshEntities();
+          }
+        },
+      });
+  }
+
+  private refreshEntities() {}
 }

@@ -108,7 +108,7 @@ export class SubstancesComponent implements OnInit, OnDestroy {
 
   public onDeleteClicked(item: any) {
     this.confirmationDialogService.open({
-      title: `${item.name} Substance`,
+      title: `Delete ${item.name}`,
       confirmCallback: () => {
         return this.service.deleteEntity(item.id).pipe(
           tap(() => {
