@@ -31,12 +31,14 @@ export type LocationFormData =
       entity?: undefined;
       coordinates: { latitude: number; longitude: number };
       riverId?: number;
-    };
+    }
+  | undefined
+  | null;
 
 @Component({
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ...MATERIAL_MODULES],
-  selector: 'app-river-form',
+  selector: 'app-location-form',
   template: `
     <form spellcheck="false" [formGroup]="FORM_GROUP">
       <div mat-dialog-title>{{ TITLE }}</div>
@@ -130,19 +132,21 @@ export class LocationFormComponent implements OnInit {
   }
 
   public ngOnInit() {
-    if (this.data.entity) {
-      this.FORM_GROUP.patchValue(this.data.entity);
-      this.TITLE = `Edit ${this.data.entity.name}`;
-      this.SUBMIT_BUTTON_COLOR = 'accent';
-      this.HANDLE_ENTITY = this.putEntity;
-    } else {
-      this.FORM_GROUP.patchValue(this.data.coordinates);
-      if (this.data.riverId) {
-        this.FORM_GROUP.controls['riverId'].patchValue(this.data.riverId);
+    if (this.data) {
+      if (this.data.entity) {
+        this.FORM_GROUP.patchValue(this.data.entity);
+        this.TITLE = `Edit ${this.data.entity.name}`;
+        this.SUBMIT_BUTTON_COLOR = 'accent';
+        this.HANDLE_ENTITY = this.putEntity;
+      } else {
+        this.FORM_GROUP.patchValue(this.data.coordinates);
+        if (this.data.riverId) {
+          this.FORM_GROUP.controls['riverId'].patchValue(this.data.riverId);
+        }
+        this.TITLE = `New Location`;
+        this.SUBMIT_BUTTON_COLOR = 'primary';
+        this.HANDLE_ENTITY = this.postEntity;
       }
-      this.TITLE = `New Location`;
-      this.SUBMIT_BUTTON_COLOR = 'primary';
-      this.HANDLE_ENTITY = this.postEntity;
     }
   }
 
@@ -173,7 +177,7 @@ export class LocationFormComponent implements OnInit {
 
   private putEntity() {
     const value = this.FORM_GROUP.value;
-    return this.service.putEntity(this.data.entity!.id, value).pipe(
+    return this.service.putEntity(this.data!.entity!.id, value).pipe(
       tap(() => {
         this.notificationService.notify(
           `${value.name} is successfully edited!`

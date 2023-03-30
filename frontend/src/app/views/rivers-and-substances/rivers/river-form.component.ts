@@ -1,12 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-  Validators,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Observable, tap } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -15,6 +9,8 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 const MATERIAL_MODULES = [
   MatButtonModule,
   MatDialogModule,
@@ -24,8 +20,11 @@ const MATERIAL_MODULES = [
 
 import { RiverCRUDModel, RiverService } from '@app/features/api-client';
 import { NotificationService } from '@app/features/notification';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+
+export type RiverFormData =
+  | RiverCRUDModel['getEntitiesResult']
+  | undefined
+  | null;
 
 @Component({
   standalone: true,
@@ -70,7 +69,7 @@ export class RiverFormComponent implements OnInit {
   constructor(
     private dialogRef: MatDialogRef<RiverFormComponent>,
     @Inject(MAT_DIALOG_DATA)
-    private data: RiverCRUDModel['getEntitiesResult'] | undefined,
+    private data: RiverFormData,
     private notificationService: NotificationService,
     private service: RiverService
   ) {

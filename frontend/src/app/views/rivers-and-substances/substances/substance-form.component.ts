@@ -9,6 +9,8 @@ import {
   MatDialogRef,
   MAT_DIALOG_DATA,
 } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
 const MATERIAL_MODULES = [
   MatButtonModule,
   MatDialogModule,
@@ -18,13 +20,16 @@ const MATERIAL_MODULES = [
 
 import { SubstanceCRUDModel, SubstanceService } from '@app/features/api-client';
 import { NotificationService } from '@app/features/notification';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+
+export type SubstanceFormData =
+  | SubstanceCRUDModel['getEntitiesResult']
+  | undefined
+  | null;
 
 @Component({
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ...MATERIAL_MODULES],
-  selector: 'app-river-form',
+  selector: 'app-substance-form',
   template: `
     <form spellcheck="false" [formGroup]="FORM_GROUP">
       <div mat-dialog-title>{{ TITLE }}</div>
@@ -89,7 +94,7 @@ export class SubstanceFormComponent implements OnInit {
   constructor(
     private dialogRef: MatDialogRef<SubstanceFormComponent>,
     @Inject(MAT_DIALOG_DATA)
-    private data: SubstanceCRUDModel['getEntitiesResult'] | undefined,
+    private data: SubstanceFormData,
     private notificationService: NotificationService,
     private service: SubstanceService
   ) {

@@ -13,7 +13,11 @@ import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
 import { NotificationService } from '@app/features/notification';
 
 import { TOOLBAR_ACTION$$ } from '@app/views/toolbar';
-import { SubstanceFormComponent } from './substance-form.component';
+
+import {
+  SubstanceFormComponent,
+  SubstanceFormData,
+} from './substance-form.component';
 
 @Component({
   standalone: true,
@@ -123,14 +127,13 @@ export class SubstancesComponent implements OnInit, OnDestroy {
 
   private openDialog(data?: any) {
     this.matDialog
-      .open<
+      .open<SubstanceFormComponent, SubstanceFormData, boolean>(
         SubstanceFormComponent,
-        SubstanceCRUDModel['getEntitiesResult'],
-        boolean
-      >(SubstanceFormComponent, {
-        width: '400px',
-        data,
-      })
+        {
+          width: '400px',
+          data,
+        }
+      )
       .afterClosed()
       .subscribe({
         next: (next) => {

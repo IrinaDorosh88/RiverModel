@@ -13,7 +13,8 @@ import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
 import { NotificationService } from '@app/features/notification';
 
 import { TOOLBAR_ACTION$$ } from '@app/views/toolbar';
-import { RiverFormComponent } from './river-form.component';
+
+import { RiverFormComponent, RiverFormData } from './river-form.component';
 
 @Component({
   standalone: true,
@@ -113,13 +114,10 @@ export class RiversComponent implements OnInit, OnDestroy {
 
   private openDialog(data?: any) {
     this.matDialog
-      .open<RiverFormComponent, RiverCRUDModel['getEntitiesResult'], boolean>(
-        RiverFormComponent,
-        {
-          width: '400px',
-          data,
-        }
-      )
+      .open<RiverFormComponent, RiverFormData, boolean>(RiverFormComponent, {
+        width: '400px',
+        data,
+      })
       .afterClosed()
       .subscribe({
         next: (next) => {
