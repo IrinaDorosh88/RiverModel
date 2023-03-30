@@ -75,11 +75,24 @@ export class RiverFormComponent implements OnInit {
     private service: RiverService
   ) {
     const fb = new FormBuilder();
-    this.FORM_GROUP = fb.group({
-      name: fb.control('', (name) =>
-        name.value === '' ? { message: 'Name is required.' } : null
-      ),
-    });
+    this.FORM_GROUP = fb.group(
+      {
+        name: fb.control('', (name) => {
+          return name.value === '' ? { message: 'Name is required.' } : null;
+        }),
+      },
+      {
+        validators: (formGroup: FormGroup) => {
+          const { name } = formGroup.controls;
+          // Name
+          if (name.value === '') {
+            name.setErrors({ message: 'Name is required.' });
+          } else {
+            name.setErrors(null);
+          }
+        },
+      }
+    );
     this.isFormSubmitted = false;
   }
 

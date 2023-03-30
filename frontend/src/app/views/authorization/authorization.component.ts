@@ -2,9 +2,9 @@ import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   FormBuilder,
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
-  Validators,
 } from '@angular/forms';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -44,10 +44,9 @@ import { User } from '@app/features/user';
         <mat-form-field class="width-full">
           <mat-label>Email</mat-label>
           <input matInput formControlName="email" />
-          <mat-error *ngIf="FORM_GROUP.controls['email'].invalid">{{
-            FORM_GROUP.controls['email'].errors!['email'] ??
-              'Email is required.'
-          }}</mat-error>
+          <mat-error *ngIf="FORM_GROUP.controls['email'].errors as errors">
+            {{ errors['message'] }}
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field class="width-full">
@@ -60,9 +59,9 @@ import { User } from '@app/features/user';
           <mat-icon matSuffix (click)="passwordHidden = !passwordHidden">{{
             passwordHidden ? 'visibility_off' : 'visibility'
           }}</mat-icon>
-          <mat-error *ngIf="FORM_GROUP.controls['password'].invalid"
-            >Password is required.</mat-error
-          >
+          <mat-error *ngIf="FORM_GROUP.controls['password'].errors as errors">
+            {{ errors['message'] }}
+          </mat-error>
         </mat-form-field>
 
         <mat-form-field *ngIf="register" class="width-full">
@@ -75,12 +74,8 @@ import { User } from '@app/features/user';
           <mat-icon matSuffix (click)="confirmHidden = !confirmHidden">{{
             confirmHidden ? 'visibility_off' : 'visibility'
           }}</mat-icon>
-          <mat-error *ngIf="FORM_GROUP.controls['confirm'].invalid">
-            {{
-              FORM_GROUP.controls['confirm'].errors!['required']
-                ? 'Passwords confirm is required.'
-                : 'Passwords do not match.'
-            }}
+          <mat-error *ngIf="FORM_GROUP.controls['confirm'].errors as errors">
+            {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
       </div>
@@ -131,25 +126,32 @@ export class AuthorizationComponent implements OnInit {
     const fb = new FormBuilder();
     this.FORM_GROUP = fb.group(
       {
-        email: fb.control('', Validators.required),
-        password: fb.control('', Validators.required),
-        confirm: fb.control(
-          { value: '', disabled: !this.register },
-          Validators.required
-        ),
+        email: fb.control(''),
+        password: fb.control(''),
+        confirm: fb.control({ value: '', disabled: !this.register }),
       },
       {
-        validators: (FORM_GROUP: FormGroup) => {
-          if (
-            FORM_GROUP.controls['confirm'].enabled &&
-            FORM_GROUP.controls['confirm'].value !== ''
-          ) {
-            FORM_GROUP.controls['confirm'].setErrors(
-              FORM_GROUP.controls['confirm'].value !==
-                FORM_GROUP.controls['password'].value
-                ? { notMatch: true }
-                : null
-            );
+        validators: (formGroup: FormGroup) => {
+          const { email, password, confirm } = formGroup.controls;
+          // Email
+          if (email.value === '') {
+            email.setErrors({ message: 'Name is required.' });
+          } else {
+            email.setErrors(null);
+          }
+          // Password
+          if (password.value === '') {
+            password.setErrors({ message: 'Password is required.' });
+          } else {
+            password.setErrors(null);
+          }
+          // Confirm
+          if (confirm.value === '') {
+            confirm.setErrors({ message: 'Confirm is required.' });
+          } else if (confirm.value !== password.value) {
+            confirm.setErrors({ message: 'Passwords do not match' });
+          } else {
+            confirm.setErrors(null);
           }
         },
       }
@@ -158,8 +160,9 @@ export class AuthorizationComponent implements OnInit {
 
   public onAuthorizationTypeToggle() {
     this.register = !this.register;
-    this.FORM_GROUP.controls['confirm'].reset('');
+    this.FORM_GROUP.controls['confirm'].patchValue('');
     this.FORM_GROUP.controls['confirm'][this.register ? 'enable' : 'disable']();
+    this.FORM_GROUP.controls['confirm'].markAsUntouched();
   }
 
   public onSubmitClick(model: { email: string; password: string }) {
@@ -172,8 +175,10 @@ export class AuthorizationComponent implements OnInit {
         },
         error: (error) => {
           Object.entries(error.error).forEach(([key, value]) => {
-            this.FORM_GROUP.controls[key].setErrors({ [key]: value });
+            this.FORM_GROUP.controls[key].setErrors({ message: value });
           });
+        },
+        complete: () => {
           this.isFormSubmitted = false;
         },
       });

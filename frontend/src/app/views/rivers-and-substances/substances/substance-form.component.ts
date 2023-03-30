@@ -96,18 +96,20 @@ export class SubstanceFormComponent implements OnInit {
     const fb = new FormBuilder();
     this.FORM_GROUP = fb.group(
       {
-        name: fb.control('', (name) =>
-          name.value === '' ? { message: 'Name is required.' } : null
-        ),
+        name: fb.control(''),
         min: fb.control(0),
         max: fb.control(0),
-        unit: fb.control('', (unit) =>
-          unit.value === '' ? { message: 'Unit is required.' } : null
-        ),
+        unit: fb.control(''),
       },
       {
         validators: (formGroup: FormGroup) => {
-          const { min, max } = formGroup.controls;
+          const { name, min, max, unit } = formGroup.controls;
+          // Name
+          if (name.value === '') {
+            name.setErrors({ message: 'Name is required.' });
+          } else {
+            name.setErrors(null);
+          }
           // Min
           let minValue = min.value;
           if (min.value == null || Number.isNaN(+min.value)) {
@@ -116,6 +118,8 @@ export class SubstanceFormComponent implements OnInit {
           } else if (min.value < 0) {
             min.setErrors({ message: 'Min must be greater or equal to 0.' });
             minValue = 0;
+          } else {
+            min.setErrors(null);
           }
           // Max
           if (max.value == null || Number.isNaN(+max.value)) {
@@ -124,6 +128,14 @@ export class SubstanceFormComponent implements OnInit {
             max.setErrors({
               message: `Min must be greater or equal to ${minValue}.`,
             });
+          } else {
+            max.setErrors(null);
+          }
+          // Unit
+          if (unit.value === '') {
+            unit.setErrors({ message: 'Unit is required.' });
+          } else {
+            unit.setErrors(null);
           }
         },
       }
