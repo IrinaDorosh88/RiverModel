@@ -102,10 +102,10 @@ import { User } from '@app/features/user';
   `,
 })
 export class AuthorizationComponent implements OnInit {
-  public readonly FORM_GROUP!: FormGroup;
-  public isFormSubmitted: boolean;
-  public passwordHidden: boolean;
-  public confirmHidden: boolean;
+  public readonly FORM_GROUP;
+  public isFormSubmitted;
+  public passwordHidden;
+  public confirmHidden;
 
   public register!: boolean;
 

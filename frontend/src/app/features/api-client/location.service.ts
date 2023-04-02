@@ -23,7 +23,7 @@ export class LocationService extends CRUDApiClient<LocationCRUDModel> {
   }
 
   public override getEntities(params?: HttpClientQueryParams) {
-    return of([
+    let result = [
       {
         id: 1,
         longitude: 25.94034,
@@ -32,7 +32,13 @@ export class LocationService extends CRUDApiClient<LocationCRUDModel> {
         riverId: 1,
         substancesIds: [1, 2, 4],
       },
-    ]);
+    ];
+    if (params?.['riverId']) {
+      result = result.filter((entity) => {
+        return entity.riverId === params['riverId'];
+      });
+    }
+    return of(result);
   }
 
   public override postEntity(value: any): Observable<unknown> {

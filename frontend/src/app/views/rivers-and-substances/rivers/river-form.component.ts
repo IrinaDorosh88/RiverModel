@@ -58,13 +58,12 @@ export type RiverFormData =
   `,
 })
 export class RiverFormComponent implements OnInit {
-  public readonly FORM_GROUP: FormGroup;
+  public readonly FORM_GROUP;
+  public isFormSubmitted;
 
   public TITLE!: string;
   public SUBMIT_BUTTON_COLOR!: string;
   private HANDLE_ENTITY!: () => Observable<any>;
-
-  public isFormSubmitted: boolean;
 
   constructor(
     private dialogRef: MatDialogRef<RiverFormComponent>,

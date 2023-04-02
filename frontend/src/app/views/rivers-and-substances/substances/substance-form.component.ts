@@ -84,8 +84,8 @@ export type SubstanceFormData =
   `,
 })
 export class SubstanceFormComponent implements OnInit {
-  public readonly FORM_GROUP: FormGroup;
-  public isFormSubmitted: boolean;
+  public readonly FORM_GROUP;
+  public isFormSubmitted;
 
   public TITLE!: string;
   public SUBMIT_BUTTON_COLOR!: 'primary' | 'accent';

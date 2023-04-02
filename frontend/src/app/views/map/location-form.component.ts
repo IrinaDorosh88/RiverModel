@@ -112,15 +112,14 @@ export type LocationFormData =
   `,
 })
 export class LocationFormComponent implements OnInit {
-  public readonly FORM_GROUP: FormGroup;
+  public readonly FORM_GROUP;
+  public isFormSubmitted;
 
   public TITLE!: string;
-  public SUBMIT_BUTTON_COLOR!: string;
+  public SUBMIT_BUTTON_COLOR!: 'primary' | 'accent';
   private HANDLE_ENTITY!: () => Observable<any>;
   public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult'][]>;
   public SUBSTANCES$!: Observable<SubstanceCRUDModel['getEntitiesResult'][]>;
-
-  public isFormSubmitted: boolean;
 
   constructor(
     private dialogRef: MatDialogRef<LocationFormComponent>,

@@ -7,7 +7,7 @@ import {
   ViewChild,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subscription, tap } from 'rxjs';
+import { BehaviorSubject, Observable, Subscription, scan, tap } from 'rxjs';
 import { Map, Marker, Popup } from 'maplibre-gl';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -20,7 +20,8 @@ const MATERIAL_MODULES = [
   MatProgressSpinnerModule,
 ];
 
-import { LocationService } from '@app/features/api-client';
+import { LocationCRUDModel, LocationService } from '@app/features/api-client';
+import { HttpClientQueryParams } from '@app/features/http-client-extensions';
 import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
 import { NotificationService } from '@app/features/notification';
 
@@ -52,8 +53,10 @@ import {
   `,
 })
 export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
-  private readonly SUBSCRIPTIONS: Subscription;
-  private readonly POPUP: Popup;
+  private readonly LOCATIONS$$;
+  private readonly POPUP;
+  private readonly QUERY_PARAMS: NonNullable<HttpClientQueryParams>;
+  private readonly SUBSCRIPTIONS;
 
   @ViewChild('mapContainer')
   private mapContainer!: ElementRef<HTMLElement>;
@@ -65,7 +68,11 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     private notificationService: NotificationService,
     private locationService: LocationService
   ) {
+    this.LOCATIONS$$ = new BehaviorSubject<
+      LocationCRUDModel['getEntitiesResult'][]
+    >([]);
     this.POPUP = new Popup({ closeButton: false, closeOnClick: false });
+    this.QUERY_PARAMS = {};
     this.SUBSCRIPTIONS = new Subscription();
   }
 
@@ -81,6 +88,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         },
       })
     );
+    this.refreshEntities();
   }
 
   public ngAfterViewInit() {
@@ -93,21 +101,30 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       attributionControl: false,
     })
       .on('load', () => {
-        this.locationService.getEntities().subscribe({
-          next: (next) => {
-            next.forEach((item) => {
-              const marker = new Marker().setLngLat([
-                item.longitude,
-                item.latitude,
-              ]);
-              marker.addTo(this.map);
-              marker.getElement().addEventListener('click', (e) => {
-                e.stopPropagation();
-                this.openPopup(item);
-              });
-            });
-          },
-        });
+        this.SUBSCRIPTIONS.add(
+          this.LOCATIONS$$.pipe(
+            scan<LocationCRUDModel['getEntitiesResult'][], Marker[]>(
+              (accumulator, value) => {
+                // remove previous markers from map
+                accumulator.forEach((item) => {
+                  item.remove();
+                });
+                // add markers for current locations on map
+                return value.map((item) => {
+                  const result = new Marker()
+                    .setLngLat([item.longitude, item.latitude])
+                    .addTo(this.map);
+                  result.getElement().addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.openPopup(item);
+                  });
+                  return result;
+                });
+              },
+              []
+            )
+          ).subscribe()
+        );
       })
       .on('click', (e) => {
         this.openPopup(
@@ -116,14 +133,13 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         );
       });
   }
+
   public ngOnDestroy(): void {
     this.SUBSCRIPTIONS.unsubscribe();
   }
 
-  private onCreateClicked(lngLat: any) {
-    this.openDialog({
-      coordinates: { longitude: lngLat.longitude, latitude: lngLat.latitude },
-    });
+  private onCreateClicked(coordinates: any) {
+    this.openDialog({ coordinates });
   }
 
   private onEditClicked(entity: any) {
@@ -150,7 +166,39 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onRiverSelected(riverId: number | undefined) {
-    console.log({ RIVER_SELECTED: riverId });
+    if (riverId) {
+      this.QUERY_PARAMS['riverId'] = riverId;
+    } else {
+      delete this.QUERY_PARAMS['riverId'];
+    }
+    this.refreshEntities();
+  }
+
+  private openDialog(data: LocationFormData) {
+    this.matDialog
+      .open<LocationFormComponent, LocationFormData, boolean>(
+        LocationFormComponent,
+        {
+          width: '400px',
+          data,
+        }
+      )
+      .afterClosed()
+      .subscribe({
+        next: (next) => {
+          if (next) {
+            this.refreshEntities();
+          }
+        },
+      });
+  }
+
+  private refreshEntities() {
+    this.locationService.getEntities(this.QUERY_PARAMS).subscribe({
+      next: (next) => {
+        this.LOCATIONS$$.next(next);
+      },
+    });
   }
 
   private openPopup(lngLat: any, creation?: true | undefined) {
@@ -222,25 +270,4 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     return result;
   }
-
-  private openDialog(data: LocationFormData) {
-    this.matDialog
-      .open<LocationFormComponent, LocationFormData, boolean>(
-        LocationFormComponent,
-        {
-          width: '400px',
-          data,
-        }
-      )
-      .afterClosed()
-      .subscribe({
-        next: (next) => {
-          if (next) {
-            this.refreshEntities();
-          }
-        },
-      });
-  }
-
-  private refreshEntities() {}
 }
