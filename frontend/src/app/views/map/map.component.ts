@@ -92,7 +92,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public ngAfterViewInit() {
-    const initialState = { lng: 31.1828699, lat: 48.383022, zoom: 5.7 };
+    const initialState = { lng: 31.1828699, lat: 48.383022, zoom: 5 };
     this.map = new Map({
       container: this.mapContainer.nativeElement,
       style: `https://api.maptiler.com/maps/streets-v2/style.json?key=n88LfTJPWSHvvGGIETtw`,
@@ -139,7 +139,10 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onCreateClicked(coordinates: any) {
-    this.openDialog({ coordinates });
+    this.openDialog({
+      coordinates,
+      riverId: this.QUERY_PARAMS['riverId'] as number,
+    });
   }
 
   private onEditClicked(entity: any) {

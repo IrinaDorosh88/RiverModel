@@ -37,7 +37,7 @@ export type LocationFormData =
   | {
       entity?: undefined;
       coordinates: { latitude: number; longitude: number };
-      riverId?: number;
+      riverId?: number | undefined;
     };
 
 @Component({
