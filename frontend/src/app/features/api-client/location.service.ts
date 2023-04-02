@@ -30,6 +30,7 @@ export class LocationService extends CRUDApiClient<LocationCRUDModel> {
         latitude: 48.29149,
         name: 'Chernivtsi',
         riverId: 1,
+        substancesIds: [1, 2, 4],
       },
     ]);
   }

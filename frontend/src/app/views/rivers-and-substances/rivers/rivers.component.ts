@@ -12,7 +12,7 @@ import { RiverService, RiverCRUDModel } from '@app/features/api-client';
 import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
 import { NotificationService } from '@app/features/notification';
 
-import { TOOLBAR_ACTION$$ } from '@app/views/toolbar';
+import { TOOLBAR_ACTION$$ } from '@app/views/home';
 
 import { RiverFormComponent, RiverFormData } from './river-form.component';
 
@@ -76,7 +76,7 @@ export class RiversComponent implements OnInit, OnDestroy {
       TOOLBAR_ACTION$$.subscribe({
         next: ({ key }) => {
           switch (key) {
-            case 'NEW_RIVER':
+            case 'RIVERS_NEW_RIVER':
               this.onCreateClicked();
               break;
           }

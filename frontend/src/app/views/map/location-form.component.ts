@@ -20,7 +20,14 @@ const MATERIAL_MODULES = [
   MatSelectModule,
 ];
 
-import { LocationCRUDModel, LocationService } from '@app/features/api-client';
+import {
+  LocationCRUDModel,
+  LocationService,
+  RiverCRUDModel,
+  RiverService,
+  SubstanceCRUDModel,
+  SubstanceService,
+} from '@app/features/api-client';
 import { NotificationService } from '@app/features/notification';
 
 export type LocationFormData =
@@ -31,9 +38,7 @@ export type LocationFormData =
       entity?: undefined;
       coordinates: { latitude: number; longitude: number };
       riverId?: number;
-    }
-  | undefined
-  | null;
+    };
 
 @Component({
   standalone: true,
@@ -45,16 +50,25 @@ export type LocationFormData =
       <div mat-dialog-content>
         <mat-form-field class="width-full">
           <mat-label>Latitude</mat-label>
-          <input matInput type="number" formControlName="latitude" />
+          <input matInput formControlName="latitude" />
         </mat-form-field>
         <mat-form-field class="width-full">
           <mat-label>Longitude</mat-label>
-          <input matInput type="number" formControlName="longitude" />
+          <input matInput formControlName="longitude" />
         </mat-form-field>
-        <mat-form-field class="width-full">
-          <mat-label>Name</mat-label>
-          <input matInput formControlName="name" />
-          <mat-error *ngIf="FORM_GROUP.controls['name'].errors as errors">
+        <mat-form-field appearance="fill" class="width-full">
+          <mat-label>Substances</mat-label>
+          <mat-select multiple formControlName="substancesIds">
+            <mat-option
+              *ngFor="let entity of SUBSTANCES$ | async"
+              [value]="entity.id"
+            >
+              {{ entity.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error
+            *ngIf="FORM_GROUP.controls['substancesIds'].errors as errors"
+          >
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -62,11 +76,22 @@ export type LocationFormData =
           <mat-label>River</mat-label>
           <mat-select formControlName="riverId">
             <mat-option>---</mat-option>
-            <mat-option [value]="1">River 1</mat-option>
-            <mat-option [value]="2">River 2</mat-option>
-            <mat-option [value]="3">River 3</mat-option>
+            <mat-option
+              *ngFor="let entity of RIVERS$ | async"
+              [value]="entity.id"
+            >
+              {{ entity.name }}
+            </mat-option>
           </mat-select>
           <mat-error *ngIf="FORM_GROUP.controls['riverId'].errors as errors">
+            {{ errors['message'] }}
+          </mat-error>
+        </mat-form-field>
+
+        <mat-form-field class="width-full">
+          <mat-label>Name</mat-label>
+          <input matInput formControlName="name" />
+          <mat-error *ngIf="FORM_GROUP.controls['name'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -92,6 +117,8 @@ export class LocationFormComponent implements OnInit {
   public TITLE!: string;
   public SUBMIT_BUTTON_COLOR!: string;
   private HANDLE_ENTITY!: () => Observable<any>;
+  public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult'][]>;
+  public SUBSTANCES$!: Observable<SubstanceCRUDModel['getEntitiesResult'][]>;
 
   public isFormSubmitted: boolean;
 
@@ -100,6 +127,8 @@ export class LocationFormComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA)
     private data: LocationFormData,
     private notificationService: NotificationService,
+    private riverService: RiverService,
+    private substanceService: SubstanceService,
     private service: LocationService
   ) {
     const fb = new FormBuilder();
@@ -109,10 +138,11 @@ export class LocationFormComponent implements OnInit {
         longitude: fb.control({ value: null, disabled: true }),
         name: fb.control(''),
         riverId: fb.control(null),
+        substancesIds: fb.control(''),
       },
       {
         validators: (formGroup: FormGroup) => {
-          const { name, riverId } = formGroup.controls;
+          const { name, riverId, substancesIds } = formGroup.controls;
           // Name
           if (name.value === '') {
             name.setErrors({ message: 'Name is required.' });
@@ -125,6 +155,14 @@ export class LocationFormComponent implements OnInit {
           } else {
             riverId.setErrors(null);
           }
+          // Substances
+          if (!(substancesIds.value && substancesIds.value.length)) {
+            substancesIds.setErrors({
+              message: 'Choose at least one substance.',
+            });
+          } else {
+            substancesIds.setErrors(null);
+          }
         },
       }
     );
@@ -132,21 +170,22 @@ export class LocationFormComponent implements OnInit {
   }
 
   public ngOnInit() {
-    if (this.data) {
-      if (this.data.entity) {
-        this.FORM_GROUP.patchValue(this.data.entity);
-        this.TITLE = `Edit ${this.data.entity.name}`;
-        this.SUBMIT_BUTTON_COLOR = 'accent';
-        this.HANDLE_ENTITY = this.putEntity;
-      } else {
-        this.FORM_GROUP.patchValue(this.data.coordinates);
-        if (this.data.riverId) {
-          this.FORM_GROUP.controls['riverId'].patchValue(this.data.riverId);
-        }
-        this.TITLE = `New Location`;
-        this.SUBMIT_BUTTON_COLOR = 'primary';
-        this.HANDLE_ENTITY = this.postEntity;
+    this.SUBSTANCES$ = this.substanceService.getEntities();
+    this.RIVERS$ = this.riverService.getEntities();
+    if (this.data.entity) {
+      this.FORM_GROUP.patchValue(this.data.entity);
+      this.TITLE = `Edit ${this.data.entity.name}`;
+      this.SUBMIT_BUTTON_COLOR = 'accent';
+      this.HANDLE_ENTITY = this.putEntity;
+      this.FORM_GROUP.controls['substancesIds'].disable();
+    } else {
+      this.FORM_GROUP.patchValue(this.data.coordinates);
+      if (this.data.riverId) {
+        this.FORM_GROUP.controls['riverId'].patchValue(this.data.riverId);
       }
+      this.TITLE = `New Location`;
+      this.SUBMIT_BUTTON_COLOR = 'primary';
+      this.HANDLE_ENTITY = this.postEntity;
     }
   }
 

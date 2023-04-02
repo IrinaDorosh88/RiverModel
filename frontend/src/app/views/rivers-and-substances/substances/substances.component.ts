@@ -12,7 +12,7 @@ import { SubstanceCRUDModel, SubstanceService } from '@app/features/api-client';
 import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
 import { NotificationService } from '@app/features/notification';
 
-import { TOOLBAR_ACTION$$ } from '@app/views/toolbar';
+import { TOOLBAR_ACTION$$ } from '@app/views/home';
 
 import {
   SubstanceFormComponent,
@@ -89,7 +89,7 @@ export class SubstancesComponent implements OnInit, OnDestroy {
       TOOLBAR_ACTION$$.subscribe({
         next: ({ key }) => {
           switch (key) {
-            case 'NEW_SUBSTANCE':
+            case 'SUBSTANCES_NEW_SUBSTANCE':
               this.onCreateClicked();
               break;
           }

@@ -102,11 +102,11 @@ import { User } from '@app/features/user';
   `,
 })
 export class AuthorizationComponent implements OnInit {
+  public readonly FORM_GROUP!: FormGroup;
   public isFormSubmitted: boolean;
   public passwordHidden: boolean;
   public confirmHidden: boolean;
 
-  public FORM_GROUP!: FormGroup;
   public register!: boolean;
 
   constructor(
@@ -115,20 +115,12 @@ export class AuthorizationComponent implements OnInit {
     private notificationService: NotificationService,
     private service: AuthorizationService
   ) {
-    this.isFormSubmitted = false;
-    this.passwordHidden = true;
-    this.confirmHidden = true;
-  }
-
-  public ngOnInit() {
-    this.register = this.data?.register ?? false;
-
     const fb = new FormBuilder();
     this.FORM_GROUP = fb.group(
       {
         email: fb.control(''),
         password: fb.control(''),
-        confirm: fb.control({ value: '', disabled: !this.register }),
+        confirm: fb.control(''),
       },
       {
         validators: (formGroup: FormGroup) => {
@@ -156,6 +148,16 @@ export class AuthorizationComponent implements OnInit {
         },
       }
     );
+    this.isFormSubmitted = false;
+    this.passwordHidden = true;
+    this.confirmHidden = true;
+  }
+
+  public ngOnInit() {
+    this.register = this.data?.register ?? false;
+    if (!this.register) {
+      this.FORM_GROUP.controls['confirm'].disable();
+    }
   }
 
   public onAuthorizationTypeToggle() {

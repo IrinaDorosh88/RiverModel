@@ -1,27 +1,35 @@
-import { Component, ElementRef, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subscription, tap } from 'rxjs';
 import { Map, Marker, Popup } from 'maplibre-gl';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatDialog } from '@angular/material/dialog';
-
-import { LocationService } from '@app/features/api-client';
-import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
-import { NotificationService } from '@app/features/notification';
-
-import {
-  LocationFormComponent,
-  LocationFormData,
-} from './location-form.component';
-import { tap } from 'rxjs';
-
 const MATERIAL_MODULES = [
   MatButtonModule,
   MatIconModule,
   MatProgressSpinnerModule,
 ];
+
+import { LocationService } from '@app/features/api-client';
+import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
+import { NotificationService } from '@app/features/notification';
+
+import { TOOLBAR_ACTION$$ } from '@app/views/home';
+
+import {
+  LocationFormComponent,
+  LocationFormData,
+} from './location-form.component';
 
 @Component({
   standalone: true,
@@ -43,15 +51,13 @@ const MATERIAL_MODULES = [
     </div>
   `,
 })
-export class MapComponent {
+export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
+  private readonly SUBSCRIPTIONS: Subscription;
+  private readonly POPUP: Popup;
+
   @ViewChild('mapContainer')
   private mapContainer!: ElementRef<HTMLElement>;
-
-  // private readonly TOOLBAR_ACTION_MAPPER: {
-  //   [key: string]: (...params: any) => void;
-  // } = {};
   private map!: Map;
-  private popup: Popup;
 
   constructor(
     private matDialog: MatDialog,
@@ -59,16 +65,25 @@ export class MapComponent {
     private notificationService: NotificationService,
     private locationService: LocationService
   ) {
-    this.popup = new Popup({ closeButton: false, closeOnClick: false });
+    this.POPUP = new Popup({ closeButton: false, closeOnClick: false });
+    this.SUBSCRIPTIONS = new Subscription();
   }
 
   public ngOnInit() {
-    // this.subscription = TOOLBAR_ACTION$$.subscribe({
-    //   next: ({ key, params }) => this.TOOLBAR_ACTION_MAPPER[key]?.(...params),
-    // });
+    this.SUBSCRIPTIONS.add(
+      TOOLBAR_ACTION$$.subscribe({
+        next: ({ key, params }) => {
+          switch (key) {
+            case 'MAP_RIVER_SELECTED':
+              this.onRiverSelected(params[0]);
+              break;
+          }
+        },
+      })
+    );
   }
 
-  ngAfterViewInit() {
+  public ngAfterViewInit() {
     const initialState = { lng: 31.1828699, lat: 48.383022, zoom: 5.7 };
     this.map = new Map({
       container: this.mapContainer.nativeElement,
@@ -101,25 +116,51 @@ export class MapComponent {
         );
       });
   }
-
-  // private subscription!: Subscription;
   public ngOnDestroy(): void {
-    // this.subscription.unsubscribe();
+    this.SUBSCRIPTIONS.unsubscribe();
   }
 
-  public onCreateMarkerClick(coordinates: { lng: number; lat: number }) {
-    console.log('Create new Marker!', coordinates);
+  private onCreateClicked(lngLat: any) {
+    this.openDialog({
+      coordinates: { longitude: lngLat.longitude, latitude: lngLat.latitude },
+    });
+  }
+
+  private onEditClicked(entity: any) {
+    this.openDialog({ entity });
+  }
+
+  private onDeleteClicked(item: any) {
+    this.confirmationDialogService.open({
+      title: `Delete ${item.name}`,
+      confirmCallback: () => {
+        return this.locationService.deleteEntity(item.id).pipe(
+          tap(() => {
+            this.notificationService.notify(
+              `${item.name} is successfully deleted!`
+            );
+          })
+        );
+      },
+    });
+  }
+
+  private onAddMeasurementsClicked(item: any) {
+    console.log({ ADD_MEASUREMENTS: item });
+  }
+
+  private onRiverSelected(riverId: number | undefined) {
+    console.log({ RIVER_SELECTED: riverId });
   }
 
   private openPopup(lngLat: any, creation?: true | undefined) {
-    this.popup
-      .setLngLat([lngLat.longitude, lngLat.latitude])
+    this.POPUP.setLngLat([lngLat.longitude, lngLat.latitude])
       .setDOMContent(this.getPopupContent(lngLat, creation))
       .addTo(this.map);
   }
 
   private closePopup() {
-    this.popup.remove();
+    this.POPUP.remove();
   }
 
   private getPopupContent(
@@ -180,35 +221,6 @@ export class MapComponent {
         break;
     }
     return result;
-  }
-
-  private onCreateClicked(lngLat: any) {
-    this.openDialog({
-      coordinates: { longitude: lngLat.longitude, latitude: lngLat.latitude },
-    });
-  }
-
-  private onEditClicked(entity: any) {
-    this.openDialog({ entity });
-  }
-
-  private onDeleteClicked(item: any) {
-    this.confirmationDialogService.open({
-      title: `Delete ${item.name}`,
-      confirmCallback: () => {
-        return this.locationService.deleteEntity(item.id).pipe(
-          tap(() => {
-            this.notificationService.notify(
-              `${item.name} is successfully deleted!`
-            );
-          })
-        );
-      },
-    });
-  }
-
-  private onAddMeasurementsClicked(item: any) {
-    console.log({ ADD_MEASUREMENTS: item });
   }
 
   private openDialog(data: LocationFormData) {
