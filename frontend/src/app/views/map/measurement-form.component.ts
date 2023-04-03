@@ -167,7 +167,6 @@ export class MeasurementFormComponent implements OnInit {
   private postEntity() {
     const value = this.FORM_GROUP.value;
     return this.apiClient.measurement.postEntity(value).pipe(
-      tap(() => console.log(value)),
       tap(() => {
         this.notificationService.notify(`Measurement is successfully added!`);
       })
