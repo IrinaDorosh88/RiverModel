@@ -11,7 +11,7 @@ export interface RiverCRUDModel extends CRUDApiClientModel {
 @Injectable({
   providedIn: 'root',
 })
-export class RiverService extends CRUDApiClient<RiverCRUDModel> {
+export class RiverApiClient extends CRUDApiClient<RiverCRUDModel> {
   constructor() {
     super('rivers');
   }

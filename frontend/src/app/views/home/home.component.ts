@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,14 +17,17 @@ const MATERIAL_MODULES = [
   MatToolbarModule,
 ];
 
-import { RiverCRUDModel, RiverService } from '@app/features/api-client';
+import { RiverCRUDModel, ApiClient } from '@app/features/api-client';
 
 import { ChartComponent } from '@app/views/chart';
 import { MapComponent } from '@app/views/map';
 import { RiversAndSubstancesComponent } from '@app/views/rivers-and-substances';
 const VIEWS = [ChartComponent, MapComponent, RiversAndSubstancesComponent];
 
-import { TOOLBAR_ACTION$$ } from './home.models';
+export const TOOLBAR_ACTION$$ = new Subject<{
+  key: string;
+  params: any[];
+}>();
 
 @Component({
   standalone: true,
@@ -56,11 +59,7 @@ import { TOOLBAR_ACTION$$ } from './home.models';
           </button>
         </ng-container>
         <ng-container *ngSwitchCase="1">
-          <mat-form-field
-            appearance="fill"
-            class="ml-auto"
-            style="width: 200px"
-          >
+          <mat-form-field class="ml-auto" style="width: 200px">
             <mat-label>River</mat-label>
             <mat-select
               (selectionChange)="
@@ -78,11 +77,7 @@ import { TOOLBAR_ACTION$$ } from './home.models';
           </mat-form-field>
         </ng-container>
         <ng-container *ngSwitchCase="2">
-          <mat-form-field
-            appearance="fill"
-            class="ml-auto"
-            style="width: 200px"
-          >
+          <mat-form-field class="ml-auto" style="width: 200px">
             <mat-label>River</mat-label>
             <mat-select
               (selectionChange)="onToolbarActionInvoked('CHART_RIVER_SELECTED')"
@@ -90,13 +85,12 @@ import { TOOLBAR_ACTION$$ } from './home.models';
               <mat-option>---</mat-option>
             </mat-select>
           </mat-form-field>
-          <mat-form-field
-            appearance="fill"
-            style="width: 200px"
-          >
+          <mat-form-field style="width: 200px">
             <mat-label>Location</mat-label>
             <mat-select
-              (selectionChange)="onToolbarActionInvoked('CHART_LOCATION_SELECTED')"
+              (selectionChange)="
+                onToolbarActionInvoked('CHART_LOCATION_SELECTED')
+              "
             >
               <mat-option>---</mat-option>
             </mat-select>
@@ -132,12 +126,12 @@ export class HomeComponent implements OnInit {
 
   public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult'][]>;
 
-  constructor(private riverService: RiverService) {
+  constructor(private apiClient: ApiClient) {
     this.tabGroupSelectedIndex = 0;
   }
 
   public ngOnInit() {
-    this.RIVERS$ = this.riverService.getEntities();
+    this.RIVERS$ = this.apiClient.river.getEntities();
   }
 
   public onToolbarActionInvoked(key: string, ...params: any[]) {

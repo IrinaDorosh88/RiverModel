@@ -11,13 +11,14 @@ export interface LocationCRUDModel extends CRUDApiClientModel {
     longitude: number;
     name: string;
     riverId: number;
+    substancesIds: number[];
   };
 }
 
 @Injectable({
   providedIn: 'root',
 })
-export class LocationService extends CRUDApiClient<LocationCRUDModel> {
+export class LocationApiClient extends CRUDApiClient<LocationCRUDModel> {
   constructor() {
     super('locations');
   }
@@ -31,6 +32,14 @@ export class LocationService extends CRUDApiClient<LocationCRUDModel> {
         name: 'Chernivtsi',
         riverId: 1,
         substancesIds: [1, 2, 4],
+      },
+      {
+        id: 2,
+        longitude: 28.48097,
+        latitude: 49.23278,
+        name: 'Vinnytsya',
+        riverId: 2,
+        substancesIds: [3, 4],
       },
     ];
     if (params?.['riverId']) {

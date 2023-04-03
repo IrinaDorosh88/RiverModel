@@ -1,13 +1,17 @@
 import { Component, importProvidersFrom, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApplicationConfig } from '@angular/platform-browser';
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import {
+  BrowserAnimationsModule,
+  provideAnimations,
+} from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatNativeDateModule } from '@angular/material/core';
 import { MatToolbarModule } from '@angular/material/toolbar';
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -21,7 +25,7 @@ import { DescriptionComponent } from '@app/views/description';
 import { HomeComponent } from '@app/views/home';
 const VIEWS = [AuthorizationComponent, DescriptionComponent, HomeComponent];
 
-import { AuthorizationService } from '@app/features/api-client';
+import { ApiClient } from '@app/features/api-client';
 import { ENVIRONMENT_INITIALIZER_PROVIDER } from '@app/features/environment-init';
 import { LoaderComponent, loaderInterceptorFn } from '@app/features/loading';
 import {
@@ -72,7 +76,7 @@ export class AppComponent implements OnInit {
 
   constructor(
     private matDialog: MatDialog,
-    private authorizationService: AuthorizationService,
+    private apiClient: ApiClient,
     private notificationService: NotificationService
   ) {}
 
@@ -88,7 +92,7 @@ export class AppComponent implements OnInit {
   }
 
   public onLogoutClick() {
-    this.authorizationService.logout().subscribe({
+    this.apiClient.authorization.logout().subscribe({
       next: () => {
         this.notificationService.notify('You are successfully signed out!');
         User.unset();
@@ -107,11 +111,11 @@ export class AppComponent implements OnInit {
 
 export const APP_CONFIG: ApplicationConfig = {
   providers: [
-    importProvidersFrom(BrowserAnimationsModule),
+    provideAnimations(),
     provideHttpClient(withInterceptors([loaderInterceptorFn])),
     ENVIRONMENT_INITIALIZER_PROVIDER,
     USER_INITIALIZER_PROVIDER,
     ...NOTIFICATION_PROVIDERS,
-    importProvidersFrom(MatDialogModule),
+    importProvidersFrom(MatDialogModule, MatNativeDateModule),
   ],
 };

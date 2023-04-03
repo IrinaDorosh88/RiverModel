@@ -18,7 +18,7 @@ const MATERIAL_MODULES = [
   MatInputModule,
 ];
 
-import { RiverCRUDModel, RiverService } from '@app/features/api-client';
+import { ApiClient, RiverCRUDModel } from '@app/features/api-client';
 import { NotificationService } from '@app/features/notification';
 
 export type RiverFormData =
@@ -70,7 +70,7 @@ export class RiverFormComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA)
     private data: RiverFormData,
     private notificationService: NotificationService,
-    private service: RiverService
+    private apiClient: ApiClient
   ) {
     const fb = new FormBuilder();
     this.FORM_GROUP = fb.group(
@@ -121,7 +121,7 @@ export class RiverFormComponent implements OnInit {
 
   private postEntity() {
     const value = this.FORM_GROUP.value;
-    return this.service.postEntity(value).pipe(
+    return this.apiClient.river.postEntity(value).pipe(
       tap(() => {
         this.notificationService.notify(
           `${value.name} is successfully created!`
@@ -132,7 +132,7 @@ export class RiverFormComponent implements OnInit {
 
   private putEntity() {
     const value = this.FORM_GROUP.value;
-    return this.service.putEntity(this.data!.id, value).pipe(
+    return this.apiClient.river.putEntity(this.data!.id, value).pipe(
       tap(() => {
         this.notificationService.notify(
           `${value.name} is successfully edited!`

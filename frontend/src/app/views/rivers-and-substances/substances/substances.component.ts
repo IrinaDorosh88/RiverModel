@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 const MATERIAL_MODULES = [MatButtonModule, MatIconModule, MatTableModule];
 
-import { SubstanceCRUDModel, SubstanceService } from '@app/features/api-client';
+import { SubstanceCRUDModel, ApiClient } from '@app/features/api-client';
 import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
 import { NotificationService } from '@app/features/notification';
 
@@ -73,7 +73,7 @@ export class SubstancesComponent implements OnInit, OnDestroy {
     private matDialog: MatDialog,
     private confirmationDialogService: ConfirmationDialogService,
     private notificationService: NotificationService,
-    private service: SubstanceService
+    private apiClient: ApiClient
   ) {
     this.DISPLAYED_COLUMNS = ['name', 'min', 'max', 'unit', 'actions'];
     this.DATA_SOURCE = new MatTableDataSource<
@@ -114,7 +114,7 @@ export class SubstancesComponent implements OnInit, OnDestroy {
     this.confirmationDialogService.open({
       title: `Delete ${item.name}`,
       confirmCallback: () => {
-        return this.service.deleteEntity(item.id).pipe(
+        return this.apiClient.substance.deleteEntity(item.id).pipe(
           tap(() => {
             this.notificationService.notify(
               `${item.name} is successfully deleted!`
@@ -145,7 +145,7 @@ export class SubstancesComponent implements OnInit, OnDestroy {
   }
 
   private refreshEntities() {
-    this.service.getEntities().subscribe({
+    this.apiClient.substance.getEntities().subscribe({
       next: (data) => {
         this.DATA_SOURCE.data = data;
       },

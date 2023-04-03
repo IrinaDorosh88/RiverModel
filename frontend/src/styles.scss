@@ -1,4 +1,4 @@
-// css reset
+// reset
 
 *,
 *::before,
@@ -16,8 +16,6 @@ img {
   max-width: 100%;
 }
 
-// angular material
-
 html,
 body {
   height: 100%;
@@ -25,6 +23,11 @@ body {
 
 body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  background-color: #eee;
+}
+
+canvas:not(:active) {
+  cursor: pointer;
 }
 
 .mat-mdc-tab-body-wrapper {
@@ -32,10 +35,6 @@ body {
 }
 
 // custom
-
-body {
-  background-color: #eee;
-}
 
 .card-box-shadow {
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
@@ -62,7 +61,11 @@ button.map-mini-fab-button {
   cursor: pointer;
 }
 
-/*---------------------*/
+.active-marker path {
+  fill: #f00;
+}
+
+// utility
 
 .width-full {
   width: 100% !important;

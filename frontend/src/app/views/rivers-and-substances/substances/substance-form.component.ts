@@ -18,7 +18,7 @@ const MATERIAL_MODULES = [
   MatInputModule,
 ];
 
-import { SubstanceCRUDModel, SubstanceService } from '@app/features/api-client';
+import { SubstanceCRUDModel, ApiClient } from '@app/features/api-client';
 import { NotificationService } from '@app/features/notification';
 
 export type SubstanceFormData =
@@ -96,7 +96,7 @@ export class SubstanceFormComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA)
     private data: SubstanceFormData,
     private notificationService: NotificationService,
-    private service: SubstanceService
+    private apiClient: ApiClient
   ) {
     const fb = new FormBuilder();
     this.FORM_GROUP = fb.group(
@@ -177,7 +177,7 @@ export class SubstanceFormComponent implements OnInit {
 
   private postEntity() {
     const value = this.FORM_GROUP.value;
-    return this.service.postEntity(value).pipe(
+    return this.apiClient.substance.postEntity(value).pipe(
       tap(() => {
         this.notificationService.notify(
           `${value.name} is successfully created!`
@@ -188,7 +188,7 @@ export class SubstanceFormComponent implements OnInit {
 
   private putEntity() {
     const value = this.FORM_GROUP.value;
-    return this.service.putEntity(this.data!.id, value).pipe(
+    return this.apiClient.substance.putEntity(this.data!.id, value).pipe(
       tap(() => {
         this.notificationService.notify(
           `${value.name} is successfully edited!`

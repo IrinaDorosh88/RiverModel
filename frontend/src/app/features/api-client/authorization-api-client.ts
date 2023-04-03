@@ -1,16 +1,18 @@
 import { Injectable } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 
-import { ApiClient } from './api-client';
+import { AbstractApiClient } from './abstract-api-client';
+
+export type AuthorizationModel = {
+  email: string;
+  password: string;
+};
 
 @Injectable({
   providedIn: 'root',
 })
-export class AuthorizationService extends ApiClient {
-  public register(model: {
-    email: string;
-    password: string;
-  }): Observable<{ status: string }> {
+export class AuthorizationApiClient extends AbstractApiClient {
+  public register(model: AuthorizationModel): Observable<{ status: string }> {
     const result =
       model.email === 'admin'
         ? of({ status: 'REGISTER: ok' })
@@ -22,10 +24,9 @@ export class AuthorizationService extends ApiClient {
     return result.pipe(delay(2000));
   }
 
-  public login(model: {
-    email: string;
-    password: string;
-  }): Observable<{ email: string; role: string }> {
+  public login(
+    model: AuthorizationModel
+  ): Observable<{ email: string; role: string }> {
     const result =
       model.email === 'admin' && model.password === 'admin'
         ? of({ email: 'admin@gmail.com', role: 'ADMIN' })

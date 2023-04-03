@@ -1,14 +1,19 @@
-import { HttpClient } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { AuthorizationApiClient } from './authorization-api-client';
+import { LocationApiClient } from './location-api-client';
+import { MeasurementApiClient } from './measurement-api-client';
+import { RiverApiClient } from './river-api-client';
+import { SubstanceApiClient } from './substance-api-client';
 
-import { ENVIRONMENT } from '@app/features/environment-init';
-
-export abstract class ApiClient {
-  protected httpClient: HttpClient;
-  protected apiHost: string;
-
-  constructor() {
-    this.httpClient = inject(HttpClient);
-    this.apiHost = ENVIRONMENT.API_HOST;
-  }
+@Injectable({
+  providedIn: 'root',
+})
+export class ApiClient {
+  constructor(
+    public authorization: AuthorizationApiClient,
+    public location: LocationApiClient,
+    public measurement: MeasurementApiClient,
+    public river: RiverApiClient,
+    public substance: SubstanceApiClient
+  ) {}
 }

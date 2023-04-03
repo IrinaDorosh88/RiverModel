@@ -1,6 +1,6 @@
 import { HttpClientQueryParams } from '@app/features/http-client-extensions';
 import { Observable } from 'rxjs';
-import { ApiClient } from './api-client';
+import { AbstractApiClient } from './abstract-api-client';
 
 export interface CRUDApiClientModel {
   getEntitiesResult: unknown;
@@ -14,7 +14,7 @@ export interface CRUDApiClientModel {
 
 export abstract class CRUDApiClient<
   T extends CRUDApiClientModel = CRUDApiClientModel
-> extends ApiClient {
+> extends AbstractApiClient {
   private url: string;
 
   constructor(private path: string) {
@@ -28,11 +28,8 @@ export abstract class CRUDApiClient<
     return this.httpClient.get<any>(this.url, { params });
   }
 
-  public getEntity(
-    id: number,
-    params?: HttpClientQueryParams
-  ): Observable<T['getEntityResult']> {
-    return this.httpClient.get(`${this.url}/${id}`, { params });
+  public getEntity(id: number): Observable<T['getEntityResult']> {
+    return this.httpClient.get(`${this.url}/${id}`);
   }
 
   public postEntity(

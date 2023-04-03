@@ -18,7 +18,7 @@ export interface SubstanceCRUDModel extends CRUDApiClientModel {
 @Injectable({
   providedIn: 'root',
 })
-export class SubstanceService extends CRUDApiClient<SubstanceCRUDModel> {
+export class SubstanceApiClient extends CRUDApiClient<SubstanceCRUDModel> {
   constructor() {
     super('sustances');
   }

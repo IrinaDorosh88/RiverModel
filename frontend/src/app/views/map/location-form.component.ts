@@ -21,12 +21,10 @@ const MATERIAL_MODULES = [
 ];
 
 import {
+  ApiClient,
   LocationCRUDModel,
-  LocationService,
   RiverCRUDModel,
-  RiverService,
   SubstanceCRUDModel,
-  SubstanceService,
 } from '@app/features/api-client';
 import { NotificationService } from '@app/features/notification';
 
@@ -56,7 +54,7 @@ export type LocationFormData =
           <mat-label>Longitude</mat-label>
           <input matInput formControlName="longitude" />
         </mat-form-field>
-        <mat-form-field appearance="fill" class="width-full">
+        <mat-form-field class="width-full">
           <mat-label>Substances</mat-label>
           <mat-select multiple formControlName="substancesIds">
             <mat-option
@@ -72,7 +70,7 @@ export type LocationFormData =
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
-        <mat-form-field appearance="fill" class="width-full">
+        <mat-form-field class="width-full">
           <mat-label>River</mat-label>
           <mat-select formControlName="riverId">
             <mat-option>---</mat-option>
@@ -126,9 +124,7 @@ export class LocationFormComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA)
     private data: LocationFormData,
     private notificationService: NotificationService,
-    private riverService: RiverService,
-    private substanceService: SubstanceService,
-    private service: LocationService
+    private apiClient: ApiClient
   ) {
     const fb = new FormBuilder();
     this.FORM_GROUP = fb.group(
@@ -169,8 +165,8 @@ export class LocationFormComponent implements OnInit {
   }
 
   public ngOnInit() {
-    this.SUBSTANCES$ = this.substanceService.getEntities();
-    this.RIVERS$ = this.riverService.getEntities();
+    this.SUBSTANCES$ = this.apiClient.substance.getEntities();
+    this.RIVERS$ = this.apiClient.river.getEntities();
     if (this.data.entity) {
       this.FORM_GROUP.patchValue(this.data.entity);
       this.TITLE = `Edit ${this.data.entity.name}`;
@@ -204,7 +200,7 @@ export class LocationFormComponent implements OnInit {
 
   private postEntity() {
     const value = this.FORM_GROUP.value;
-    return this.service.postEntity(value).pipe(
+    return this.apiClient.location.postEntity(value).pipe(
       tap(() => {
         this.notificationService.notify(
           `${value.name} is successfully created!`
@@ -215,7 +211,7 @@ export class LocationFormComponent implements OnInit {
 
   private putEntity() {
     const value = this.FORM_GROUP.value;
-    return this.service.putEntity(this.data!.entity!.id, value).pipe(
+    return this.apiClient.location.putEntity(this.data!.entity!.id, value).pipe(
       tap(() => {
         this.notificationService.notify(
           `${value.name} is successfully edited!`

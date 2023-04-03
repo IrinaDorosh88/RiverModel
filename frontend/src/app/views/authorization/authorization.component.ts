@@ -24,7 +24,7 @@ const MATERIAL_MODULES = [
   MatInputModule,
 ];
 
-import { AuthorizationService } from '@app/features/api-client';
+import { ApiClient } from '@app/features/api-client';
 import { NotificationService } from '@app/features/notification';
 import { User } from '@app/features/user';
 
@@ -113,7 +113,7 @@ export class AuthorizationComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) private data: { register: boolean } | undefined,
     private dialogRef: MatDialogRef<AuthorizationComponent>,
     private notificationService: NotificationService,
-    private service: AuthorizationService
+    private apiClient: ApiClient
   ) {
     const fb = new FormBuilder();
     this.FORM_GROUP = fb.group(
@@ -170,7 +170,7 @@ export class AuthorizationComponent implements OnInit {
   public onSubmitClick(model: { email: string; password: string }) {
     this.isFormSubmitted = true;
     if (this.register) {
-      this.service.register(model).subscribe({
+      this.apiClient.authorization.register(model).subscribe({
         next: () => {
           this.notificationService.notify('You are successfully signed up!');
           this.onAuthorizationTypeToggle();
@@ -185,7 +185,7 @@ export class AuthorizationComponent implements OnInit {
         },
       });
     } else {
-      this.service.login(model).subscribe({
+      this.apiClient.authorization.login(model).subscribe({
         next: (next) => {
           this.notificationService.notify('You are successfully signed in!');
           User.fromObject(next);

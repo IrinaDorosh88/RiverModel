@@ -8,7 +8,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 const MATERIAL_MODULES = [MatButtonModule, MatIconModule, MatTableModule];
 
-import { RiverService, RiverCRUDModel } from '@app/features/api-client';
+import { ApiClient, RiverCRUDModel } from '@app/features/api-client';
 import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
 import { NotificationService } from '@app/features/notification';
 
@@ -60,7 +60,7 @@ export class RiversComponent implements OnInit, OnDestroy {
     private readonly matDialog: MatDialog,
     private readonly confirmationDialogService: ConfirmationDialogService,
     private readonly notificationService: NotificationService,
-    private readonly service: RiverService
+    private readonly apiClient: ApiClient
   ) {
     this.DISPLAYED_COLUMNS = ['index', 'name', 'actions'];
     this.DATA_SOURCE = new MatTableDataSource<
@@ -101,7 +101,7 @@ export class RiversComponent implements OnInit, OnDestroy {
     this.confirmationDialogService.open({
       title: `Delete ${item.name}`,
       confirmCallback: () => {
-        return this.service.deleteEntity(item.id).pipe(
+        return this.apiClient.river.deleteEntity(item.id).pipe(
           tap(() => {
             this.notificationService.notify(
               `${item.name} is successfully deleted!`
@@ -129,7 +129,7 @@ export class RiversComponent implements OnInit, OnDestroy {
   }
 
   private refreshEntities() {
-    this.service.getEntities().subscribe({
+    this.apiClient.river.getEntities().subscribe({
       next: (data) => {
         this.DATA_SOURCE.data = data;
       },
