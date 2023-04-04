@@ -9,7 +9,9 @@ export const loaderInterceptorFn: HttpInterceptorFn = (() => {
     if (!totalRequests++) LOADING$$.next(true);
     return next(req).pipe(
       finalize(() => {
-        if (!--totalRequests) LOADING$$.next(false);
+        setTimeout(() => {
+          if (!--totalRequests) LOADING$$.next(false);
+        }, 200)
       })
     );
   };

@@ -52,7 +52,7 @@ canvas:not(:active) {
   background-color: #f44336;
 }
 
-button.map-mini-fab-button {
+.map-mini-fab-button {
   height: 48px;
   width: 48px;
   border: none;
@@ -61,8 +61,26 @@ button.map-mini-fab-button {
   cursor: pointer;
 }
 
-.active-marker path {
-  fill: #f00;
+.maplibregl-marker {
+  .marker-title {
+    display: none;
+  }
+
+  &.active path {
+    fill: #f00;
+  }
+
+  &.active .marker-title,
+  &:hover .marker-title {
+    display: initial;
+    position: absolute;
+    top: -32px;
+    padding: 0.25rem 0.5rem;
+    margin-left: 50%;
+    transform: translateX(-50%);
+    background-color: white;
+    white-space: nowrap;
+  }
 }
 
 // utility

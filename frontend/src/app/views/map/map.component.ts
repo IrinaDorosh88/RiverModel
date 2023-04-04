@@ -1,11 +1,4 @@
-import {
-  AfterViewInit,
-  Component,
-  ElementRef,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-} from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReplaySubject,
@@ -58,11 +51,10 @@ import {
   template: `
     <div class="height-full p-5 display-flex flex-wrap gap-5 overflow-y-auto">
       <div class="card-box-shadow p-2 background-color-white" style="flex: 3;">
-        <div #mapContainer class="height-full"></div>
+        <div id="map-container" class="height-full"></div>
       </div>
       <div class="card-box-shadow p-2 background-color-white" style="flex: 2;">
         <ng-container *ngIf="DATA_SOURCE$ | async as dataSource">
-          <h2>{{ (currentLocationAndMarker?.location)!.name }}</h2>
           <table mat-table class="p-3" [dataSource]="dataSource">
             <ng-container matColumnDef="date">
               <th *matHeaderCellDef mat-header-cell>Date</th>
@@ -93,10 +85,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly POPUP;
   private readonly SUBSCRIPTIONS;
   private readonly SUBSTANCES_MAPPER$;
-  private readonly QUERY_PARAMS: NonNullable<HttpClientQueryParams>;
+  private readonly QUERY_PARAMS;
 
-  @ViewChild('mapContainer')
-  private mapContainer!: ElementRef<HTMLElement>;
   private map!: Map;
 
   public currentLocationAndMarker:
@@ -130,7 +120,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       }),
       shareReplay(1)
     );
-    this.QUERY_PARAMS = {};
+    this.QUERY_PARAMS = {} as NonNullable<HttpClientQueryParams>;
     this.DATA_SOURCE$ = this.MEASUREMENTS$$.pipe(
       combineLatestWith(this.SUBSTANCES_MAPPER$),
       map(([entities, substances]) => {
@@ -167,12 +157,11 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public ngAfterViewInit() {
-    const initialState = { lng: 31.1828699, lat: 48.383022, zoom: 5 };
     this.map = new Map({
-      container: this.mapContainer.nativeElement,
-      style: `https://api.maptiler.com/maps/streets-v2/style.json?key=n88LfTJPWSHvvGGIETtw`,
-      center: [initialState.lng, initialState.lat],
-      zoom: initialState.zoom,
+      container: 'map-container',
+      style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${'n88LfTJPWSHvvGGIETtw'}`,
+      center: [31.1828699, 48.383022],
+      zoom: 5,
       attributionControl: false,
     })
       .on('load', () => {
@@ -195,7 +184,12 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
                   e.stopPropagation();
                   this.openLocationPopup(item, result);
                 });
+                const titleE = document.createElement('div');
+                titleE.textContent = item.name;
+                titleE.classList.add('marker-title');
+                resultE.appendChild(titleE);
                 if (
+                  shouldClearMeasurementsTab &&
                   this.currentLocationAndMarker &&
                   this.currentLocationAndMarker.location.id == item.id
                 ) {
@@ -203,7 +197,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
                     location: item,
                     marker: result,
                   };
-                  resultE.classList.add('active-marker');
+                  resultE.classList.add('active');
                   shouldClearMeasurementsTab = false;
                 }
                 return result;
@@ -261,7 +255,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onAddMeasurementsClicked(
-    entity: LocationCRUDModel['getEntitiesResult']
+    entity: LocationCRUDModel['getEntitiesResult'],
+    marker: Marker
   ) {
     this.SUBSTANCES_MAPPER$.pipe(
       switchMap((mapper) => {
@@ -280,18 +275,8 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       })
     ).subscribe({
       next: (next) => {
-        if (
-          next &&
-          this.currentLocationAndMarker &&
-          this.currentLocationAndMarker.location.id === entity.id
-        ) {
-          this.apiClient.measurement
-            .getEntities({ location: entity.id })
-            .subscribe({
-              next: (next) => {
-                this.MEASUREMENTS$$.next(next);
-              },
-            });
+        if (next) {
+          this.onDisplayMeasurementsClicked(entity, marker);
         }
       },
     });
@@ -306,13 +291,13 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         if (this.currentLocationAndMarker) {
           this.currentLocationAndMarker.marker
             .getElement()
-            .classList.remove('active-marker');
+            .classList.remove('active');
         }
         this.currentLocationAndMarker = {
           location: entity,
           marker,
         };
-        marker.getElement().classList.add('active-marker');
+        marker.getElement().classList.add('active');
         this.MEASUREMENTS$$.next(next);
       },
     });
@@ -395,7 +380,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     button = this.getButton('post_add');
     button.addEventListener('click', () => {
       this.POPUP.remove();
-      this.onAddMeasurementsClicked(entity);
+      this.onAddMeasurementsClicked(entity, marker);
     });
     content.appendChild(button);
     this.POPUP.setLngLat([entity.longitude, entity.latitude])

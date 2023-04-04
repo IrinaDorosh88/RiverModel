@@ -13,29 +13,29 @@ export type AuthorizationModel = {
 })
 export class AuthorizationApiClient extends AbstractApiClient {
   public register(model: AuthorizationModel): Observable<{ status: string }> {
-    const result =
-      model.email === 'admin'
-        ? of({ status: 'REGISTER: ok' })
-        : new Observable<{ status: string }>((subscriber) => {
+    return model.email === 'admin'
+      ? of({ status: 'REGISTER: ok' }).pipe(delay(2000))
+      : new Observable<{ status: string }>((subscriber) => {
+          setTimeout(() => {
             subscriber.error({
               error: { email: 'This email is already taken.' },
             });
-          });
-    return result.pipe(delay(2000));
+          }, 2000);
+        });
   }
 
   public login(
     model: AuthorizationModel
   ): Observable<{ email: string; role: string }> {
-    const result =
-      model.email === 'admin' && model.password === 'admin'
-        ? of({ email: 'admin@gmail.com', role: 'ADMIN' })
-        : new Observable<{ email: string; role: string }>((subscriber) => {
+    return model.email === 'admin' && model.password === 'admin'
+      ? of({ email: 'admin@gmail.com', role: 'ADMIN' }).pipe(delay(2000))
+      : new Observable<{ email: string; role: string }>((subscriber) => {
+          setTimeout(() => {
             subscriber.error({
               error: { message: 'Invalid user credentials' },
             });
-          });
-    return result.pipe(delay(2000));
+          }, 2000);
+        });
   }
 
   public logout() {

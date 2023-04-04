@@ -162,9 +162,13 @@ export class AuthorizationComponent implements OnInit {
 
   public onAuthorizationTypeToggle() {
     this.register = !this.register;
-    this.FORM_GROUP.controls['confirm'].patchValue('');
-    this.FORM_GROUP.controls['confirm'][this.register ? 'enable' : 'disable']();
-    this.FORM_GROUP.controls['confirm'].markAsUntouched();
+    if (this.register) {
+      this.FORM_GROUP.controls['confirm'].enable();
+      this.FORM_GROUP.controls['confirm'].patchValue('');
+      this.FORM_GROUP.controls['confirm'].markAsUntouched();
+    } else {
+      this.FORM_GROUP.controls['confirm'].disable();
+    }
   }
 
   public onSubmitClick(model: { email: string; password: string }) {
@@ -172,17 +176,16 @@ export class AuthorizationComponent implements OnInit {
     if (this.register) {
       this.apiClient.authorization.register(model).subscribe({
         next: () => {
+          this.isFormSubmitted = false;
           this.notificationService.notify('You are successfully signed up!');
           this.onAuthorizationTypeToggle();
         },
         error: (error) => {
+          this.isFormSubmitted = false;
           Object.entries(error.error).forEach(([key, value]) => {
             this.FORM_GROUP.controls[key].setErrors({ message: value });
           });
-        },
-        complete: () => {
-          this.isFormSubmitted = false;
-        },
+        }
       });
     } else {
       this.apiClient.authorization.login(model).subscribe({
