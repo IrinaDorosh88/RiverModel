@@ -1,6 +1,10 @@
-import { Component } from '@angular/core';
+import { AfterViewInit, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Subscription } from 'rxjs';
 import { Chart } from 'chart.js/auto';
+
+import { TOOLBAR_ACTION$$ } from '@app/views/home';
+import { ApiClient, LocationCRUDModel } from '@app/features/api-client';
 
 const MATERIAL_MODULES: any[] = [];
 
@@ -14,7 +18,7 @@ const MATERIAL_MODULES: any[] = [];
         <div
           class="height-full display-flex align-items-center justify-content-center"
         >
-          <canvas id="chart"></canvas>
+          <canvas id="chart-container"></canvas>
         </div>
       </div>
       <div class="card-box-shadow p-2 background-color-white" style="flex: 2;">
@@ -28,15 +32,31 @@ const MATERIAL_MODULES: any[] = [];
     </div>
   `,
 })
-export class ChartComponent {
+export class ChartComponent implements OnInit, AfterViewInit {
+  private readonly SUBSCRIPTIONS;
+
   public CHART!: Chart<'bar', number[], string>;
 
-  public ngAfterViewInit() {
-    this.initChart();
+  constructor(private apiClient: ApiClient) {
+    this.SUBSCRIPTIONS = new Subscription();
   }
 
-  private initChart() {
-    this.CHART = new Chart('chart', {
+  public ngOnInit() {
+    this.SUBSCRIPTIONS.add(
+      TOOLBAR_ACTION$$.subscribe({
+        next: ({ key, params }) => {
+          switch (key) {
+            case 'CHART_LOCATION_SELECTED':
+              this.onLocationSelected(params[0]);
+              break;
+          }
+        },
+      })
+    );
+  }
+
+  public ngAfterViewInit() {
+    this.CHART = new Chart('chart-container', {
       type: 'bar',
       data: {
         labels: [
@@ -76,5 +96,9 @@ export class ChartComponent {
         },
       },
     });
+  }
+
+  public onLocationSelected(entity: LocationCRUDModel['getEntitiesResult']) {
+    console.log(entity)
   }
 }

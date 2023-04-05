@@ -42,9 +42,9 @@ export class LocationApiClient extends CRUDApiClient<LocationCRUDModel> {
         substancesIds: [3, 4],
       },
     ];
-    if (params?.['riverId']) {
+    if (params?.['river']) {
       result = result.filter((entity) => {
-        return entity.riverId === params['riverId'];
+        return entity.riverId === params['river'];
       });
     }
     return of(result);

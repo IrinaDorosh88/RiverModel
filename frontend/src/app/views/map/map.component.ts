@@ -54,7 +54,7 @@ import {
         <div id="map-container" class="height-full"></div>
       </div>
       <div class="card-box-shadow p-2 background-color-white" style="flex: 2;">
-        <ng-container *ngIf="DATA_SOURCE$ | async as dataSource">
+        <ng-container *ngIf="DATA_SOURCE$ | async as dataSource; else noData">
           <table mat-table class="p-3" [dataSource]="dataSource">
             <ng-container matColumnDef="date">
               <th *matHeaderCellDef mat-header-cell>Date</th>
@@ -73,6 +73,11 @@ import {
             <tr mat-row *matRowDef="let row; columns: DISPLAYED_COLUMNS"></tr>
           </table>
         </ng-container>
+        <ng-template #noData>
+          <div class="height-full display-flex align-items-center justify-content-center">
+            Choose location to display Measurements
+          </div>
+        </ng-template>
       </div>
     </div>
   `,
@@ -231,7 +236,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }) {
     this.openDialog({
       coordinates,
-      riverId: this.QUERY_PARAMS['riverId'] as number,
+      riverId: this.QUERY_PARAMS['river'] as number,
     });
   }
 
@@ -305,9 +310,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private onRiverSelected(riverId: number | undefined) {
     if (riverId) {
-      this.QUERY_PARAMS['riverId'] = riverId;
+      this.QUERY_PARAMS['river'] = riverId;
     } else {
-      delete this.QUERY_PARAMS['riverId'];
+      delete this.QUERY_PARAMS['river'];
     }
     this.refreshEntities();
   }

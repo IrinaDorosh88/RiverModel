@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable, Subject } from 'rxjs';
+import { Observable, Subject, BehaviorSubject, startWith } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -17,12 +17,14 @@ const MATERIAL_MODULES = [
   MatToolbarModule,
 ];
 
-import { RiverCRUDModel, ApiClient } from '@app/features/api-client';
+import { RiverCRUDModel, ApiClient, LocationCRUDModel } from '@app/features/api-client';
 
 import { ChartComponent } from '@app/views/chart';
 import { MapComponent } from '@app/views/map';
 import { RiversAndSubstancesComponent } from '@app/views/rivers-and-substances';
 const VIEWS = [ChartComponent, MapComponent, RiversAndSubstancesComponent];
+
+import { LocationFilterComponent } from './location-filter.component';
 
 export const TOOLBAR_ACTION$$ = new Subject<{
   key: string;
@@ -31,7 +33,7 @@ export const TOOLBAR_ACTION$$ = new Subject<{
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ...MATERIAL_MODULES, ...VIEWS],
+  imports: [CommonModule, ...MATERIAL_MODULES, ...VIEWS, LocationFilterComponent],
   selector: 'app-home',
   template: `
     <div class="height-full display-flex flex-direction-column">
@@ -77,30 +79,18 @@ export const TOOLBAR_ACTION$$ = new Subject<{
           </mat-form-field>
         </ng-container>
         <ng-container *ngSwitchCase="2">
-          <mat-form-field class="ml-auto" style="width: 200px">
-            <mat-label>River</mat-label>
-            <mat-select
-              (selectionChange)="onToolbarActionInvoked('CHART_RIVER_SELECTED')"
-            >
-              <mat-option>---</mat-option>
-            </mat-select>
-          </mat-form-field>
-          <mat-form-field style="width: 200px">
-            <mat-label>Location</mat-label>
-            <mat-select
-              (selectionChange)="
-                onToolbarActionInvoked('CHART_LOCATION_SELECTED')
-              "
-            >
-              <mat-option>---</mat-option>
-            </mat-select>
-          </mat-form-field>
+          <app-location-filter
+            class="ml-auto"
+            (selectionChange)="
+              onToolbarActionInvoked('CHART_LOCATION_SELECTED', $event)
+            "
+          ></app-location-filter>
         </ng-container>
       </div>
 
       <mat-tab-group
         class="flex-auto"
-        (selectedIndexChange)="tabGroupSelectedIndex = $event"
+        [(selectedIndex)]="tabGroupSelectedIndex"
       >
         <mat-tab label="Rivers & Substances">
           <ng-template matTabContent>
@@ -125,13 +115,15 @@ export class HomeComponent implements OnInit {
   public tabGroupSelectedIndex: number;
 
   public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult'][]>;
+  public LOCATIONS$$!: BehaviorSubject<LocationCRUDModel['getEntitiesResult'][]>;
 
   constructor(private apiClient: ApiClient) {
-    this.tabGroupSelectedIndex = 0;
+    this.tabGroupSelectedIndex = 2;
   }
 
   public ngOnInit() {
-    this.RIVERS$ = this.apiClient.river.getEntities();
+    this.RIVERS$ = this.apiClient.river.getEntities().pipe(startWith([]));
+    this.LOCATIONS$$ = new BehaviorSubject<LocationCRUDModel['getEntitiesResult'][]>([]);
   }
 
   public onToolbarActionInvoked(key: string, ...params: any[]) {
