@@ -1,4 +1,4 @@
-import { AfterViewInit, Component, OnInit } from '@angular/core';
+import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subscription } from 'rxjs';
 import { Chart } from 'chart.js/auto';
@@ -22,17 +22,21 @@ const MATERIAL_MODULES: any[] = [];
         </div>
       </div>
       <div class="card-box-shadow p-2 background-color-white" style="flex: 2;">
-        <div
-          class="height-full display-flex align-items-center justify-content-center"
-          style="font-size: 2rem; color: white; background-color: blue"
-        >
-          Calculations HERE
-        </div>
+        <ng-template [ngIf]="data" [ngIfElse]="noData">
+          <div class="height-full display-flex align-items-center justify-content-center">
+            Data
+          </div>
+        </ng-template>
+        <ng-template #noData>
+          <div class="height-full display-flex align-items-center justify-content-center">
+            Choose location to display Data
+          </div>
+        </ng-template>
       </div>
     </div>
   `,
 })
-export class ChartComponent implements OnInit, AfterViewInit {
+export class ChartComponent implements OnInit, AfterViewInit, OnDestroy {
   private readonly SUBSCRIPTIONS;
 
   public CHART!: Chart<'bar', number[], string>;
@@ -53,6 +57,10 @@ export class ChartComponent implements OnInit, AfterViewInit {
         },
       })
     );
+  }
+
+  public ngOnDestroy() {
+    this.SUBSCRIPTIONS.unsubscribe();
   }
 
   public ngAfterViewInit() {
@@ -98,7 +106,9 @@ export class ChartComponent implements OnInit, AfterViewInit {
     });
   }
 
+  data: boolean = false;
   public onLocationSelected(entity: LocationCRUDModel['getEntitiesResult']) {
-    console.log(entity)
+    console.log(entity);
+    this.data = !!entity;
   }
 }

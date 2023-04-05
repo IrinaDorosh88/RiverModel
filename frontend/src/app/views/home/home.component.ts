@@ -42,7 +42,7 @@ export const TOOLBAR_ACTION$$ = new Subject<{
         style="min-height: 7rem"
         [ngSwitch]="tabGroupSelectedIndex"
       >
-        <ng-container *ngSwitchCase="0">
+        <ng-template [ngSwitchCase]="0">
           <button
             mat-flat-button
             color="primary"
@@ -59,8 +59,8 @@ export const TOOLBAR_ACTION$$ = new Subject<{
             <mat-icon>add</mat-icon>
             Substance
           </button>
-        </ng-container>
-        <ng-container *ngSwitchCase="1">
+        </ng-template>
+        <ng-template [ngSwitchCase]="1">
           <mat-form-field class="ml-auto" style="width: 200px">
             <mat-label>River</mat-label>
             <mat-select
@@ -68,7 +68,7 @@ export const TOOLBAR_ACTION$$ = new Subject<{
                 onToolbarActionInvoked('MAP_RIVER_SELECTED', $event.value)
               "
             >
-              <mat-option>---</mat-option>
+              <mat-option [value]="null">---</mat-option>
               <mat-option
                 *ngFor="let entity of RIVERS$ | async"
                 [value]="entity.id"
@@ -77,15 +77,15 @@ export const TOOLBAR_ACTION$$ = new Subject<{
               </mat-option>
             </mat-select>
           </mat-form-field>
-        </ng-container>
-        <ng-container *ngSwitchCase="2">
+        </ng-template>
+        <ng-template [ngSwitchCase]="2">
           <app-location-filter
             class="ml-auto"
             (selectionChange)="
               onToolbarActionInvoked('CHART_LOCATION_SELECTED', $event)
             "
           ></app-location-filter>
-        </ng-container>
+        </ng-template>
       </div>
 
       <mat-tab-group

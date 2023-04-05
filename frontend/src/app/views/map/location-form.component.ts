@@ -73,7 +73,7 @@ export type LocationFormData =
         <mat-form-field class="width-full">
           <mat-label>River</mat-label>
           <mat-select formControlName="riverId">
-            <mat-option>---</mat-option>
+            <mat-option [value]="null">---</mat-option>
             <mat-option
               *ngFor="let entity of RIVERS$ | async"
               [value]="entity.id"

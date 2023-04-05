@@ -20,7 +20,7 @@ import { ApiClient, LocationCRUDModel, RiverCRUDModel } from '@app/features/api-
     <mat-form-field style="width: 200px">
       <mat-label>River</mat-label>
       <mat-select (selectionChange)="onRiverSelectionChange($event.value)">
-        <mat-optio>---</mat-option>
+        <mat-option [value]="null">---</mat-option>
         <mat-option
           *ngFor="let entity of RIVERS$ | async"
           [value]="entity.id"
@@ -32,7 +32,7 @@ import { ApiClient, LocationCRUDModel, RiverCRUDModel } from '@app/features/api-
     <mat-form-field class="ml-3" style="width: 200px">
       <mat-label>Location</mat-label>
       <mat-select [formControl]="LOCATION_FORM_CONTROL">
-        <mat-option>---</mat-option>
+        <mat-option [value]="null">---</mat-option>
         <mat-option
           *ngFor="let entity of LOCATIONS$$ | async"
           [value]="entity.id"
@@ -44,7 +44,7 @@ import { ApiClient, LocationCRUDModel, RiverCRUDModel } from '@app/features/api-
   `
 })
 export class LocationFilterComponent implements OnInit, OnDestroy {
-  @Output('selectionChange') public readonly RIVER_SELECTION_CHANGE_EMITTER = new EventEmitter<number | null | undefined>();
+  @Output('selectionChange') public readonly RIVER_SELECTION_CHANGE_EMITTER = new EventEmitter<number | null>();
 
   private readonly SUBSCRIPTIONS;
   public readonly LOCATION_FORM_CONTROL;
@@ -54,7 +54,7 @@ export class LocationFilterComponent implements OnInit, OnDestroy {
 
   constructor(private apiClient: ApiClient) {
     this.SUBSCRIPTIONS = new Subscription();
-    this.LOCATION_FORM_CONTROL = new FormControl<number | null | undefined>(undefined);
+    this.LOCATION_FORM_CONTROL = new FormControl<number | null>(null);
     this.LOCATIONS$$ = new BehaviorSubject<LocationCRUDModel['getEntitiesResult'][]>([]);
   }
 
@@ -70,10 +70,11 @@ export class LocationFilterComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy() {
+    console.log(`Hello?`)
     this.SUBSCRIPTIONS.unsubscribe();
   }
 
-  public onRiverSelectionChange(riverId: number | null | undefined) {
+  public onRiverSelectionChange(riverId: number | null) {
     if (riverId) {
       this.apiClient.location.getEntities({ river: riverId }).subscribe({
         next: data => {
@@ -84,7 +85,7 @@ export class LocationFilterComponent implements OnInit, OnDestroy {
       this.LOCATIONS$$.next([]);
     }
     if (this.LOCATION_FORM_CONTROL.value != null) {
-      this.LOCATION_FORM_CONTROL.patchValue(undefined);
+      this.LOCATION_FORM_CONTROL.patchValue(null);
     }
   }
 }
