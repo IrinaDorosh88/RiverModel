@@ -1,10 +1,7 @@
 import { Component, importProvidersFrom, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApplicationConfig } from '@angular/platform-browser';
-import {
-  BrowserAnimationsModule,
-  provideAnimations,
-} from '@angular/platform-browser/animations';
+import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
@@ -12,13 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatNativeDateModule } from '@angular/material/core';
-import { MatToolbarModule } from '@angular/material/toolbar';
-const MATERIAL_MODULES = [
-  MatButtonModule,
-  MatDialogModule,
-  MatIconModule,
-  MatToolbarModule,
-];
+const MATERIAL_MODULES = [MatButtonModule, MatDialogModule, MatIconModule];
 
 import { AuthorizationComponent } from '@app/views/authorization';
 import { DescriptionComponent } from '@app/views/description';
@@ -40,34 +31,29 @@ import { User, USER_INITIALIZER_PROVIDER } from '@app/features/user';
   selector: 'app-root',
   template: `
     <app-loader></app-loader>
-    <div class="height-full display-flex flex-direction-column">
-      <mat-toolbar class="gap-3 flex-shrink-0" color="primary">
-        <span class="mr-auto">Logo HERE</span>
-        <ng-template
-          [ngIf]="user$ | async"
-          [ngIfElse]="nonAuthorizedUserButtons"
-        >
-          <button mat-flat-button (click)="onLogoutClick()">
-            <span>Sign out</span>
-          </button>
-        </ng-template>
-        <ng-template #nonAuthorizedUserButtons>
-          <button mat-flat-button (click)="onLoginClick()">
-            <span>Sign in</span>
-          </button>
-          <button mat-button (click)="onRegisterClick()">
-            <span>Sign up</span>
-          </button>
-        </ng-template>
-      </mat-toolbar>
-      <div class="flex-auto">
-        <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorizedUserView">
-          <app-home></app-home>
-        </ng-template>
-        <ng-template #nonAuthorizedUserView>
-          <app-description></app-description>
-        </ng-template>
-      </div>
+    <div class="app-toolbar">
+      <span class="mr-auto">Logo HERE</span>
+      <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorizedUserButtons">
+        <button mat-flat-button (click)="onLogoutClick()">
+          <span>Sign out</span>
+        </button>
+      </ng-template>
+      <ng-template #nonAuthorizedUserButtons>
+        <button mat-flat-button (click)="onLoginClick()">
+          <span>Sign in</span>
+        </button>
+        <button mat-button (click)="onRegisterClick()">
+          <span>Sign up</span>
+        </button>
+      </ng-template>
+    </div>
+    <div class="app-content-wrapper">
+      <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorizedUserView">
+        <app-home></app-home>
+      </ng-template>
+      <ng-template #nonAuthorizedUserView>
+        <app-description></app-description>
+      </ng-template>
     </div>
   `,
 })

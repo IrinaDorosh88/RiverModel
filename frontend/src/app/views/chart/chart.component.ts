@@ -13,22 +13,18 @@ const MATERIAL_MODULES: any[] = [];
   imports: [CommonModule, ...MATERIAL_MODULES],
   selector: 'app-chart',
   template: `
-    <div class="height-full p-5 display-flex flex-wrap gap-5 overflow-y-auto">
-      <div class="card-box-shadow p-2 background-color-white" style="flex: 3;">
-        <div
-          class="height-full display-flex align-items-center justify-content-center"
-        >
+    <div class="home-content app-card-container">
+      <div class="app-card" style="flex: 3;">
           <canvas id="chart-container"></canvas>
-        </div>
       </div>
-      <div class="card-box-shadow p-2 background-color-white" style="flex: 2;">
+      <div class="app-card" style="flex: 2;">
         <ng-template [ngIf]="data" [ngIfElse]="noData">
-          <div class="height-full display-flex align-items-center justify-content-center">
+          <div class="display-flex align-items-center justify-content-center" style="height: 100%">
             Data
           </div>
         </ng-template>
         <ng-template #noData>
-          <div class="height-full display-flex align-items-center justify-content-center">
+          <div class="display-flex align-items-center justify-content-center" style="height: 100%">
             Choose location to display Data
           </div>
         </ng-template>

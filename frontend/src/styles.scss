@@ -30,26 +30,93 @@ canvas:not(:active) {
   cursor: pointer;
 }
 
-.mat-mdc-tab-body-wrapper {
-  height: 100%;
+// layout
+
+:root {
+  --app-toolbar-min-height: 4rem;
+  --app-toolbar-padding: 1rem;
+  --app-content-wrapper-padding: 1rem;
+  --app-content-min-height: calc(
+    100vh - var(--app-toolbar-min-height) - 2 * var(--app-toolbar-padding) - 2 *
+      var(--app-content-wrapper-padding)
+  );
+  --home-toolbar-min-height: 5rem;
+  --mat-tab-header-min-height: 3rem;
+  --home-content-wrapper-padding: 1rem;
+  --home-content-min-height: calc(
+    var(--app-content-min-height) - var(--home-toolbar-min-height) -
+      var(--mat-tab-header-min-height) - 2 * var(--home-content-wrapper-padding)
+  );
+}
+
+.app-toolbar {
+  min-height: var(--app-toolbar-min-height);
+  padding: var(--app-toolbar-padding);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex-wrap: wrap;
+  background-color: var(--primary);
+  color: #fff;
+}
+
+.app-content-wrapper {
+  padding: var(--app-content-wrapper-padding);
+}
+
+.app-content {
+  min-height: var(--app-content-min-height);
+}
+
+.home-toolbar {
+  min-height: var(--home-toolbar-min-height);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+mat-tab-header {
+  min-height: var(--mat-tab-header-min-height);
+}
+
+.home-content-wrapper {
+  padding: var(--home-content-wrapper-padding);
+}
+
+.home-content {
+  min-height: var(--home-content-min-height);
+}
+
+.app-card-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.app-card {
+  border: 0.5rem solid #fff;
+  background-color: #fff;
+  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 
 // custom
 
-.card-box-shadow {
-  box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
+:root {
+  --primary: #3f51b5;
+  --accent: #ff4081;
+  --warn: #f44336;
 }
 
 .background-color-primary {
-  background-color: #3f51b5;
+  background-color: var(--primary);
 }
 
 .background-color-accent {
-  background-color: #ff4081;
+  background-color: var(--accent);
 }
 
 .background-color-warn {
-  background-color: #f44336;
+  background-color: var(--warn);
 }
 
 .map-mini-fab-button {
@@ -91,10 +158,6 @@ canvas:not(:active) {
 
 .width-auto {
   width: auto !important;
-}
-
-.height-full {
-  height: 100% !important;
 }
 
 .display-flex {
@@ -200,10 +263,6 @@ canvas:not(:active) {
 
 .text-align-center {
   text-align: center !important;
-}
-
-.overflow-y-auto {
-  overflow-y: auto;
 }
 
 .hover\:text-decoration-underline:hover {

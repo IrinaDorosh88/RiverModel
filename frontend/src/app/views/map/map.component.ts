@@ -49,12 +49,16 @@ import {
   imports: [CommonModule, ...MATERIAL_MODULES],
   selector: 'app-map',
   template: `
-    <div class="height-full p-5 display-flex flex-wrap gap-5 overflow-y-auto">
-      <div class="card-box-shadow p-2 background-color-white" style="flex: 3;">
-        <div id="map-container" class="height-full"></div>
+    <div class="home-content app-card-container">
+      <div class="app-card" style="flex: 3;">
+        <div id="map-container" style="height: 100%"></div>
       </div>
-      <div class="card-box-shadow p-2 background-color-white" style="flex: 2;">
-        <ng-template [ngIf]="DATA_SOURCE$ | async" [ngIfElse]="noData" let-dataSource>
+      <div class="app-card background-color-white" style="flex: 2;">
+        <ng-template
+          [ngIf]="DATA_SOURCE$ | async"
+          [ngIfElse]="noData"
+          let-dataSource
+        >
           <table mat-table class="p-3" [dataSource]="dataSource">
             <ng-container matColumnDef="date">
               <th *matHeaderCellDef mat-header-cell>Date</th>
@@ -74,10 +78,13 @@ import {
           </table>
         </ng-template>
         <ng-template #noData>
-            <div class="height-full display-flex align-items-center justify-content-center">
-              Choose location to display Measurements
-            </div>
-          </ng-template>
+          <div
+            class="display-flex align-items-center justify-content-center"
+            style="height: 100%"
+          >
+            Choose location to display Measurements
+          </div>
+        </ng-template>
       </div>
     </div>
   `,
