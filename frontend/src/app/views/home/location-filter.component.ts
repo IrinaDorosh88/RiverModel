@@ -82,7 +82,6 @@ export class LocationFilterComponent implements OnInit, OnDestroy {
   }
 
   public ngOnDestroy() {
-    console.log(`Hello?`);
     this.SUBSCRIPTIONS.unsubscribe();
   }
 

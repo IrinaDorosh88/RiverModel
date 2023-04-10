@@ -107,16 +107,28 @@ mat-tab-header {
   --warn: #f44336;
 }
 
+.color-primary {
+  color: var(--primary) !important;
+}
+
+.color-accent {
+  color: var(--accent) !important;
+}
+
+.color-warn {
+  color: var(--warn) !important;
+}
+
 .background-color-primary {
-  background-color: var(--primary);
+  background-color: var(--primary) !important;
 }
 
 .background-color-accent {
-  background-color: var(--accent);
+  background-color: var(--accent) !important;
 }
 
 .background-color-warn {
-  background-color: var(--warn);
+  background-color: var(--warn) !important;
 }
 
 .map-mini-fab-button {
@@ -251,6 +263,10 @@ mat-tab-header {
 
 .ml-3 {
   margin-left: 1rem !important;
+}
+
+.color-white {
+  color: white !important;
 }
 
 .background-color-white {

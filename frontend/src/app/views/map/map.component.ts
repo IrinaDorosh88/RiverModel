@@ -15,12 +15,10 @@ import { Map, Marker, Popup } from 'maplibre-gl';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 const MATERIAL_MODULES = [
   MatButtonModule,
   MatIconModule,
-  MatProgressSpinnerModule,
   MatTableModule,
 ];
 

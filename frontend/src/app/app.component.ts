@@ -34,15 +34,15 @@ import { User, USER_INITIALIZER_PROVIDER } from '@app/features/user';
     <div class="app-toolbar">
       <span class="mr-auto">Logo HERE</span>
       <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorizedUserButtons">
-        <button mat-flat-button (click)="onLogoutClick()">
+        <button mat-flat-button class="color-primary" (click)="onLogoutClick()">
           <span>Sign out</span>
         </button>
       </ng-template>
       <ng-template #nonAuthorizedUserButtons>
-        <button mat-flat-button (click)="onLoginClick()">
+        <button mat-flat-button class="color-primary" (click)="onLoginClick()">
           <span>Sign in</span>
         </button>
-        <button mat-button (click)="onRegisterClick()">
+        <button mat-button class="color-white" (click)="onRegisterClick()">
           <span>Sign up</span>
         </button>
       </ng-template>
