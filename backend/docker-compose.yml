@@ -6,12 +6,19 @@ services:
       context: .
       dockerfile: Dockerfile
     image: backend-river-model
+    volumes:
+      - ./app:/app
+      - ./tests:/tests
     ports:
       - "8000:8000"
     depends_on:
       - db
     environment:
       - DATABASE_URL=postgresql://user:password@db:5432/dbname
+      - SECRET_KEY=aksdnaksfnaksfmasnfan
+      - ALGORITHM=HS256
+    command: /bin/sh -c "alembic upgrade head && 
+                        uvicorn main:app --host 0.0.0.0 --port 8000 --reload"
     networks:
       - app_net
 
@@ -23,11 +30,15 @@ services:
       - POSTGRES_DB=dbname
     volumes:
       - dbdata:/var/lib/postgresql/data/
+    ports:
+      - "5432:5432"
     networks:
       - app_net
 
 networks:
   app_net:
+    external: true
+    name: app_net
 
 volumes:
   dbdata:
