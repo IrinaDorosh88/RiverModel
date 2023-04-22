@@ -6,14 +6,13 @@ WORKDIR /app
 
 # Copy requirements file and install dependencies
 COPY requirements.txt .
+
+RUN pip install --upgrade pip
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application code
-COPY . .
+COPY ./app .
 
 # Expose port
-EXPOSE 80
-
-# Start the application
-#CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
-CMD ["sleep", "infinity"]
+EXPOSE 8000
