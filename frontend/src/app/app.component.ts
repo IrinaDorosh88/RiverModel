@@ -32,7 +32,7 @@ import { User, USER_INITIALIZER_PROVIDER } from '@app/features/user';
   template: `
     <app-loader></app-loader>
     <div class="app-toolbar">
-      <span class="mr-auto">Logo HERE</span>
+      <img class="mr-auto" src="./assets/logo.svg" />
       <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorizedUserButtons">
         <button mat-flat-button class="color-primary" (click)="onLogoutClick()">
           <span>Sign out</span>

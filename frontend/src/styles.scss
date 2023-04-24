@@ -13,7 +13,7 @@
 }
 
 img {
-  max-width: 100%;
+  max-height: 100%;
 }
 
 html,
@@ -33,11 +33,11 @@ canvas:not(:active) {
 // layout
 
 :root {
-  --app-toolbar-min-height: 4rem;
+  --app-toolbar-height: 4rem;
   --app-toolbar-padding: 1rem;
   --app-content-wrapper-padding: 1rem;
   --app-content-min-height: calc(
-    100vh - var(--app-toolbar-min-height) - 2 * var(--app-toolbar-padding) - 2 *
+    100vh - var(--app-toolbar-height) - 2 * var(--app-toolbar-padding) - 2 *
       var(--app-content-wrapper-padding)
   );
   --home-toolbar-min-height: 5rem;
@@ -50,7 +50,7 @@ canvas:not(:active) {
 }
 
 .app-toolbar {
-  min-height: var(--app-toolbar-min-height);
+  height: var(--app-toolbar-height);
   padding: var(--app-toolbar-padding);
   display: flex;
   align-items: center;
