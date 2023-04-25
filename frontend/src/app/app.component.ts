@@ -11,19 +11,19 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatNativeDateModule } from '@angular/material/core';
 const MATERIAL_MODULES = [MatButtonModule, MatDialogModule, MatIconModule];
 
-import { AuthorizationComponent } from '@app/views/authorization';
-import { DescriptionComponent } from '@app/views/description';
-import { HomeComponent } from '@app/views/home';
+import { AuthorizationComponent } from '@/views/authorization';
+import { DescriptionComponent } from '@/views/description';
+import { HomeComponent } from '@/views/home';
 const VIEWS = [AuthorizationComponent, DescriptionComponent, HomeComponent];
 
-import { ApiClient } from '@app/features/api-client';
-import { ENVIRONMENT_INITIALIZER_PROVIDER } from '@app/features/environment-init';
-import { LoaderComponent, loaderInterceptorFn } from '@app/features/loading';
+import { ApiClient } from '@/features/api-client';
+import { ENVIRONMENT_INITIALIZER_PROVIDER } from '@/features/environment-init';
+import { LoaderComponent, loaderInterceptorFn } from '@/features/loading';
 import {
   NotificationService,
   NOTIFICATION_PROVIDERS,
-} from '@app/features/notification';
-import { User, USER_INITIALIZER_PROVIDER } from '@app/features/user';
+} from '@/features/notification';
+import { User, USER_INITIALIZER_PROVIDER } from '@/features/user';
 
 @Component({
   standalone: true,

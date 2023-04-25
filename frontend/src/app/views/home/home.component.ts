@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable, Subject, BehaviorSubject, startWith } from 'rxjs';
+import { Observable, Subject, BehaviorSubject, startWith, map } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -21,11 +21,11 @@ import {
   RiverCRUDModel,
   ApiClient,
   LocationCRUDModel,
-} from '@app/features/api-client';
+} from '@/features/api-client';
 
-import { ChartComponent } from '@app/views/chart';
-import { MapComponent } from '@app/views/map';
-import { RiversAndSubstancesComponent } from '@app/views/rivers-and-substances';
+import { ChartComponent } from '@/views/chart';
+import { MapComponent } from '@/views/map';
+import { RiversAndSubstancesComponent } from '@/views/rivers-and-substances';
 const VIEWS = [ChartComponent, MapComponent, RiversAndSubstancesComponent];
 
 import { LocationFilterComponent } from './location-filter.component';
@@ -120,7 +120,7 @@ export const TOOLBAR_ACTION$$ = new Subject<{
 export class HomeComponent implements OnInit {
   public tabGroupSelectedIndex: number;
 
-  public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult'][]>;
+  public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult']['data']>;
   public LOCATIONS$$!: BehaviorSubject<
     LocationCRUDModel['getEntitiesResult'][]
   >;
@@ -130,7 +130,10 @@ export class HomeComponent implements OnInit {
   }
 
   public ngOnInit() {
-    this.RIVERS$ = this.apiClient.river.getEntities().pipe(startWith([]));
+    this.RIVERS$ = this.apiClient.river.getEntities().pipe(
+      map((next) => next.data),
+      startWith([])
+    );
     this.LOCATIONS$$ = new BehaviorSubject<
       LocationCRUDModel['getEntitiesResult'][]
     >([]);

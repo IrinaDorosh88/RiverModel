@@ -1,4 +1,4 @@
-import { HttpClientQueryParams } from '@app/features/http-client-extensions';
+import { HttpClientQueryParams } from '@/features/http-client-extensions';
 import { Observable } from 'rxjs';
 import { AbstractApiClient } from './abstract-api-client';
 
@@ -24,7 +24,7 @@ export abstract class CRUDApiClient<
 
   public getEntities(
     params?: HttpClientQueryParams
-  ): Observable<T['getEntitiesResult'][]> {
+  ): Observable<T['getEntitiesResult']> {
     return this.httpClient.get<any>(this.url, { params });
   }
 

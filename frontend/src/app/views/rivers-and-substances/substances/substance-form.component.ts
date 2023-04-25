@@ -18,11 +18,11 @@ const MATERIAL_MODULES = [
   MatInputModule,
 ];
 
-import { SubstanceCRUDModel, ApiClient } from '@app/features/api-client';
-import { NotificationService } from '@app/features/notification';
+import { SubstanceCRUDModel, ApiClient } from '@/features/api-client';
+import { NotificationService } from '@/features/notification';
 
 export type SubstanceFormData =
-  | SubstanceCRUDModel['getEntitiesResult']
+  | SubstanceCRUDModel['getEntitiesResult']['data'][number]
   | undefined
   | null;
 

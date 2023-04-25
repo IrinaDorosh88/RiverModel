@@ -7,7 +7,13 @@ import {
   OnDestroy,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { BehaviorSubject, Observable, startWith, Subscription } from 'rxjs';
+import {
+  BehaviorSubject,
+  map,
+  Observable,
+  startWith,
+  Subscription,
+} from 'rxjs';
 
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatSelectModule } from '@angular/material/select';
@@ -17,7 +23,7 @@ import {
   ApiClient,
   LocationCRUDModel,
   RiverCRUDModel,
-} from '@app/features/api-client';
+} from '@/features/api-client';
 
 @Component({
   standalone: true,
@@ -60,18 +66,21 @@ export class LocationFilterComponent implements OnInit, OnDestroy {
   public readonly LOCATION_FORM_CONTROL;
   public LOCATIONS$$;
 
-  public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult'][]>;
+  public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult']['data']>;
 
   constructor(private apiClient: ApiClient) {
     this.SUBSCRIPTIONS = new Subscription();
     this.LOCATION_FORM_CONTROL = new FormControl<number | null>(null);
     this.LOCATIONS$$ = new BehaviorSubject<
-      LocationCRUDModel['getEntitiesResult'][]
+      LocationCRUDModel['getEntitiesResult']
     >([]);
   }
 
   public ngOnInit() {
-    this.RIVERS$ = this.apiClient.river.getEntities().pipe(startWith([]));
+    this.RIVERS$ = this.apiClient.river.getEntities().pipe(
+      map((next) => next.data),
+      startWith([])
+    );
     this.SUBSCRIPTIONS.add(
       this.LOCATION_FORM_CONTROL.valueChanges.subscribe({
         next: (next) => {

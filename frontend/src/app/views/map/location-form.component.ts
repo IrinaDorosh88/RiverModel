@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { Observable, tap } from 'rxjs';
+import { Observable, map, tap } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -25,17 +25,17 @@ import {
   LocationCRUDModel,
   RiverCRUDModel,
   SubstanceCRUDModel,
-} from '@app/features/api-client';
-import { NotificationService } from '@app/features/notification';
+} from '@/features/api-client';
+import { NotificationService } from '@/features/notification';
 
 export type LocationFormData =
   | {
-      entity: LocationCRUDModel['getEntitiesResult'];
+      entity: LocationCRUDModel['getEntitiesResult'][number];
     }
   | {
       entity?: undefined;
       coordinates: { latitude: number; longitude: number };
-      riverId?: number | undefined;
+      riverId?: number | null;
     };
 
 @Component({
@@ -116,8 +116,10 @@ export class LocationFormComponent implements OnInit {
   public TITLE!: string;
   public SUBMIT_BUTTON_COLOR!: 'primary' | 'accent';
   private HANDLE_ENTITY!: () => Observable<any>;
-  public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult'][]>;
-  public SUBSTANCES$!: Observable<SubstanceCRUDModel['getEntitiesResult'][]>;
+  public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult']['data']>;
+  public SUBSTANCES$!: Observable<
+    SubstanceCRUDModel['getEntitiesResult']['data']
+  >;
 
   constructor(
     private dialogRef: MatDialogRef<LocationFormComponent>,
@@ -165,8 +167,12 @@ export class LocationFormComponent implements OnInit {
   }
 
   public ngOnInit() {
-    this.SUBSTANCES$ = this.apiClient.substance.getEntities();
-    this.RIVERS$ = this.apiClient.river.getEntities();
+    this.SUBSTANCES$ = this.apiClient.substance
+      .getEntities()
+      .pipe(map((next) => next.data));
+    this.RIVERS$ = this.apiClient.river
+      .getEntities()
+      .pipe(map((next) => next.data));
     if (this.data.entity) {
       this.FORM_GROUP.patchValue(this.data.entity);
       this.TITLE = `Edit ${this.data.entity.name}`;

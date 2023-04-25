@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 
-import { HttpClientQueryParams } from '@app/features/http-client-extensions';
+import { HttpClientQueryParams } from '@/features/http-client-extensions';
 import { CRUDApiClient, CRUDApiClientModel } from './crud-api-client';
 
 export interface LocationCRUDModel extends CRUDApiClientModel {
@@ -12,7 +12,7 @@ export interface LocationCRUDModel extends CRUDApiClientModel {
     name: string;
     riverId: number;
     substancesIds: number[];
-  };
+  }[];
 }
 
 @Injectable({

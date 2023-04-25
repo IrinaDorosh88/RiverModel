@@ -24,9 +24,9 @@ const MATERIAL_MODULES = [
   MatInputModule,
 ];
 
-import { ApiClient } from '@app/features/api-client';
-import { NotificationService } from '@app/features/notification';
-import { User } from '@app/features/user';
+import { ApiClient } from '@/features/api-client';
+import { NotificationService } from '@/features/notification';
+import { User } from '@/features/user';
 
 @Component({
   standalone: true,

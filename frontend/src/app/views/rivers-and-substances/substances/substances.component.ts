@@ -1,18 +1,28 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { Subscription, tap } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import {
+  MatPaginator,
+  MatPaginatorModule,
+  PageEvent,
+} from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
-const MATERIAL_MODULES = [MatButtonModule, MatIconModule, MatTableModule];
+const MATERIAL_MODULES = [
+  MatButtonModule,
+  MatIconModule,
+  MatPaginatorModule,
+  MatTableModule,
+];
 
-import { SubstanceCRUDModel, ApiClient } from '@app/features/api-client';
-import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
-import { NotificationService } from '@app/features/notification';
+import { SubstanceCRUDModel, ApiClient } from '@/features/api-client';
+import { ConfirmationDialogService } from '@/features/confirmation-dialog';
+import { NotificationService } from '@/features/notification';
 
-import { TOOLBAR_ACTION$$ } from '@app/views/home';
+import { TOOLBAR_ACTION$$ } from '@/views/home';
 
 import {
   SubstanceFormComponent,
@@ -24,7 +34,14 @@ import {
   imports: [CommonModule, ...MATERIAL_MODULES],
   selector: 'app-substances',
   template: `
-    <table mat-table class="p-3" [dataSource]="DATA_SOURCE">
+    <mat-paginator
+      [length]="length"
+      [hidePageSize]="true"
+      [pageSize]="10"
+      [showFirstLastButtons]="true"
+      (page)="onPaginatorPage($event)"
+    ></mat-paginator>
+    <table mat-table class="p-2" [dataSource]="DATA_SOURCE">
       <ng-container matColumnDef="name">
         <th *matHeaderCellDef mat-header-cell>Name</th>
         <td *matCellDef="let item" mat-cell>{{ item.name }}</td>
@@ -46,13 +63,13 @@ import {
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th *matHeaderCellDef mat-header-cell>Actions</th>
+        <th *matHeaderCellDef mat-header-cell style="width: 100px"></th>
         <td *matCellDef="let item" mat-cell>
           <div class="display-flex gap-2">
-            <button mat-mini-fab color="accent" (click)="onEditClicked(item)">
+            <button mat-mini-fab color="accent" (click)="onEditClick(item)">
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-mini-fab color="warn" (click)="onDeleteClicked(item)">
+            <button mat-mini-fab color="warn" (click)="onDeleteClick(item)">
               <mat-icon>delete</mat-icon>
             </button>
           </div>
@@ -65,9 +82,15 @@ import {
   `,
 })
 export class SubstancesComponent implements OnInit, OnDestroy {
+  @ViewChild(MatPaginator) public paginator!: MatPaginator;
+  private readonly SUBSCRIPTIONS;
   public readonly DISPLAYED_COLUMNS;
   public readonly DATA_SOURCE;
-  private readonly SUBSCRIPTIONS;
+  public readonly paginationParams: { limit: number; offset?: number };
+  public length;
+  private get params() {
+    return this.paginationParams;
+  }
 
   constructor(
     private matDialog: MatDialog,
@@ -77,9 +100,11 @@ export class SubstancesComponent implements OnInit, OnDestroy {
   ) {
     this.DISPLAYED_COLUMNS = ['name', 'min', 'max', 'unit', 'actions'];
     this.DATA_SOURCE = new MatTableDataSource<
-      SubstanceCRUDModel['getEntitiesResult']
+      SubstanceCRUDModel['getEntitiesResult']['data'][number]
     >([]);
     this.SUBSCRIPTIONS = new Subscription();
+    this.paginationParams = { limit: 10 };
+    this.length = 0;
   }
 
   public ngOnInit() {
@@ -90,7 +115,7 @@ export class SubstancesComponent implements OnInit, OnDestroy {
         next: ({ key }) => {
           switch (key) {
             case 'SUBSTANCES_NEW_SUBSTANCE':
-              this.onCreateClicked();
+              this.onCreateClick();
               break;
           }
         },
@@ -98,19 +123,33 @@ export class SubstancesComponent implements OnInit, OnDestroy {
     );
   }
 
-  public ngOnDestroy(): void {
+  public ngOnDestroy() {
     this.SUBSCRIPTIONS.unsubscribe();
   }
 
-  private onCreateClicked() {
+  public onPaginatorPage(event: PageEvent) {
+    if (event.pageIndex) {
+      this.paginationParams.offset =
+        event.pageIndex * this.paginationParams.limit;
+    } else {
+      delete this.paginationParams.offset;
+    }
+    this.refreshEntities();
+  }
+
+  private onCreateClick() {
     this.openDialog();
   }
 
-  public onEditClicked(item: SubstanceCRUDModel['getEntitiesResult']) {
+  public onEditClick(
+    item: SubstanceCRUDModel['getEntitiesResult']['data'][number]
+  ) {
     this.openDialog(item);
   }
 
-  public onDeleteClicked(item: any) {
+  public onDeleteClick(
+    item: SubstanceCRUDModel['getEntitiesResult']['data'][number]
+  ) {
     this.confirmationDialogService.open({
       title: `Delete ${item.name}`,
       confirmCallback: () => {
@@ -119,13 +158,20 @@ export class SubstancesComponent implements OnInit, OnDestroy {
             this.notificationService.notify(
               `${item.name} is successfully deleted!`
             );
+            if (!this.DATA_SOURCE.data.length && this.paginationParams.offset) {
+              this.paginator.previousPage();
+            } else {
+              this.refreshEntities();
+            }
           })
         );
       },
     });
   }
 
-  private openDialog(data?: any) {
+  private openDialog(
+    data?: SubstanceCRUDModel['getEntitiesResult']['data'][number]
+  ) {
     this.matDialog
       .open<SubstanceFormComponent, SubstanceFormData, boolean>(
         SubstanceFormComponent,
@@ -145,9 +191,11 @@ export class SubstancesComponent implements OnInit, OnDestroy {
   }
 
   private refreshEntities() {
-    this.apiClient.substance.getEntities().subscribe({
-      next: (data) => {
-        this.DATA_SOURCE.data = data;
+    console.log({ SUBSTANCES: this.params });
+    this.apiClient.substance.getEntities(this.params).subscribe({
+      next: (next) => {
+        this.length = next.count;
+        this.DATA_SOURCE.data = next.data;
       },
     });
   }

@@ -15,10 +15,12 @@ import { Map, Marker, Popup } from 'maplibre-gl';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableModule } from '@angular/material/table';
 const MATERIAL_MODULES = [
   MatButtonModule,
   MatIconModule,
+  MatPaginatorModule,
   MatTableModule,
 ];
 
@@ -26,12 +28,11 @@ import {
   ApiClient,
   LocationCRUDModel,
   MeasurementCRUDModel,
-} from '@app/features/api-client';
-import { HttpClientQueryParams } from '@app/features/http-client-extensions';
-import { ConfirmationDialogService } from '@app/features/confirmation-dialog';
-import { NotificationService } from '@app/features/notification';
+} from '@/features/api-client';
+import { ConfirmationDialogService } from '@/features/confirmation-dialog';
+import { NotificationService } from '@/features/notification';
 
-import { TOOLBAR_ACTION$$ } from '@app/views/home';
+import { TOOLBAR_ACTION$$ } from '@/views/home';
 
 import {
   LocationFormComponent,
@@ -57,6 +58,13 @@ import {
           [ngIfElse]="noData"
           let-dataSource
         >
+          <mat-paginator
+            [length]="length"
+            [hidePageSize]="true"
+            [pageSize]="10"
+            [showFirstLastButtons]="true"
+            (page)="onPaginatorPage($event)"
+          ></mat-paginator>
           <table mat-table class="p-3" [dataSource]="dataSource">
             <ng-container matColumnDef="date">
               <th *matHeaderCellDef mat-header-cell>Date</th>
@@ -88,20 +96,29 @@ import {
   `,
 })
 export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
-  public readonly DATA_SOURCE$;
-  public readonly DISPLAYED_COLUMNS;
   private readonly LOCATIONS$$;
   private readonly MEASUREMENTS$$;
   private readonly POPUP;
   private readonly SUBSCRIPTIONS;
   private readonly SUBSTANCES_MAPPER$;
-  private readonly QUERY_PARAMS;
+  public readonly DATA_SOURCE$;
+  public readonly DISPLAYED_COLUMNS;
+  public readonly filtrationParams: { location?: number };
+  public readonly paginationParams: { limit: number; offset?: number };
+  public length;
+  public river: number | null;
+  private get params() {
+    return {
+      ...this.filtrationParams,
+      ...this.paginationParams,
+    };
+  }
 
   private map!: Map;
 
   public currentLocationAndMarker:
     | {
-        location: LocationCRUDModel['getEntitiesResult'];
+        location: LocationCRUDModel['getEntitiesResult'][number];
         marker: Marker;
       }
     | undefined;
@@ -114,33 +131,32 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {
     this.DISPLAYED_COLUMNS = ['date', 'values'];
     this.LOCATIONS$$ = new ReplaySubject<
-      LocationCRUDModel['getEntitiesResult'][]
+      LocationCRUDModel['getEntitiesResult']
     >(1);
     this.MEASUREMENTS$$ = new ReplaySubject<
-      MeasurementCRUDModel['getEntitiesResult'][] | undefined
+      MeasurementCRUDModel['getEntitiesResult']['data'] | undefined
     >(1);
     this.POPUP = new Popup({ closeButton: false, closeOnClick: false });
     this.SUBSCRIPTIONS = new Subscription();
     this.SUBSTANCES_MAPPER$ = this.apiClient.substance.getEntities().pipe(
-      map((entites) => {
-        return entites.reduce((accumulator, entity) => {
+      map((next) => {
+        return next.data.reduce((accumulator, entity) => {
           accumulator[entity.id] = entity.name;
           return accumulator;
         }, {} as { [key: string]: string });
       }),
       shareReplay(1)
     );
-    this.QUERY_PARAMS = {} as NonNullable<HttpClientQueryParams>;
     this.DATA_SOURCE$ = this.MEASUREMENTS$$.pipe(
       combineLatestWith(this.SUBSTANCES_MAPPER$),
-      map(([entities, substances]) => {
-        return entities?.map((entity) => {
+      map((next) => {
+        return next[0]?.map((entity) => {
           return {
             id: entity.id,
             date: entity.date,
             innerHTML: Object.entries(entity.values).reduce<string>(
               (accumulator, [key, value]) => {
-                accumulator += `<div><b>${substances[key]}</b>: ${value}</div>`;
+                accumulator += `<div><b>${next[1][key]}</b>: ${value}</div>`;
                 return accumulator;
               },
               ''
@@ -149,6 +165,10 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       })
     );
+    this.filtrationParams = {};
+    this.paginationParams = { limit: 10 };
+    this.length = 0;
+    this.river = null;
   }
 
   public ngOnInit() {
@@ -163,7 +183,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
         },
       })
     );
-    this.refreshEntities();
+    this.refreshLocations();
   }
 
   public ngAfterViewInit() {
@@ -176,7 +196,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     })
       .on('load', () => {
         this.LOCATIONS$$.pipe(
-          scan<LocationCRUDModel['getEntitiesResult'][], Marker[]>(
+          scan<LocationCRUDModel['getEntitiesResult'], Marker[]>(
             (accumulator, value) => {
               // remove previous markers from map
               accumulator.forEach((item) => {
@@ -235,21 +255,30 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.LOCATIONS$$.complete();
   }
 
-  private onCreateClicked(coordinates: {
-    longitude: number;
-    latitude: number;
-  }) {
+  public onPaginatorPage(event: PageEvent) {
+    if (event.pageIndex) {
+      this.paginationParams.offset =
+        event.pageIndex * this.paginationParams.limit;
+    } else {
+      delete this.paginationParams.offset;
+    }
+    this.refreshMeasurements();
+  }
+
+  private onCreateClick(coordinates: { longitude: number; latitude: number }) {
     this.openDialog({
       coordinates,
-      riverId: this.QUERY_PARAMS['river'] as number,
+      riverId: this.river,
     });
   }
 
-  private onEditClicked(entity: LocationCRUDModel['getEntitiesResult']) {
+  private onEditClick(entity: LocationCRUDModel['getEntitiesResult'][number]) {
     this.openDialog({ entity });
   }
 
-  private onDeleteClicked(entity: LocationCRUDModel['getEntitiesResult']) {
+  private onDeleteClick(
+    entity: LocationCRUDModel['getEntitiesResult'][number]
+  ) {
     this.confirmationDialogService.open({
       title: `Delete ${entity.name}`,
       confirmCallback: () => {
@@ -265,7 +294,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onAddMeasurementsClicked(
-    entity: LocationCRUDModel['getEntitiesResult'],
+    entity: LocationCRUDModel['getEntitiesResult'][number],
     marker: Marker
   ) {
     this.SUBSTANCES_MAPPER$.pipe(
@@ -293,33 +322,18 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onDisplayMeasurementsClicked(
-    entity: LocationCRUDModel['getEntitiesResult'],
+    entity: LocationCRUDModel['getEntitiesResult'][number],
     marker: Marker
   ) {
-    this.apiClient.measurement.getEntities({ location: entity.id }).subscribe({
-      next: (next) => {
-        if (this.currentLocationAndMarker) {
-          this.currentLocationAndMarker.marker
-            .getElement()
-            .classList.remove('active');
-        }
-        this.currentLocationAndMarker = {
-          location: entity,
-          marker,
-        };
-        marker.getElement().classList.add('active');
-        this.MEASUREMENTS$$.next(next);
-      },
-    });
+    this.filtrationParams.location = entity.id;
+    delete this.paginationParams.offset;
+    this.length = 0;
+    this.refreshMeasurements(entity, marker);
   }
 
-  private onRiverSelected(riverId: number | undefined) {
-    if (riverId) {
-      this.QUERY_PARAMS['river'] = riverId;
-    } else {
-      delete this.QUERY_PARAMS['river'];
-    }
-    this.refreshEntities();
+  private onRiverSelected(river: number | null) {
+    this.river = river;
+    this.refreshLocations();
   }
 
   private openDialog(data: LocationFormData) {
@@ -335,16 +349,45 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: (next) => {
           if (next) {
-            this.refreshEntities();
+            this.refreshLocations();
           }
         },
       });
   }
 
-  private refreshEntities() {
-    this.apiClient.location.getEntities(this.QUERY_PARAMS).subscribe({
+  private refreshLocations() {
+    let params;
+    if (this.river) {
+      params = { river: this.river };
+    }
+    this.apiClient.location.getEntities(params).subscribe({
       next: (next) => {
         this.LOCATIONS$$.next(next);
+      },
+    });
+  }
+
+  private refreshMeasurements(
+    entity?: LocationCRUDModel['getEntitiesResult'][number],
+    marker?: Marker
+  ) {
+    console.log({ MEASUREMENTS: this.params });
+    this.apiClient.measurement.getEntities(this.params).subscribe({
+      next: (next) => {
+        if (this.currentLocationAndMarker) {
+          this.currentLocationAndMarker.marker
+            .getElement()
+            .classList.remove('active');
+        }
+        if (entity && marker) {
+          this.currentLocationAndMarker = {
+            location: entity,
+            marker,
+          };
+          marker.getElement().classList.add('active');
+        }
+        this.length = next.count;
+        this.MEASUREMENTS$$.next(next.data);
       },
     });
   }
@@ -356,7 +399,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     const content = this.getButton('add_location_alt');
     content.addEventListener('click', () => {
       this.POPUP.remove();
-      this.onCreateClicked(coordinates);
+      this.onCreateClick(coordinates);
     });
     this.POPUP.setLngLat([coordinates.longitude, coordinates.latitude])
       .setDOMContent(content)
@@ -364,7 +407,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private openLocationPopup(
-    entity: LocationCRUDModel['getEntitiesResult'],
+    entity: LocationCRUDModel['getEntitiesResult'][number],
     marker: Marker
   ) {
     const content = document.createElement('div');
@@ -372,13 +415,13 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     let button = this.getButton('edit_location_alt');
     button.addEventListener('click', () => {
       this.POPUP.remove();
-      this.onEditClicked(entity);
+      this.onEditClick(entity);
     });
     content.appendChild(button);
     button = this.getButton('wrong_location');
     button.addEventListener('click', () => {
       this.POPUP.remove();
-      this.onDeleteClicked(entity);
+      this.onDeleteClick(entity);
     });
     content.appendChild(button);
     button = this.getButton('list_alt');

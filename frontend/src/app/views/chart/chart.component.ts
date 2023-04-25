@@ -4,11 +4,11 @@ import { Subject, Subscription } from 'rxjs';
 import { Chart } from 'chart.js/auto';
 
 import { MatTableModule } from '@angular/material/table';
-const MATERIAL_MODULES: any[] = [MatTableModule];
+const MATERIAL_MODULES = [MatTableModule];
 
-import { ApiClient, PredictionCRUDModel } from '@app/features/api-client';
+import { ApiClient, PredictionCRUDModel } from '@/features/api-client';
 
-import { TOOLBAR_ACTION$$ } from '@app/views/home';
+import { TOOLBAR_ACTION$$ } from '@/views/home';
 
 @Component({
   standalone: true,
@@ -151,14 +151,14 @@ export class ChartComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     } else {
       this.PREDICTION$$.next(null);
-      this.refreshChart();
+      this.refreshChart(null);
     }
   }
 
   private refreshChart(
     entity:
       | PredictionCRUDModel['getEntityByLocationIdResult']['substances'][number]
-      | null = null
+      | null
   ) {
     if (entity) {
       this.CHART.data.labels = entity.values.map((value) => value.x);

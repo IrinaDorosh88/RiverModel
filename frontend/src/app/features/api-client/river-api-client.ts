@@ -1,11 +1,13 @@
 import { Injectable } from '@angular/core';
 import { delay, Observable, of } from 'rxjs';
 
-import { HttpClientQueryParams } from '@app/features/http-client-extensions';
+import { HttpClientQueryParams } from '@/features/http-client-extensions';
+import { PaginatedData } from '@/features/paginated-data';
+
 import { CRUDApiClient, CRUDApiClientModel } from './crud-api-client';
 
 export interface RiverCRUDModel extends CRUDApiClientModel {
-  getEntitiesResult: { id: number; name: string };
+  getEntitiesResult: PaginatedData<{ id: number; name: string }>;
 }
 
 @Injectable({
@@ -17,13 +19,16 @@ export class RiverApiClient extends CRUDApiClient<RiverCRUDModel> {
   }
 
   public override getEntities(params?: HttpClientQueryParams) {
-    return of([
-      { id: 1, name: 'Zbruch' },
-      { id: 2, name: 'Western' },
-      { id: 3, name: 'Vysun' },
-      { id: 4, name: 'Vovcha' },
-      { id: 5, name: 'Vorskla' },
-    ]);
+    return of({
+      data: [
+        { id: 1, name: 'Zbruch' },
+        { id: 2, name: 'Western' },
+        { id: 3, name: 'Vysun' },
+        { id: 4, name: 'Vovcha' },
+        { id: 5, name: 'Vorskla' },
+      ],
+      count: 5,
+    });
   }
 
   public override postEntity(value: any): Observable<unknown> {

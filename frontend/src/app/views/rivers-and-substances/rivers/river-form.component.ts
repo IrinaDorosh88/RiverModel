@@ -18,11 +18,11 @@ const MATERIAL_MODULES = [
   MatInputModule,
 ];
 
-import { ApiClient, RiverCRUDModel } from '@app/features/api-client';
-import { NotificationService } from '@app/features/notification';
+import { ApiClient, RiverCRUDModel } from '@/features/api-client';
+import { NotificationService } from '@/features/notification';
 
 export type RiverFormData =
-  | RiverCRUDModel['getEntitiesResult']
+  | RiverCRUDModel['getEntitiesResult']['data'][number]
   | undefined
   | null;
 
