@@ -1,8 +1,5 @@
 name: Deploy
-on:
-  push:
-    branches:
-    - 'ci-cd'
+on: [workflow_dispatch]
 jobs:
 
   build:
@@ -17,8 +14,8 @@ jobs:
         password: ${{ secrets.DEPLOY_PASSWORD }}
         port: ${{ secrets.DEPLOY_PORT }}
         script: |
-          cd /opt/app/RiverModel && \
-          git checkout ci-cd && \
-          git pull && \
-          cd backend && \
+          cd /opt/app/RiverModel
+          git checkout master
+          git pull
+          cd backend
           docker compose up -d --build
