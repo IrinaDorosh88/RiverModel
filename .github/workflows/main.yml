@@ -18,7 +18,7 @@ jobs:
         port: ${{ secrets.DEPLOY_PORT }}
         script: |
           cd /opt/app/RiverModel
-          git checkout master
+          git checkout ci-cd
           git pull
           cd backend
           docker compose up -d --build
