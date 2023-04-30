@@ -7,4 +7,4 @@ services:
     ports:
       - 80:80
     environment:
-      API_HOST: localhost:8081
+      API_HOST: http://209.38.231.148:8000

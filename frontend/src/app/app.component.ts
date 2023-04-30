@@ -67,6 +67,9 @@ export class AppComponent implements OnInit {
   ) {}
 
   public ngOnInit() {
+    this.apiClient.authorization['httpClient'].get(`${this.apiClient.authorization['apiHost']}/`).subscribe({
+      next: console.log,
+    })
     this.user$ = User.get$();
   }
 

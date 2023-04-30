@@ -11,7 +11,7 @@ export const loaderInterceptorFn: HttpInterceptorFn = (() => {
       finalize(() => {
         setTimeout(() => {
           if (!--totalRequests) LOADING$$.next(false);
-        }, 200)
+        })
       })
     );
   };

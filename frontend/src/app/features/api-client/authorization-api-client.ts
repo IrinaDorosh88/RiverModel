@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { delay, Observable, of } from 'rxjs';
+import { of } from 'rxjs';
 
 import { AbstractApiClient } from './abstract-api-client';
 
 export type AuthorizationModel = {
-  email: string;
+  login: string;
   password: string;
 };
 
@@ -12,30 +12,12 @@ export type AuthorizationModel = {
   providedIn: 'root',
 })
 export class AuthorizationApiClient extends AbstractApiClient {
-  public register(model: AuthorizationModel): Observable<{ status: string }> {
-    return model.email === 'admin'
-      ? of({ status: 'REGISTER: ok' }).pipe(delay(2000))
-      : new Observable<{ status: string }>((subscriber) => {
-          setTimeout(() => {
-            subscriber.error({
-              error: { email: 'This email is already taken.' },
-            });
-          }, 2000);
-        });
+  public register(model: AuthorizationModel) {
+    return this.httpClient.post<unknown>(`${this.apiHost}/users/`, model);
   }
 
-  public login(
-    model: AuthorizationModel
-  ): Observable<{ email: string; role: string }> {
-    return model.email === 'admin' && model.password === 'admin'
-      ? of({ email: 'admin@gmail.com', role: 'ADMIN' }).pipe(delay(2000))
-      : new Observable<{ email: string; role: string }>((subscriber) => {
-          setTimeout(() => {
-            subscriber.error({
-              error: { message: 'Invalid user credentials' },
-            });
-          }, 2000);
-        });
+  public login(model: AuthorizationModel) {
+    return this.httpClient.post<{ access_token: string }>(`${this.apiHost}/auth/`, model);
   }
 
   public logout() {

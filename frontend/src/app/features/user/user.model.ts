@@ -9,7 +9,7 @@ export class User {
   }
 
   private constructor(
-    public readonly email: string,
+    public readonly login: string,
     public readonly role: string
   ) {}
 
@@ -26,11 +26,12 @@ export class User {
   }
 
   public static fromToken(token: string) {
-    const payload: { email: string; role: string } = jwtDecode(token);
+    const payload: { login: string; role: string } = jwtDecode(token);
+    console.log(payload)
     this.fromObject(payload);
   }
 
-  public static fromObject(json: { email: string; role: string }) {
-    this.instance$$.next(new User(json['email'], json['role']));
+  public static fromObject(json: { login: string; role: string }) {
+    this.instance$$.next(new User(json['login'], json['role']));
   }
 }

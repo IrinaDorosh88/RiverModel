@@ -19,7 +19,7 @@ export abstract class CRUDApiClient<
 
   constructor(private path: string) {
     super();
-    this.url = `${this.apiHost}${this.path}`;
+    this.url = `${this.apiHost}/${this.path}`;
   }
 
   public getEntities(

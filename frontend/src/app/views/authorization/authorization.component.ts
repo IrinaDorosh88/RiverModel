@@ -1,11 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {
-  FormBuilder,
-  FormControl,
-  FormGroup,
-  ReactiveFormsModule,
-} from '@angular/forms';
+import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 
 import { MatButtonModule } from '@angular/material/button';
 import {
@@ -42,9 +38,9 @@ import { User } from '@/features/user';
 
       <div mat-dialog-content>
         <mat-form-field class="width-full">
-          <mat-label>Email</mat-label>
-          <input matInput formControlName="email" />
-          <mat-error *ngIf="FORM_GROUP.controls['email'].errors as errors">
+          <mat-label>Login</mat-label>
+          <input matInput formControlName="login" />
+          <mat-error *ngIf="FORM_GROUP.controls['login'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -118,18 +114,18 @@ export class AuthorizationComponent implements OnInit {
     const fb = new FormBuilder();
     this.FORM_GROUP = fb.group(
       {
-        email: fb.control(''),
+        login: fb.control(''),
         password: fb.control(''),
         confirm: fb.control(''),
       },
       {
         validators: (formGroup: FormGroup) => {
-          const { email, password, confirm } = formGroup.controls;
+          const { login, password, confirm } = formGroup.controls;
           // Email
-          if (email.value === '') {
-            email.setErrors({ message: 'Name is required.' });
+          if (login.value === '') {
+            login.setErrors({ message: 'Name is required.' });
           } else {
-            email.setErrors(null);
+            login.setErrors(null);
           }
           // Password
           if (password.value === '') {
@@ -171,32 +167,45 @@ export class AuthorizationComponent implements OnInit {
     }
   }
 
-  public onSubmitClick(model: { email: string; password: string }) {
+  public onSubmitClick(model: {
+    login: string;
+    password: string;
+    confirm?: string;
+  }) {
     this.isFormSubmitted = true;
     if (this.register) {
+      delete model.confirm;
       this.apiClient.authorization.register(model).subscribe({
         next: () => {
           this.isFormSubmitted = false;
           this.notificationService.notify('You are successfully signed up!');
           this.onAuthorizationTypeToggle();
         },
-        error: (error) => {
+        error: (error: HttpErrorResponse) => {
           this.isFormSubmitted = false;
-          Object.entries(error.error).forEach(([key, value]) => {
-            this.FORM_GROUP.controls[key].setErrors({ message: value });
-          });
-        }
+          if (error.status === HttpStatusCode.UnprocessableEntity) {
+            Object.entries(error.error).forEach(([key, value]) => {
+              this.FORM_GROUP.controls[key].setErrors({ message: value });
+            });
+          } else {
+            this.notificationService.notify('Something went wrong!');
+          }
+        },
       });
     } else {
       this.apiClient.authorization.login(model).subscribe({
         next: (next) => {
           this.notificationService.notify('You are successfully signed in!');
-          User.fromObject(next);
-          localStorage.setItem('token', JSON.stringify(next));
+          User.fromToken(next.access_token);
+          localStorage.setItem('token', JSON.stringify(next.access_token));
           this.dialogRef.close();
         },
-        error: () => {
-          this.notificationService.notify('Invalid credentials!');
+        error: (error: HttpErrorResponse) => {
+          this.notificationService.notify(
+            error.status === HttpStatusCode.UnprocessableEntity
+              ? 'Invalid credentials!'
+              : 'Something went wrong!'
+          );
           this.isFormSubmitted = false;
         },
       });
