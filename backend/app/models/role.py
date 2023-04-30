@@ -11,7 +11,7 @@ class Role(Base):
     __tablename__ = table_name
     __table_args__ = {'schema': AUTH_SCHEMA}
 
-    id = Column(Integer, Sequence(f'{table_name}_id_seq'), primary_key=True, nullable=False)
+    id = Column(Integer, Sequence(f'{table_name}_id_seq', schema=AUTH_SCHEMA), primary_key=True, nullable=False)
     name = Column(String(length=50), unique=True, nullable=False)
 
     is_active = Column(Boolean, default=True)

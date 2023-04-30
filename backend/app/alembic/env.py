@@ -8,7 +8,7 @@ from alembic import context
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
 from core.db import Base
-from core.settings import DATABASE_URL
+from core.settings import DATABASE_URL, AUTH_SCHEMA
 from models import *
 
 config = context.config
@@ -33,6 +33,13 @@ target_metadata = [Base.metadata]
 # ... etc.
 
 
+def include_name(name, type_, parent_names):
+    if type_ == 'schema':
+        return name in [None, AUTH_SCHEMA]
+    else:
+        return True
+
+
 def run_migrations_offline() -> None:
     """Run migrations in 'offline' mode.
 
@@ -51,6 +58,8 @@ def run_migrations_offline() -> None:
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
+        include_schemas=True,
+        include_name=include_name,
     )
 
     with context.begin_transaction():
@@ -72,7 +81,10 @@ def run_migrations_online() -> None:
 
     with connectable.connect() as connection:
         context.configure(
-            connection=connection, target_metadata=target_metadata
+            connection=connection,
+            target_metadata=target_metadata,
+            include_schemas=True,
+            include_name=include_name,
         )
 
         with context.begin_transaction():
