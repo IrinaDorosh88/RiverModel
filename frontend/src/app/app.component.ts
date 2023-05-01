@@ -12,9 +12,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 const MATERIAL_MODULES = [MatButtonModule, MatDialogModule, MatIconModule];
 
 import { AuthorizationComponent } from '@/views/authorization';
-import { DescriptionComponent } from '@/views/description';
 import { HomeComponent } from '@/views/home';
-const VIEWS = [AuthorizationComponent, DescriptionComponent, HomeComponent];
+const VIEWS = [AuthorizationComponent, HomeComponent];
 
 import { ApiClient } from '@/features/api-client';
 import { ENVIRONMENT_INITIALIZER_PROVIDER } from '@/features/environment-init';
@@ -42,9 +41,6 @@ import { User, USER_INITIALIZER_PROVIDER } from '@/features/user';
         <button mat-flat-button class="color-primary" (click)="onLoginClick()">
           <span>Sign in</span>
         </button>
-        <button mat-button class="color-white" (click)="onRegisterClick()">
-          <span>Sign up</span>
-        </button>
       </ng-template>
     </div>
     <div class="app-content-wrapper">
@@ -52,7 +48,29 @@ import { User, USER_INITIALIZER_PROVIDER } from '@/features/user';
         <app-home></app-home>
       </ng-template>
       <ng-template #nonAuthorizedUserView>
-        <app-description></app-description>
+        <div
+          class="app-content app-card display-flex flex-direction-column align-items-center justify-content-center gap-5 p-2"
+          style="
+            background-color: rgba(0, 0, 0, 0.5);
+            background-image: url('./assets/home-background.jpg');
+            background-size: cover;
+            background-blend-mode: darken;
+          "
+        >
+          <img src="./assets/logo.svg" />
+          <button
+            mat-flat-button
+            class="color-white:hover background-color-primary:hover"
+            style="transition: color ease-in-out 0.2s, background-color ease-in-out 0.2s"
+            (click)="onRegisterClick()"
+          >
+            <span>Sign up</span>
+          </button>
+          <div class="text-align-center color-white" style="font-size: 1.5rem">
+            <div class="mb-2">Clean water is a healthy life.</div>
+            <div>Explore the river flows with us!</div>
+          </div>
+        </div>
       </ng-template>
     </div>
   `,
@@ -67,9 +85,11 @@ export class AppComponent implements OnInit {
   ) {}
 
   public ngOnInit() {
-    this.apiClient.authorization['httpClient'].get(`${this.apiClient.authorization['apiHost']}/`).subscribe({
-      next: console.log,
-    })
+    this.apiClient.authorization['httpClient']
+      .get(`${this.apiClient.authorization['apiHost']}/`)
+      .subscribe({
+        next: console.log,
+      });
     this.user$ = User.get$();
   }
 

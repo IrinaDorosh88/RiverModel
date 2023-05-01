@@ -6,9 +6,9 @@ export const USER_INITIALIZER_PROVIDER: Provider = {
   provide: APP_INITIALIZER,
   multi: true,
   useValue: () => {
-    const userStr = localStorage.getItem('token');
-    if (userStr) {
-      User.fromObject(JSON.parse(userStr));
+    const token = localStorage.getItem('token');
+    if (token) {
+      User.fromToken(token);
     }
   },
 };

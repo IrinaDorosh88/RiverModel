@@ -14,6 +14,7 @@
 
 img {
   max-height: 100%;
+  max-width: 100%;
 }
 
 html,
@@ -34,11 +35,9 @@ canvas:not(:active) {
 
 :root {
   --app-toolbar-height: 4rem;
-  --app-toolbar-padding: 1rem;
   --app-content-wrapper-padding: 1rem;
   --app-content-min-height: calc(
-    100vh - var(--app-toolbar-height) - 2 * var(--app-toolbar-padding) - 2 *
-      var(--app-content-wrapper-padding)
+    100vh - var(--app-toolbar-height) - 2 * var(--app-content-wrapper-padding)
   );
   --home-toolbar-min-height: 5rem;
   --mat-tab-header-min-height: 3rem;
@@ -51,7 +50,7 @@ canvas:not(:active) {
 
 .app-toolbar {
   height: var(--app-toolbar-height);
-  padding: var(--app-toolbar-padding);
+  padding: 1rem;
   display: flex;
   align-items: center;
   gap: 1rem;
@@ -123,6 +122,10 @@ mat-tab-header {
   background-color: var(--primary) !important;
 }
 
+.background-color-primary\:hover:hover {
+  background-color: var(--primary) !important;
+}
+
 .background-color-accent {
   background-color: var(--accent) !important;
 }
@@ -181,7 +184,7 @@ mat-tab-header {
 }
 
 .flex-wrap {
-  flex-wrap: wrap;
+  flex-wrap: wrap !important;
 }
 
 .align-items-center {
@@ -253,6 +256,10 @@ mat-tab-header {
   margin-right: auto !important;
 }
 
+.mb-2 {
+  margin-bottom: 0.5rem !important;
+}
+
 .mb-3 {
   margin-bottom: 1rem !important;
 }
@@ -266,6 +273,10 @@ mat-tab-header {
 }
 
 .color-white {
+  color: white !important;
+}
+
+.color-white\:hover:hover {
   color: white !important;
 }
 

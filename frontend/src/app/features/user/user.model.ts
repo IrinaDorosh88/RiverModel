@@ -8,9 +8,15 @@ export class User {
     this.instance$$ = new BehaviorSubject<User | undefined>(undefined);
   }
 
+  // private constructor(
+  //   public readonly token: string,
+  //   public readonly login: string,
+  //   public readonly role: string
+  // ) {}
+
   private constructor(
-    public readonly login: string,
-    public readonly role: string
+    public readonly token: string,
+    public readonly login: string
   ) {}
 
   public static get$(): Observable<User | undefined> {
@@ -25,13 +31,14 @@ export class User {
     this.instance$$.next(undefined);
   }
 
-  public static fromToken(token: string) {
-    const payload: { login: string; role: string } = jwtDecode(token);
-    console.log(payload)
-    this.fromObject(payload);
-  }
+  // public static fromToken(token: string) {
+  //   const payload: { sub: string; role: string } = jwtDecode(token);
+  //   this.instance$$.next(new User(token, payload['sub'], payload['role']));
+  //   console.log(payload);
+  // }
 
-  public static fromObject(json: { login: string; role: string }) {
-    this.instance$$.next(new User(json['login'], json['role']));
+  public static fromToken(token: string) {
+    const payload: { sub: string } = jwtDecode(token);
+    this.instance$$.next(new User(token, payload['sub']));
   }
 }
