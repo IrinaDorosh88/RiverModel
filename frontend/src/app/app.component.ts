@@ -16,6 +16,7 @@ import { HomeComponent } from '@/views/home';
 const VIEWS = [AuthorizationComponent, HomeComponent];
 
 import { ApiClient } from '@/features/api-client';
+import { bearerAuthenticationInterceptorFn } from '@/features/bearer-authentication';
 import { ENVIRONMENT_INITIALIZER_PROVIDER } from '@/features/environment-init';
 import { LoaderComponent, loaderInterceptorFn } from '@/features/loading';
 import {
@@ -76,7 +77,7 @@ import { User, USER_INITIALIZER_PROVIDER } from '@/features/user';
   `,
 })
 export class AppComponent implements OnInit {
-  public user$!: Observable<User | undefined>;
+  public user$!: Observable<User | null>;
 
   constructor(
     private matDialog: MatDialog,
@@ -85,11 +86,6 @@ export class AppComponent implements OnInit {
   ) {}
 
   public ngOnInit() {
-    this.apiClient.authorization['httpClient']
-      .get(`${this.apiClient.authorization['apiHost']}/`)
-      .subscribe({
-        next: console.log,
-      });
     this.user$ = User.get$();
   }
 
@@ -121,7 +117,9 @@ export class AppComponent implements OnInit {
 export const APP_CONFIG: ApplicationConfig = {
   providers: [
     provideAnimations(),
-    provideHttpClient(withInterceptors([loaderInterceptorFn])),
+    provideHttpClient(
+      withInterceptors([loaderInterceptorFn, bearerAuthenticationInterceptorFn])
+    ),
     ENVIRONMENT_INITIALIZER_PROVIDER,
     USER_INITIALIZER_PROVIDER,
     ...NOTIFICATION_PROVIDERS,

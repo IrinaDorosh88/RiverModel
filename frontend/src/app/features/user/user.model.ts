@@ -2,10 +2,10 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import jwtDecode from 'jwt-decode';
 
 export class User {
-  private static instance$$: BehaviorSubject<User | undefined>;
+  private static instance$$;
 
   static {
-    this.instance$$ = new BehaviorSubject<User | undefined>(undefined);
+    this.instance$$ = new BehaviorSubject<User | null>(null);
   }
 
   // private constructor(
@@ -19,7 +19,7 @@ export class User {
     public readonly login: string
   ) {}
 
-  public static get$(): Observable<User | undefined> {
+  public static get$(): Observable<User | null> {
     return this.instance$$;
   }
 
@@ -28,7 +28,7 @@ export class User {
   }
 
   public static unset() {
-    this.instance$$.next(undefined);
+    this.instance$$.next(null);
   }
 
   // public static fromToken(token: string) {
