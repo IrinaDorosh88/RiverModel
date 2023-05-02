@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 import services.chemical_element as chemical_element_service
 import schemas.chemical_element as chemical_element_schema
-from core.db import MySuperContextManager as get_db
+from core.db import get_db
 
 router = APIRouter()
 
