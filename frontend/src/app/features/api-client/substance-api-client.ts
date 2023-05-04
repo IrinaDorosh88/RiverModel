@@ -7,7 +7,7 @@ import { PaginatedData } from '@/features/paginated-data';
 import { CRUDApiClient, CRUDApiClientModel } from './crud-api-client';
 
 export interface SubstanceCRUDModel extends CRUDApiClientModel {
-  getEntitiesResult: PaginatedData<{
+  getPaginatedEntitiesResult: PaginatedData<{
     id: number;
     name: string;
     min: number;
@@ -24,7 +24,7 @@ export class SubstanceApiClient extends CRUDApiClient<SubstanceCRUDModel> {
     super('sustances');
   }
 
-  public override getEntities(params?: HttpClientQueryParams) {
+  public override getPaginatedEntities(params?: HttpClientQueryParams) {
     return of({
       data: [
         { id: 1, name: 'Hydrogen', min: 1.0079, max: 2.0079, unit: 'g/mol' },
@@ -46,7 +46,7 @@ export class SubstanceApiClient extends CRUDApiClient<SubstanceCRUDModel> {
     return of(true).pipe(delay(2000));
   }
 
-  public override putEntity(id: number, value: any): Observable<unknown> {
+  public override patchEntity(id: number, value: any): Observable<unknown> {
     return of(true).pipe(delay(2000));
   }
 

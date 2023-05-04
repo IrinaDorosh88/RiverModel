@@ -30,7 +30,7 @@ import { NotificationService } from '@/features/notification';
 
 export type LocationFormData =
   | {
-      entity: LocationCRUDModel['getEntitiesResult'][number];
+      entity: LocationCRUDModel['getPaginatedEntitiesResult'][number];
     }
   | {
       entity?: undefined;
@@ -116,9 +116,9 @@ export class LocationFormComponent implements OnInit {
   public TITLE!: string;
   public SUBMIT_BUTTON_COLOR!: 'primary' | 'accent';
   private HANDLE_ENTITY!: () => Observable<any>;
-  public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult']['data']>;
+  public RIVERS$!: Observable<RiverCRUDModel['getPaginatedEntitiesResult']['data']>;
   public SUBSTANCES$!: Observable<
-    SubstanceCRUDModel['getEntitiesResult']['data']
+    SubstanceCRUDModel['getPaginatedEntitiesResult']['data']
   >;
 
   constructor(
@@ -168,16 +168,16 @@ export class LocationFormComponent implements OnInit {
 
   public ngOnInit() {
     this.SUBSTANCES$ = this.apiClient.substance
-      .getEntities()
+      .getPaginatedEntities()
       .pipe(map((next) => next.data));
     this.RIVERS$ = this.apiClient.river
-      .getEntities()
+      .getPaginatedEntities()
       .pipe(map((next) => next.data));
     if (this.data.entity) {
       this.FORM_GROUP.patchValue(this.data.entity);
       this.TITLE = `Edit ${this.data.entity.name}`;
       this.SUBMIT_BUTTON_COLOR = 'accent';
-      this.HANDLE_ENTITY = this.putEntity;
+      this.HANDLE_ENTITY = this.patchEntity;
       this.FORM_GROUP.controls['substancesIds'].disable();
     } else {
       this.FORM_GROUP.patchValue(this.data.coordinates);
@@ -215,9 +215,9 @@ export class LocationFormComponent implements OnInit {
     );
   }
 
-  private putEntity() {
+  private patchEntity() {
     const value = this.FORM_GROUP.value;
-    return this.apiClient.location.putEntity(this.data!.entity!.id, value).pipe(
+    return this.apiClient.location.patchEntity(this.data!.entity!.id, value).pipe(
       tap(() => {
         this.notificationService.notify(
           `${value.name} is successfully edited!`

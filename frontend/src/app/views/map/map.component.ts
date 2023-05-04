@@ -118,7 +118,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public currentLocationAndMarker:
     | {
-        location: LocationCRUDModel['getEntitiesResult'][number];
+        location: LocationCRUDModel['getPaginatedEntitiesResult'][number];
         marker: Marker;
       }
     | undefined;
@@ -131,14 +131,14 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   ) {
     this.DISPLAYED_COLUMNS = ['date', 'values'];
     this.LOCATIONS$$ = new ReplaySubject<
-      LocationCRUDModel['getEntitiesResult']
+      LocationCRUDModel['getPaginatedEntitiesResult']
     >(1);
     this.MEASUREMENTS$$ = new ReplaySubject<
-      MeasurementCRUDModel['getEntitiesResult']['data'] | undefined
+      MeasurementCRUDModel['getPaginatedEntitiesResult']['data'] | undefined
     >(1);
     this.POPUP = new Popup({ closeButton: false, closeOnClick: false });
     this.SUBSCRIPTIONS = new Subscription();
-    this.SUBSTANCES_MAPPER$ = this.apiClient.substance.getEntities().pipe(
+    this.SUBSTANCES_MAPPER$ = this.apiClient.substance.getPaginatedEntities().pipe(
       map((next) => {
         return next.data.reduce((accumulator, entity) => {
           accumulator[entity.id] = entity.name;
@@ -196,7 +196,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     })
       .on('load', () => {
         this.LOCATIONS$$.pipe(
-          scan<LocationCRUDModel['getEntitiesResult'], Marker[]>(
+          scan<LocationCRUDModel['getPaginatedEntitiesResult'], Marker[]>(
             (accumulator, value) => {
               // remove previous markers from map
               accumulator.forEach((item) => {
@@ -272,12 +272,12 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private onEditClick(entity: LocationCRUDModel['getEntitiesResult'][number]) {
+  private onEditClick(entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]) {
     this.openDialog({ entity });
   }
 
   private onDeleteClick(
-    entity: LocationCRUDModel['getEntitiesResult'][number]
+    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]
   ) {
     this.confirmationDialogService.open({
       title: `Delete ${entity.name}`,
@@ -294,7 +294,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onAddMeasurementsClicked(
-    entity: LocationCRUDModel['getEntitiesResult'][number],
+    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number],
     marker: Marker
   ) {
     this.SUBSTANCES_MAPPER$.pipe(
@@ -322,7 +322,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onDisplayMeasurementsClicked(
-    entity: LocationCRUDModel['getEntitiesResult'][number],
+    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number],
     marker: Marker
   ) {
     this.filtrationParams.location = entity.id;
@@ -360,7 +360,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.river) {
       params = { river: this.river };
     }
-    this.apiClient.location.getEntities(params).subscribe({
+    this.apiClient.location.getPaginatedEntities(params).subscribe({
       next: (next) => {
         this.LOCATIONS$$.next(next);
       },
@@ -368,11 +368,11 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private refreshMeasurements(
-    entity?: LocationCRUDModel['getEntitiesResult'][number],
+    entity?: LocationCRUDModel['getPaginatedEntitiesResult'][number],
     marker?: Marker
   ) {
     console.log({ MEASUREMENTS: this.params });
-    this.apiClient.measurement.getEntities(this.params).subscribe({
+    this.apiClient.measurement.getPaginatedEntities(this.params).subscribe({
       next: (next) => {
         if (this.currentLocationAndMarker) {
           this.currentLocationAndMarker.marker
@@ -407,7 +407,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private openLocationPopup(
-    entity: LocationCRUDModel['getEntitiesResult'][number],
+    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number],
     marker: Marker
   ) {
     const content = document.createElement('div');

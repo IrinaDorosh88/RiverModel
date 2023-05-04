@@ -120,9 +120,9 @@ export const TOOLBAR_ACTION$$ = new Subject<{
 export class HomeComponent implements OnInit {
   public tabGroupSelectedIndex: number;
 
-  public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult']['data']>;
+  public RIVERS$!: Observable<RiverCRUDModel['getPaginatedEntitiesResult']['data']>;
   public LOCATIONS$$!: BehaviorSubject<
-    LocationCRUDModel['getEntitiesResult'][]
+    LocationCRUDModel['getPaginatedEntitiesResult'][]
   >;
 
   constructor(private apiClient: ApiClient) {
@@ -130,12 +130,12 @@ export class HomeComponent implements OnInit {
   }
 
   public ngOnInit() {
-    this.RIVERS$ = this.apiClient.river.getEntities().pipe(
+    this.RIVERS$ = this.apiClient.river.getPaginatedEntities().pipe(
       map((next) => next.data),
       startWith([])
     );
     this.LOCATIONS$$ = new BehaviorSubject<
-      LocationCRUDModel['getEntitiesResult'][]
+      LocationCRUDModel['getPaginatedEntitiesResult'][]
     >([]);
   }
 

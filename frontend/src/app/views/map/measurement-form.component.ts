@@ -31,7 +31,7 @@ import { LocationCRUDModel, ApiClient } from '@/features/api-client';
 import { NotificationService } from '@/features/notification';
 
 export type MeasurementFormData = {
-  location: LocationCRUDModel['getEntitiesResult'][number];
+  location: LocationCRUDModel['getPaginatedEntitiesResult'][number];
   mapper: { [key: string]: string };
 };
 

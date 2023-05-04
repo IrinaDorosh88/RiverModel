@@ -39,18 +39,23 @@ import { RiverFormComponent, RiverFormData } from './river-form.component';
       (page)="onPaginatorPage($event)"
     ></mat-paginator>
     <table mat-table class="p-2" [dataSource]="DATA_SOURCE">
-      <ng-container matColumnDef="index">
-        <th *matHeaderCellDef mat-header-cell>No.</th>
-        <td *matCellDef="let index = index" mat-cell>{{ index + 1 }}</td>
-      </ng-container>
-
       <ng-container matColumnDef="name">
         <th *matHeaderCellDef mat-header-cell>Name</th>
         <td *matCellDef="let item" mat-cell>{{ item.name }}</td>
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th *matHeaderCellDef mat-header-cell style="width: 100px"></th>
+        <th *matHeaderCellDef mat-header-cell style="width: 48px"></th>
+        <td *matCellDef="let item" mat-cell>
+          <div class="display-flex gap-2">
+            <button mat-mini-fab color="accent" (click)="onEditClick(item)">
+              <mat-icon>edit</mat-icon>
+            </button>
+          </div>
+        </td>
+      </ng-container>
+      <!-- <ng-container matColumnDef="actions">
+        <th *matHeaderCellDef mat-header-cell style="width: 96px"></th>
         <td *matCellDef="let item" mat-cell>
           <div class="display-flex gap-2">
             <button mat-mini-fab color="accent" (click)="onEditClick(item)">
@@ -61,7 +66,7 @@ import { RiverFormComponent, RiverFormData } from './river-form.component';
             </button>
           </div>
         </td>
-      </ng-container>
+      </ng-container> -->
 
       <tr mat-header-row *matHeaderRowDef="DISPLAYED_COLUMNS"></tr>
       <tr mat-row *matRowDef="let row; columns: DISPLAYED_COLUMNS"></tr>
@@ -86,9 +91,9 @@ export class RiversComponent implements OnInit, OnDestroy {
     private readonly apiClient: ApiClient
   ) {
     this.SUBSCRIPTIONS = new Subscription();
-    this.DISPLAYED_COLUMNS = ['index', 'name', 'actions'];
+    this.DISPLAYED_COLUMNS = ['name', 'actions'];
     this.DATA_SOURCE = new MatTableDataSource<
-      RiverCRUDModel['getEntitiesResult']['data'][number]
+      RiverCRUDModel['getPaginatedEntitiesResult']['data'][number]
     >([]);
     this.paginationParams = { limit: 10 };
     this.length = 0;
@@ -129,13 +134,13 @@ export class RiversComponent implements OnInit, OnDestroy {
   }
 
   public onEditClick(
-    item: RiverCRUDModel['getEntitiesResult']['data'][number]
+    item: RiverCRUDModel['getPaginatedEntitiesResult']['data'][number]
   ) {
     this.openDialog(item);
   }
 
   public onDeleteClick(
-    item: RiverCRUDModel['getEntitiesResult']['data'][number]
+    item: RiverCRUDModel['getPaginatedEntitiesResult']['data'][number]
   ) {
     this.confirmationDialogService.open({
       title: `Delete ${item.name}`,
@@ -157,7 +162,7 @@ export class RiversComponent implements OnInit, OnDestroy {
   }
 
   private openDialog(
-    data?: RiverCRUDModel['getEntitiesResult']['data'][number]
+    data?: RiverCRUDModel['getPaginatedEntitiesResult']['data'][number]
   ) {
     this.matDialog
       .open<RiverFormComponent, RiverFormData, boolean>(RiverFormComponent, {
@@ -176,7 +181,7 @@ export class RiversComponent implements OnInit, OnDestroy {
 
   private refreshEntities() {
     console.log({ RIVERS: this.params });
-    this.apiClient.river.getEntities(this.params).subscribe({
+    this.apiClient.river.getPaginatedEntities(this.params).subscribe({
       next: (next) => {
         this.length = next.count;
         this.DATA_SOURCE.data = next.data;

@@ -66,18 +66,18 @@ export class LocationFilterComponent implements OnInit, OnDestroy {
   public readonly LOCATION_FORM_CONTROL;
   public LOCATIONS$$;
 
-  public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult']['data']>;
+  public RIVERS$!: Observable<RiverCRUDModel['getPaginatedEntitiesResult']['data']>;
 
   constructor(private apiClient: ApiClient) {
     this.SUBSCRIPTIONS = new Subscription();
     this.LOCATION_FORM_CONTROL = new FormControl<number | null>(null);
     this.LOCATIONS$$ = new BehaviorSubject<
-      LocationCRUDModel['getEntitiesResult']
+      LocationCRUDModel['getPaginatedEntitiesResult']
     >([]);
   }
 
   public ngOnInit() {
-    this.RIVERS$ = this.apiClient.river.getEntities().pipe(
+    this.RIVERS$ = this.apiClient.river.getPaginatedEntities().pipe(
       map((next) => next.data),
       startWith([])
     );
@@ -96,7 +96,7 @@ export class LocationFilterComponent implements OnInit, OnDestroy {
 
   public onRiverSelectionChange(riverId: number | null) {
     if (riverId) {
-      this.apiClient.location.getEntities({ river: riverId }).subscribe({
+      this.apiClient.location.getPaginatedEntities({ river: riverId }).subscribe({
         next: (data) => {
           this.LOCATIONS$$.next(data);
         },

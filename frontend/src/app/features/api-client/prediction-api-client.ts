@@ -27,7 +27,7 @@ type GetEntitiesResult = {
 }[];
 
 export interface PredictionCRUDModel extends CRUDApiClientModel {
-  getEntitiesResult: GetEntitiesResult;
+  getPaginatedEntitiesResult: GetEntitiesResult;
   getEntityByLocationIdResult: GetEntitiesResult[number];
 }
 

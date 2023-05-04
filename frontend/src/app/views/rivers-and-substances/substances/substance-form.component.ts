@@ -22,7 +22,7 @@ import { SubstanceCRUDModel, ApiClient } from '@/features/api-client';
 import { NotificationService } from '@/features/notification';
 
 export type SubstanceFormData =
-  | SubstanceCRUDModel['getEntitiesResult']['data'][number]
+  | SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
   | undefined
   | null;
 
@@ -153,7 +153,7 @@ export class SubstanceFormComponent implements OnInit {
       this.FORM_GROUP.patchValue(this.data);
       this.TITLE = `Edit ${this.data.name}`;
       this.SUBMIT_BUTTON_COLOR = 'accent';
-      this.HANDLE_ENTITY = this.putEntity;
+      this.HANDLE_ENTITY = this.patchEntity;
     } else {
       this.TITLE = `New Substance`;
       this.SUBMIT_BUTTON_COLOR = 'primary';
@@ -186,9 +186,9 @@ export class SubstanceFormComponent implements OnInit {
     );
   }
 
-  private putEntity() {
+  private patchEntity() {
     const value = this.FORM_GROUP.value;
-    return this.apiClient.substance.putEntity(this.data!.id, value).pipe(
+    return this.apiClient.substance.patchEntity(this.data!.id, value).pipe(
       tap(() => {
         this.notificationService.notify(
           `${value.name} is successfully edited!`

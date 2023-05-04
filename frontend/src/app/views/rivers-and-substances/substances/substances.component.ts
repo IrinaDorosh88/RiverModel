@@ -63,7 +63,7 @@ import {
       </ng-container>
 
       <ng-container matColumnDef="actions">
-        <th *matHeaderCellDef mat-header-cell style="width: 100px"></th>
+        <th *matHeaderCellDef mat-header-cell style="width: 96px"></th>
         <td *matCellDef="let item" mat-cell>
           <div class="display-flex gap-2">
             <button mat-mini-fab color="accent" (click)="onEditClick(item)">
@@ -100,7 +100,7 @@ export class SubstancesComponent implements OnInit, OnDestroy {
   ) {
     this.DISPLAYED_COLUMNS = ['name', 'min', 'max', 'unit', 'actions'];
     this.DATA_SOURCE = new MatTableDataSource<
-      SubstanceCRUDModel['getEntitiesResult']['data'][number]
+      SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
     >([]);
     this.SUBSCRIPTIONS = new Subscription();
     this.paginationParams = { limit: 10 };
@@ -142,13 +142,13 @@ export class SubstancesComponent implements OnInit, OnDestroy {
   }
 
   public onEditClick(
-    item: SubstanceCRUDModel['getEntitiesResult']['data'][number]
+    item: SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
   ) {
     this.openDialog(item);
   }
 
   public onDeleteClick(
-    item: SubstanceCRUDModel['getEntitiesResult']['data'][number]
+    item: SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
   ) {
     this.confirmationDialogService.open({
       title: `Delete ${item.name}`,
@@ -170,7 +170,7 @@ export class SubstancesComponent implements OnInit, OnDestroy {
   }
 
   private openDialog(
-    data?: SubstanceCRUDModel['getEntitiesResult']['data'][number]
+    data?: SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
   ) {
     this.matDialog
       .open<SubstanceFormComponent, SubstanceFormData, boolean>(
@@ -192,7 +192,7 @@ export class SubstancesComponent implements OnInit, OnDestroy {
 
   private refreshEntities() {
     console.log({ SUBSTANCES: this.params });
-    this.apiClient.substance.getEntities(this.params).subscribe({
+    this.apiClient.substance.getPaginatedEntities(this.params).subscribe({
       next: (next) => {
         this.length = next.count;
         this.DATA_SOURCE.data = next.data;
