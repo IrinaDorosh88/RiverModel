@@ -180,7 +180,6 @@ export class RiversComponent implements OnInit, OnDestroy {
   }
 
   private refreshEntities() {
-    console.log({ RIVERS: this.params });
     this.apiClient.river.getPaginatedEntities(this.params).subscribe({
       next: (next) => {
         this.length = next.count;

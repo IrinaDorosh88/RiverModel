@@ -191,7 +191,6 @@ export class SubstancesComponent implements OnInit, OnDestroy {
   }
 
   private refreshEntities() {
-    console.log({ SUBSTANCES: this.params });
     this.apiClient.substance.getPaginatedEntities(this.params).subscribe({
       next: (next) => {
         this.length = next.count;

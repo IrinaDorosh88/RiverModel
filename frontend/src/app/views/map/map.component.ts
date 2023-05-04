@@ -371,7 +371,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     entity?: LocationCRUDModel['getPaginatedEntitiesResult'][number],
     marker?: Marker
   ) {
-    console.log({ MEASUREMENTS: this.params });
     this.apiClient.measurement.getPaginatedEntities(this.params).subscribe({
       next: (next) => {
         if (this.currentLocationAndMarker) {

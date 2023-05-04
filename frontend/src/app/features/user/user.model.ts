@@ -34,7 +34,6 @@ export class User {
   // public static fromToken(token: string) {
   //   const payload: { sub: string; role: string } = jwtDecode(token);
   //   this.instance$$.next(new User(token, payload['sub'], payload['role']));
-  //   console.log(payload);
   // }
 
   public static fromToken(token: string) {
