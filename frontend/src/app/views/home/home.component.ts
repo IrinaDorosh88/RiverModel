@@ -22,6 +22,7 @@ import {
   ApiClient,
   LocationCRUDModel,
 } from '@/features/api-client';
+import { I18N } from '@/features/i18n';
 
 import { ChartComponent } from '@/views/chart';
 import { MapComponent } from '@/views/map';
@@ -53,7 +54,7 @@ export const TOOLBAR_ACTION$$ = new Subject<{
           (click)="onToolbarActionInvoked('RIVERS_NEW_RIVER')"
         >
           <mat-icon>add</mat-icon>
-          River
+          {{ I18N['River'] }}
         </button>
         <button
           mat-flat-button
@@ -61,12 +62,12 @@ export const TOOLBAR_ACTION$$ = new Subject<{
           (click)="onToolbarActionInvoked('SUBSTANCES_NEW_SUBSTANCE')"
         >
           <mat-icon>add</mat-icon>
-          Substance
+          {{ I18N['Substance'] }}
         </button>
       </ng-template>
       <ng-template [ngSwitchCase]="1">
         <mat-form-field class="ml-auto" style="width: 200px">
-          <mat-label>River</mat-label>
+          <mat-label>{{ I18N['River'] }}</mat-label>
           <mat-select
             (selectionChange)="
               onToolbarActionInvoked('MAP_RIVER_SELECTED', $event.value)
@@ -93,21 +94,21 @@ export const TOOLBAR_ACTION$$ = new Subject<{
     </div>
 
     <mat-tab-group [(selectedIndex)]="tabGroupSelectedIndex">
-      <mat-tab label="Rivers & Substances">
+      <mat-tab [label]="I18N['Rivers & Substances']">
         <ng-template matTabContent>
           <div class="home-content-wrapper">
             <app-rivers-and-substances></app-rivers-and-substances>
           </div>
         </ng-template>
       </mat-tab>
-      <mat-tab label="Map">
+      <mat-tab [label]="I18N['Map']">
         <ng-template matTabContent>
           <div class="home-content-wrapper">
             <app-map></app-map>
           </div>
         </ng-template>
       </mat-tab>
-      <mat-tab label="Chart">
+      <mat-tab [label]="I18N['Chart']">
         <ng-template matTabContent>
           <div class="home-content-wrapper">
             <app-chart></app-chart>
@@ -118,6 +119,7 @@ export const TOOLBAR_ACTION$$ = new Subject<{
   `,
 })
 export class HomeComponent implements OnInit {
+  public readonly I18N = I18N;
   public tabGroupSelectedIndex: number;
 
   public RIVERS$!: Observable<RiverCRUDModel['getPaginatedEntitiesResult']['data']>;

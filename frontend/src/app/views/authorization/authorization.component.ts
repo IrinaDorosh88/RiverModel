@@ -23,6 +23,7 @@ const MATERIAL_MODULES = [
 import { ApiClient } from '@/features/api-client';
 import { NotificationService } from '@/features/notification';
 import { User } from '@/features/user';
+import { I18N } from '@/features/i18n';
 
 @Component({
   standalone: true,
@@ -34,11 +35,11 @@ import { User } from '@/features/user';
       class="background-color-white"
       [formGroup]="FORM_GROUP"
     >
-      <h2 mat-dialog-title>{{ register ? 'SIGN UP' : 'SIGN IN' }}</h2>
+      <h2 mat-dialog-title>{{ I18N[register ? 'SIGN UP' : 'SIGN IN'] }}</h2>
 
       <div mat-dialog-content>
         <mat-form-field class="width-full">
-          <mat-label>Login</mat-label>
+          <mat-label>{{ I18N['Login'] }}</mat-label>
           <input matInput formControlName="login" />
           <mat-error *ngIf="FORM_GROUP.controls['login'].errors as errors">
             {{ errors['message'] }}
@@ -46,7 +47,7 @@ import { User } from '@/features/user';
         </mat-form-field>
 
         <mat-form-field class="width-full">
-          <mat-label>Password</mat-label>
+          <mat-label>{{ I18N['Password'] }}</mat-label>
           <input
             matInput
             formControlName="password"
@@ -61,7 +62,7 @@ import { User } from '@/features/user';
         </mat-form-field>
 
         <mat-form-field *ngIf="register" class="width-full">
-          <mat-label>Confirm</mat-label>
+          <mat-label>{{ I18N['Confirm'] }}</mat-label>
           <input
             matInput
             formControlName="confirm"
@@ -81,7 +82,7 @@ import { User } from '@/features/user';
           class="mr-auto ml-3 cursor-pointer hover:text-decoration-underline"
           (click)="onAuthorizationTypeToggle()"
         >
-          {{ register ? 'Sign in?' : 'Sign up?' }}
+          {{ I18N[register ? 'Sign in?' : 'Sign up?'] }}
         </a>
         <button
           mat-flat-button
@@ -90,14 +91,15 @@ import { User } from '@/features/user';
           [disabled]="FORM_GROUP.invalid || isFormSubmitted"
           (click)="onSubmitClick(FORM_GROUP.value)"
         >
-          Submit
+          {{ I18N['Submit'] }}
         </button>
-        <button mat-flat-button mat-dialog-close>Close</button>
+        <button mat-flat-button mat-dialog-close>{{ I18N['Close'] }}</button>
       </div>
     </form>
   `,
 })
 export class AuthorizationComponent implements OnInit {
+  public readonly I18N = I18N;
   public readonly FORM_GROUP;
   public isFormSubmitted;
   public passwordHidden;
@@ -123,21 +125,21 @@ export class AuthorizationComponent implements OnInit {
           const { login, password, confirm } = formGroup.controls;
           // Email
           if (login.value === '') {
-            login.setErrors({ message: 'Name is required.' });
+            login.setErrors({ message: I18N['Login is required.'] });
           } else {
             login.setErrors(null);
           }
           // Password
           if (password.value === '') {
-            password.setErrors({ message: 'Password is required.' });
+            password.setErrors({ message: I18N['Password is required.'] });
           } else {
             password.setErrors(null);
           }
           // Confirm
           if (confirm.value === '') {
-            confirm.setErrors({ message: 'Confirm is required.' });
+            confirm.setErrors({ message: I18N['Confirm is required.'] });
           } else if (confirm.value !== password.value) {
-            confirm.setErrors({ message: 'Passwords do not match' });
+            confirm.setErrors({ message: I18N['Passwords do not match.'] });
           } else {
             confirm.setErrors(null);
           }
@@ -178,7 +180,9 @@ export class AuthorizationComponent implements OnInit {
       this.apiClient.authorization.register(model).subscribe({
         next: () => {
           this.isFormSubmitted = false;
-          this.notificationService.notify('You are successfully signed up!');
+          this.notificationService.notify(
+            I18N['You are successfully signed up.']
+          );
           this.onAuthorizationTypeToggle();
         },
         error: (error: HttpErrorResponse) => {
@@ -188,23 +192,27 @@ export class AuthorizationComponent implements OnInit {
               this.FORM_GROUP.controls[key].setErrors({ message: value });
             });
           } else {
-            this.notificationService.notify('Something went wrong!');
+            this.notificationService.notify(I18N['Something went wrong.']);
           }
         },
       });
     } else {
       this.apiClient.authorization.login(model).subscribe({
         next: (next) => {
-          this.notificationService.notify('You are successfully signed in!');
+          this.notificationService.notify(
+            I18N['You are successfully signed in']
+          );
           User.fromToken(next.access_token);
           localStorage.setItem('token', JSON.stringify(next.access_token));
           this.dialogRef.close();
         },
         error: (error: HttpErrorResponse) => {
           this.notificationService.notify(
-            error.status === HttpStatusCode.UnprocessableEntity
-              ? 'Invalid credentials!'
-              : 'Something went wrong!'
+            I18N[
+              error.status === HttpStatusCode.UnprocessableEntity
+                ? 'Invalid credentials.'
+                : 'Something went wrong.'
+            ]
           );
           this.isFormSubmitted = false;
         },

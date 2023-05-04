@@ -19,6 +19,7 @@ type GetEntitiesResult = {
   substances: {
     id: number;
     name: string;
+    unit: string;
     values: {
       x: number;
       y: number;
@@ -50,6 +51,7 @@ export class PredictionApiClient extends CRUDApiClient<PredictionCRUDModel> {
           {
             id: 1,
             name: 'Hydrogen',
+            unit: 'g/mol',
             values: new Array(getRandomInt(20, 5)).fill(null).map(() => {
               return { x: getRandomInt(20), y: getRandomInt(20) };
             }).sort((a,b) => a.x - b.x),
@@ -57,6 +59,7 @@ export class PredictionApiClient extends CRUDApiClient<PredictionCRUDModel> {
           {
             id: 2,
             name: 'Helium',
+            unit: 'g/mol',
             values: new Array(getRandomInt(20, 5)).fill(null).map(() => {
               return { x: getRandomInt(20), y: getRandomInt(20) };
             }).sort((a,b) => a.x - b.x),
@@ -64,6 +67,7 @@ export class PredictionApiClient extends CRUDApiClient<PredictionCRUDModel> {
           {
             id: 4,
             name: 'Beryllium',
+            unit: 'g/mol',
             values: new Array(getRandomInt(20, 5)).fill(null).map(() => {
               return { x: getRandomInt(20), y: getRandomInt(20) };
             }).sort((a,b) => a.x - b.x),
@@ -77,6 +81,7 @@ export class PredictionApiClient extends CRUDApiClient<PredictionCRUDModel> {
           {
             id: 2,
             name: 'Lithium',
+            unit: 'g/mol',
             values: new Array(getRandomInt(20, 5)).fill(null).map(() => {
               return { x: getRandomInt(20), y: getRandomInt(20) };
             }).sort((a,b) => a.x - b.x),
@@ -84,6 +89,7 @@ export class PredictionApiClient extends CRUDApiClient<PredictionCRUDModel> {
           {
             id: 4,
             name: 'Beryllium',
+            unit: 'g/mol',
             values: new Array(getRandomInt(20, 5)).fill(null).map(() => {
               return { x: getRandomInt(20), y: getRandomInt(20) };
             }).sort((a,b) => a.x - b.x),

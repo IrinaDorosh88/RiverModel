@@ -10,6 +10,8 @@ import {
 } from '@angular/material/dialog';
 const MATERIAL_MODULES = [MatButtonModule, MatDialogModule];
 
+import { I18N } from '@/features/i18n';
+
 import { ConfirmationDialogData } from './confirmation-dialog.models';
 
 @Component({
@@ -19,7 +21,7 @@ import { ConfirmationDialogData } from './confirmation-dialog.models';
   template: `
     <form spellcheck="false" (submit)="$event.preventDefault()">
       <div mat-dialog-title>{{ data.title }}</div>
-      <div mat-dialog-content>Are you sure?</div>
+      <div mat-dialog-content>{{ I18N['Are you sure?'] }}</div>
       <div mat-dialog-actions class="justify-content-end gap-2">
         <button
           mat-flat-button
@@ -28,15 +30,17 @@ import { ConfirmationDialogData } from './confirmation-dialog.models';
           [disabled]="isConfirmButtonDisabled"
           (click)="onConfirmClick()"
         >
-          Confirm
+          {{ I18N['Yes'] }}
         </button>
-        <button mat-flat-button mat-dialog-close>Close</button>
+        <button mat-flat-button mat-dialog-close>{{ I18N['No'] }}</button>
       </div>
     </form>
   `,
 })
 export class ConfirmationDialogComponent {
+  public readonly I18N = I18N;
   public isConfirmButtonDisabled: boolean;
+
   constructor(
     private dialogRef: MatDialogRef<ConfirmationDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: ConfirmationDialogData

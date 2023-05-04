@@ -20,6 +20,7 @@ const MATERIAL_MODULES = [
 
 import { ApiClient, RiverCRUDModel } from '@/features/api-client';
 import { ConfirmationDialogService } from '@/features/confirmation-dialog';
+import { I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
 
 import { TOOLBAR_ACTION$$ } from '@/views/home';
@@ -40,10 +41,9 @@ import { RiverFormComponent, RiverFormData } from './river-form.component';
     ></mat-paginator>
     <table mat-table class="p-2" [dataSource]="DATA_SOURCE">
       <ng-container matColumnDef="name">
-        <th *matHeaderCellDef mat-header-cell>Name</th>
+        <th *matHeaderCellDef mat-header-cell>{{ I18N['Name'] }}</th>
         <td *matCellDef="let item" mat-cell>{{ item.name }}</td>
       </ng-container>
-
       <ng-container matColumnDef="actions">
         <th *matHeaderCellDef mat-header-cell style="width: 48px"></th>
         <td *matCellDef="let item" mat-cell>
@@ -67,13 +67,14 @@ import { RiverFormComponent, RiverFormData } from './river-form.component';
           </div>
         </td>
       </ng-container> -->
-
       <tr mat-header-row *matHeaderRowDef="DISPLAYED_COLUMNS"></tr>
       <tr mat-row *matRowDef="let row; columns: DISPLAYED_COLUMNS"></tr>
     </table>
   `,
 })
 export class RiversComponent implements OnInit, OnDestroy {
+  public readonly I18N = I18N;
+
   @ViewChild(MatPaginator) public paginator!: MatPaginator;
   private readonly SUBSCRIPTIONS;
   public readonly DISPLAYED_COLUMNS;
@@ -143,12 +144,12 @@ export class RiversComponent implements OnInit, OnDestroy {
     item: RiverCRUDModel['getPaginatedEntitiesResult']['data'][number]
   ) {
     this.confirmationDialogService.open({
-      title: `Delete ${item.name}`,
+      title: I18N['Delete $name river'](item.name),
       confirmCallback: () => {
         return this.apiClient.river.deleteEntity(item.id).pipe(
           tap(() => {
             this.notificationService.notify(
-              `${item.name} is successfully deleted!`
+              I18N['$name river is successfully deleted.'](item.name)
             );
             if (!this.DATA_SOURCE.data.length && this.paginationParams.offset) {
               this.paginator.previousPage();

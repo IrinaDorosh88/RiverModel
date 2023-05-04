@@ -20,6 +20,7 @@ const MATERIAL_MODULES = [
 
 import { SubstanceCRUDModel, ApiClient } from '@/features/api-client';
 import { ConfirmationDialogService } from '@/features/confirmation-dialog';
+import { I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
 
 import { TOOLBAR_ACTION$$ } from '@/views/home';
@@ -43,22 +44,22 @@ import {
     ></mat-paginator>
     <table mat-table class="p-2" [dataSource]="DATA_SOURCE">
       <ng-container matColumnDef="name">
-        <th *matHeaderCellDef mat-header-cell>Name</th>
+        <th *matHeaderCellDef mat-header-cell>{{ I18N['Name'] }}</th>
         <td *matCellDef="let item" mat-cell>{{ item.name }}</td>
       </ng-container>
 
       <ng-container matColumnDef="min">
-        <th *matHeaderCellDef mat-header-cell>Min</th>
+        <th *matHeaderCellDef mat-header-cell>{{ I18N['Min'] }}</th>
         <td *matCellDef="let item" mat-cell>{{ item.min }}</td>
       </ng-container>
 
       <ng-container matColumnDef="max">
-        <th *matHeaderCellDef mat-header-cell>Max</th>
+        <th *matHeaderCellDef mat-header-cell>{{ I18N['Max'] }}</th>
         <td *matCellDef="let item" mat-cell>{{ item.max }}</td>
       </ng-container>
 
       <ng-container matColumnDef="unit">
-        <th *matHeaderCellDef mat-header-cell>Unit</th>
+        <th *matHeaderCellDef mat-header-cell>{{ I18N['Unit'] }}</th>
         <td *matCellDef="let item" mat-cell>{{ item.unit }}</td>
       </ng-container>
 
@@ -82,6 +83,7 @@ import {
   `,
 })
 export class SubstancesComponent implements OnInit, OnDestroy {
+  public readonly I18N = I18N;
   @ViewChild(MatPaginator) public paginator!: MatPaginator;
   private readonly SUBSCRIPTIONS;
   public readonly DISPLAYED_COLUMNS;
@@ -151,12 +153,12 @@ export class SubstancesComponent implements OnInit, OnDestroy {
     item: SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
   ) {
     this.confirmationDialogService.open({
-      title: `Delete ${item.name}`,
+      title: I18N['Delete $name substance'](item.name),
       confirmCallback: () => {
         return this.apiClient.substance.deleteEntity(item.id).pipe(
           tap(() => {
             this.notificationService.notify(
-              `${item.name} is successfully deleted!`
+              I18N['$name substance is successfully deleted.'](item.name)
             );
             if (!this.DATA_SOURCE.data.length && this.paginationParams.offset) {
               this.paginator.previousPage();

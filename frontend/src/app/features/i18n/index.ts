@@ -1,0 +1,1 @@
+export { I18N, changeLanguage } from './i18n';

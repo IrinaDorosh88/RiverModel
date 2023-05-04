@@ -26,6 +26,7 @@ import {
   RiverCRUDModel,
   SubstanceCRUDModel,
 } from '@/features/api-client';
+import { I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
 
 export type LocationFormData =
@@ -47,15 +48,15 @@ export type LocationFormData =
       <div mat-dialog-title>{{ TITLE }}</div>
       <div mat-dialog-content>
         <mat-form-field class="width-full">
-          <mat-label>Latitude</mat-label>
+          <mat-label>{{ I18N['Latitude'] }}</mat-label>
           <input matInput formControlName="latitude" />
         </mat-form-field>
         <mat-form-field class="width-full">
-          <mat-label>Longitude</mat-label>
+          <mat-label>{{ I18N['Longitude'] }}</mat-label>
           <input matInput formControlName="longitude" />
         </mat-form-field>
         <mat-form-field class="width-full">
-          <mat-label>Substances</mat-label>
+          <mat-label>{{ I18N['Substances'] }}</mat-label>
           <mat-select multiple formControlName="substancesIds">
             <mat-option
               *ngFor="let entity of SUBSTANCES$ | async"
@@ -71,7 +72,7 @@ export type LocationFormData =
           </mat-error>
         </mat-form-field>
         <mat-form-field class="width-full">
-          <mat-label>River</mat-label>
+          <mat-label>{{ I18N['River'] }}</mat-label>
           <mat-select formControlName="riverId">
             <mat-option [value]="null">---</mat-option>
             <mat-option
@@ -87,7 +88,7 @@ export type LocationFormData =
         </mat-form-field>
 
         <mat-form-field class="width-full">
-          <mat-label>Name</mat-label>
+          <mat-label>{{ I18N['Name'] }}</mat-label>
           <input matInput formControlName="name" />
           <mat-error *ngIf="FORM_GROUP.controls['name'].errors as errors">
             {{ errors['message'] }}
@@ -102,21 +103,26 @@ export type LocationFormData =
           [disabled]="FORM_GROUP.invalid || isFormSubmitted"
           (click)="onSubmitClick()"
         >
-          Submit
+          {{ I18N['Submit'] }}
         </button>
-        <button mat-flat-button [mat-dialog-close]="false">Close</button>
+        <button mat-flat-button [mat-dialog-close]="false">
+          {{ I18N['Close'] }}
+        </button>
       </div>
     </form>
   `,
 })
 export class LocationFormComponent implements OnInit {
+  public readonly I18N = I18N;
   public readonly FORM_GROUP;
   public isFormSubmitted;
 
   public TITLE!: string;
   public SUBMIT_BUTTON_COLOR!: 'primary' | 'accent';
   private HANDLE_ENTITY!: () => Observable<any>;
-  public RIVERS$!: Observable<RiverCRUDModel['getPaginatedEntitiesResult']['data']>;
+  public RIVERS$!: Observable<
+    RiverCRUDModel['getPaginatedEntitiesResult']['data']
+  >;
   public SUBSTANCES$!: Observable<
     SubstanceCRUDModel['getPaginatedEntitiesResult']['data']
   >;
@@ -142,20 +148,20 @@ export class LocationFormComponent implements OnInit {
           const { name, riverId, substancesIds } = formGroup.controls;
           // Name
           if (name.value === '') {
-            name.setErrors({ message: 'Name is required.' });
+            name.setErrors({ message: I18N['Name is required.'] });
           } else {
             name.setErrors(null);
           }
           // River Id
           if (riverId.value == null) {
-            riverId.setErrors({ message: 'River is required.' });
+            riverId.setErrors({ message: I18N['River is required.'] });
           } else {
             riverId.setErrors(null);
           }
           // Substances
           if (!(substancesIds.value && substancesIds.value.length)) {
             substancesIds.setErrors({
-              message: 'Choose at least one substance.',
+              message: I18N['Choose at least one substance.'],
             });
           } else {
             substancesIds.setErrors(null);
@@ -175,7 +181,7 @@ export class LocationFormComponent implements OnInit {
       .pipe(map((next) => next.data));
     if (this.data.entity) {
       this.FORM_GROUP.patchValue(this.data.entity);
-      this.TITLE = `Edit ${this.data.entity.name}`;
+      this.TITLE = I18N['Edit $name location'](this.data.entity.name);
       this.SUBMIT_BUTTON_COLOR = 'accent';
       this.HANDLE_ENTITY = this.patchEntity;
       this.FORM_GROUP.controls['substancesIds'].disable();
@@ -184,7 +190,7 @@ export class LocationFormComponent implements OnInit {
       if (this.data.riverId) {
         this.FORM_GROUP.controls['riverId'].patchValue(this.data.riverId);
       }
-      this.TITLE = `New Location`;
+      this.TITLE = I18N['New Location'];
       this.SUBMIT_BUTTON_COLOR = 'primary';
       this.HANDLE_ENTITY = this.postEntity;
     }
@@ -209,7 +215,7 @@ export class LocationFormComponent implements OnInit {
     return this.apiClient.location.postEntity(value).pipe(
       tap(() => {
         this.notificationService.notify(
-          `${value.name} is successfully created!`
+          I18N['$name location is successfully created.'](value.name)
         );
       })
     );
@@ -217,12 +223,14 @@ export class LocationFormComponent implements OnInit {
 
   private patchEntity() {
     const value = this.FORM_GROUP.value;
-    return this.apiClient.location.patchEntity(this.data!.entity!.id, value).pipe(
-      tap(() => {
-        this.notificationService.notify(
-          `${value.name} is successfully edited!`
-        );
-      })
-    );
+    return this.apiClient.location
+      .patchEntity(this.data!.entity!.id, value)
+      .pipe(
+        tap(() => {
+          this.notificationService.notify(
+            I18N['$name location is successfully edited.'](value.name)
+          );
+        })
+      );
   }
 }

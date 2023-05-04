@@ -18,6 +18,7 @@ const VIEWS = [AuthorizationComponent, HomeComponent];
 import { ApiClient } from '@/features/api-client';
 import { bearerAuthenticationInterceptorFn } from '@/features/bearer-authentication';
 import { ENVIRONMENT_INITIALIZER_PROVIDER } from '@/features/environment-init';
+import { changeLanguage, I18N } from '@/features/i18n';
 import { LoaderComponent, loaderInterceptorFn } from '@/features/loading';
 import {
   NotificationService,
@@ -35,14 +36,17 @@ import { User, USER_INITIALIZER_PROVIDER } from '@/features/user';
       <img class="mr-auto" src="./assets/logo.svg" />
       <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorizedUserButtons">
         <button mat-flat-button class="color-primary" (click)="onLogoutClick()">
-          <span>Sign out</span>
+          <span>{{ I18N['Sign out'] }}</span>
         </button>
       </ng-template>
       <ng-template #nonAuthorizedUserButtons>
         <button mat-flat-button class="color-primary" (click)="onLoginClick()">
-          <span>Sign in</span>
+          <span>{{ I18N['Sign in'] }}</span>
         </button>
       </ng-template>
+      <button mat-flat-button color="accent" (click)="toggleLanguage()">
+        <span>{{ language === 'eng' ? 'Eng' : 'Укр' }}</span>
+      </button>
     </div>
     <div class="app-content-wrapper">
       <ng-template [ngIf]="user$ | async" [ngIfElse]="nonAuthorizedUserView">
@@ -65,11 +69,11 @@ import { User, USER_INITIALIZER_PROVIDER } from '@/features/user';
             style="transition: color ease-in-out 0.2s, background-color ease-in-out 0.2s"
             (click)="onRegisterClick()"
           >
-            <span>Sign up</span>
+            <span>{{ I18N['Sign up'] }}</span>
           </button>
           <div class="text-align-center color-white" style="font-size: 1.5rem">
-            <div class="mb-2">Clean water is a healthy life.</div>
-            <div>Explore the river flows with us!</div>
+            <div class="mb-2">{{ I18N['Clean water is a healthy life.'] }}</div>
+            <div>{{ I18N['Explore the river flows with us!'] }}</div>
           </div>
         </div>
       </ng-template>
@@ -77,13 +81,23 @@ import { User, USER_INITIALIZER_PROVIDER } from '@/features/user';
   `,
 })
 export class AppComponent implements OnInit {
+  public readonly I18N = I18N;
+
+  public language: 'eng' | 'ukr';
   public user$!: Observable<User | null>;
 
   constructor(
     private matDialog: MatDialog,
     private apiClient: ApiClient,
     private notificationService: NotificationService
-  ) {}
+  ) {
+    this.language = 'ukr';
+  }
+
+  toggleLanguage() {
+    this.language = this.language === 'eng' ? 'ukr' : 'eng';
+    changeLanguage(this.language);
+  }
 
   public ngOnInit() {
     this.user$ = User.get$();

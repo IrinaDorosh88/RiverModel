@@ -30,6 +30,7 @@ import {
   MeasurementCRUDModel,
 } from '@/features/api-client';
 import { ConfirmationDialogService } from '@/features/confirmation-dialog';
+import { I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
 
 import { TOOLBAR_ACTION$$ } from '@/views/home';
@@ -67,14 +68,14 @@ import {
           ></mat-paginator>
           <table mat-table class="p-3" [dataSource]="dataSource">
             <ng-container matColumnDef="date">
-              <th *matHeaderCellDef mat-header-cell>Date</th>
+              <th *matHeaderCellDef mat-header-cell>{{ I18N['Date'] }}</th>
               <td *matCellDef="let item" mat-cell>
                 {{ item.date | date : 'dd/MM/yyyy' }}
               </td>
             </ng-container>
 
             <ng-container matColumnDef="values">
-              <th *matHeaderCellDef mat-header-cell>Values</th>
+              <th *matHeaderCellDef mat-header-cell>{{ I18N['Values'] }}</th>
               <td *matCellDef="let item" mat-cell>
                 <div [innerHTML]="item.innerHTML"></div>
               </td>
@@ -86,9 +87,9 @@ import {
         <ng-template #noData>
           <div
             class="display-flex align-items-center justify-content-center"
-            style="height: 100%"
+            style="height: 100%; font-size: 1.5rem;"
           >
-            Choose location to display Measurements
+            {{ I18N['Choose location to display measurements.'] }}
           </div>
         </ng-template>
       </div>
@@ -96,6 +97,7 @@ import {
   `,
 })
 export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
+  public readonly I18N = I18N;
   private readonly LOCATIONS$$;
   private readonly MEASUREMENTS$$;
   private readonly POPUP;
@@ -138,15 +140,17 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     >(1);
     this.POPUP = new Popup({ closeButton: false, closeOnClick: false });
     this.SUBSCRIPTIONS = new Subscription();
-    this.SUBSTANCES_MAPPER$ = this.apiClient.substance.getPaginatedEntities().pipe(
-      map((next) => {
-        return next.data.reduce((accumulator, entity) => {
-          accumulator[entity.id] = entity.name;
-          return accumulator;
-        }, {} as { [key: string]: string });
-      }),
-      shareReplay(1)
-    );
+    this.SUBSTANCES_MAPPER$ = this.apiClient.substance
+      .getPaginatedEntities()
+      .pipe(
+        map((next) => {
+          return next.data.reduce((accumulator, entity) => {
+            accumulator[entity.id] = entity.name;
+            return accumulator;
+          }, {} as { [key: string]: string });
+        }),
+        shareReplay(1)
+      );
     this.DATA_SOURCE$ = this.MEASUREMENTS$$.pipe(
       combineLatestWith(this.SUBSTANCES_MAPPER$),
       map((next) => {
@@ -272,7 +276,9 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private onEditClick(entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]) {
+  private onEditClick(
+    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]
+  ) {
     this.openDialog({ entity });
   }
 
@@ -280,12 +286,12 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]
   ) {
     this.confirmationDialogService.open({
-      title: `Delete ${entity.name}`,
+      title: I18N['Delete $name location'](entity.name),
       confirmCallback: () => {
         return this.apiClient.location.deleteEntity(entity.id).pipe(
           tap(() => {
             this.notificationService.notify(
-              `${entity.name} is successfully deleted!`
+              I18N['$name location is successfully deleted.'](entity.name)
             );
           })
         );

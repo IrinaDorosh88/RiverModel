@@ -24,6 +24,7 @@ import {
   LocationCRUDModel,
   RiverCRUDModel,
 } from '@/features/api-client';
+import { I18N } from '@/features/i18n';
 
 @Component({
   standalone: true,
@@ -32,7 +33,7 @@ import {
   template: `
     <div class="display-flex flex-wrap gap-2">
       <mat-form-field style="width: 200px">
-        <mat-label>River</mat-label>
+        <mat-label>{{ I18N['River'] }}</mat-label>
         <mat-select (selectionChange)="onRiverSelectionChange($event.value)">
           <mat-option [value]="null">---</mat-option>
           <mat-option
@@ -44,7 +45,7 @@ import {
         </mat-select>
       </mat-form-field>
       <mat-form-field style="width: 200px">
-        <mat-label>Location</mat-label>
+        <mat-label>{{ I18N['Location'] }}</mat-label>
         <mat-select [formControl]="LOCATION_FORM_CONTROL">
           <mat-option [value]="null">---</mat-option>
           <mat-option
@@ -59,6 +60,8 @@ import {
   `,
 })
 export class LocationFilterComponent implements OnInit, OnDestroy {
+  public readonly I18N = I18N;
+
   @Output('selectionChange') public readonly RIVER_SELECTION_CHANGE_EMITTER =
     new EventEmitter<number | null>();
 
