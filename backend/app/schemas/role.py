@@ -6,17 +6,22 @@ from pydantic import BaseModel
 
 class RoleBase(BaseModel):
     name: str
-    is_active: Optional[bool] = True
-
-
-class RoleCreate(RoleBase):
-    pass
 
 
 class Role(RoleBase):
     id: int
     created_at: Optional[datetime] = None
     modified_at: Optional[datetime] = None
-
+    is_active: Optional[bool] = None
+    
     class Config:
         orm_mode = True
+
+
+class RoleCreate(RoleBase):
+    pass
+
+
+class RoleUpdate(RoleBase):
+    is_active: Optional[bool] = None
+    pass
