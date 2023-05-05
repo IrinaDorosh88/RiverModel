@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -38,6 +38,7 @@ export type MeasurementFormData = {
 @Component({
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ...MATERIAL_MODULES],
+  encapsulation: ViewEncapsulation.None,
   selector: 'app-measurement-form',
   template: `
     <form spellcheck="false" [formGroup]="FORM_GROUP">

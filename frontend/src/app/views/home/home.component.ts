@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Observable, Subject, BehaviorSubject, startWith, map } from 'rxjs';
 
@@ -25,11 +25,15 @@ import {
 import { I18N } from '@/features/i18n';
 
 import { ChartComponent } from '@/views/chart';
+import { LocationFilterComponent } from '@/views/location-filter';
 import { MapComponent } from '@/views/map';
 import { RiversAndSubstancesComponent } from '@/views/rivers-and-substances';
-const VIEWS = [ChartComponent, MapComponent, RiversAndSubstancesComponent];
-
-import { LocationFilterComponent } from './location-filter.component';
+const VIEWS = [
+  ChartComponent,
+  LocationFilterComponent,
+  MapComponent,
+  RiversAndSubstancesComponent,
+];
 
 export const TOOLBAR_ACTION$$ = new Subject<{
   key: string;
@@ -38,12 +42,8 @@ export const TOOLBAR_ACTION$$ = new Subject<{
 
 @Component({
   standalone: true,
-  imports: [
-    CommonModule,
-    ...MATERIAL_MODULES,
-    ...VIEWS,
-    LocationFilterComponent,
-  ],
+  imports: [CommonModule, ...MATERIAL_MODULES, ...VIEWS],
+  encapsulation: ViewEncapsulation.None,
   selector: 'app-home',
   template: `
     <div class="home-toolbar" [ngSwitch]="tabGroupSelectedIndex">

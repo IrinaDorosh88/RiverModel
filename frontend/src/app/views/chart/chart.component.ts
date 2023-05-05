@@ -1,4 +1,10 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewEncapsulation,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, Subscription } from 'rxjs';
 import { Chart } from 'chart.js/auto';
@@ -14,6 +20,7 @@ import { TOOLBAR_ACTION$$ } from '@/views/home';
 @Component({
   standalone: true,
   imports: [CommonModule, ...MATERIAL_MODULES],
+  encapsulation: ViewEncapsulation.None,
   selector: 'app-chart',
   template: `
     <div class="home-content app-card-container">

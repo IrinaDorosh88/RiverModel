@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, ViewEncapsulation } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 
@@ -17,6 +17,7 @@ import { ConfirmationDialogData } from './confirmation-dialog.models';
 @Component({
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ...MATERIAL_MODULES],
+  encapsulation: ViewEncapsulation.None,
   selector: 'app-confirmation-dialog',
   template: `
     <form spellcheck="false" (submit)="$event.preventDefault()">

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Observable, map, tap } from 'rxjs';
 
@@ -42,6 +42,7 @@ export type LocationFormData =
 @Component({
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ...MATERIAL_MODULES],
+  encapsulation: ViewEncapsulation.None,
   selector: 'app-location-form',
   template: `
     <form spellcheck="false" [formGroup]="FORM_GROUP">

@@ -1,4 +1,10 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewEncapsulation,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   ReplaySubject,
@@ -35,18 +41,16 @@ import { NotificationService } from '@/features/notification';
 
 import { TOOLBAR_ACTION$$ } from '@/views/home';
 
-import {
-  LocationFormComponent,
-  LocationFormData,
-} from './location-form.component';
+import { LocationFormComponent, LocationFormData } from '@/views/location-form';
 import {
   MeasurementFormComponent,
   MeasurementFormData,
-} from './measurement-form.component';
+} from '@/views/measurement-form';
 
 @Component({
   standalone: true,
   imports: [CommonModule, ...MATERIAL_MODULES],
+  encapsulation: ViewEncapsulation.None,
   selector: 'app-map',
   template: `
     <div class="home-content app-card-container">

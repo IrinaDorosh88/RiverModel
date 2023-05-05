@@ -5,6 +5,7 @@ import {
   Output,
   EventEmitter,
   OnDestroy,
+  ViewEncapsulation,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
@@ -29,6 +30,7 @@ import { I18N } from '@/features/i18n';
 @Component({
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ...MATERIAL_MODULES],
+  encapsulation: ViewEncapsulation.None,
   selector: 'app-location-filter',
   template: `
     <div class="display-flex flex-wrap gap-2">
@@ -69,7 +71,9 @@ export class LocationFilterComponent implements OnInit, OnDestroy {
   public readonly LOCATION_FORM_CONTROL;
   public LOCATIONS$$;
 
-  public RIVERS$!: Observable<RiverCRUDModel['getPaginatedEntitiesResult']['data']>;
+  public RIVERS$!: Observable<
+    RiverCRUDModel['getPaginatedEntitiesResult']['data']
+  >;
 
   constructor(private apiClient: ApiClient) {
     this.SUBSCRIPTIONS = new Subscription();
@@ -99,11 +103,13 @@ export class LocationFilterComponent implements OnInit, OnDestroy {
 
   public onRiverSelectionChange(riverId: number | null) {
     if (riverId) {
-      this.apiClient.location.getPaginatedEntities({ river: riverId }).subscribe({
-        next: (data) => {
-          this.LOCATIONS$$.next(data);
-        },
-      });
+      this.apiClient.location
+        .getPaginatedEntities({ river: riverId })
+        .subscribe({
+          next: (data) => {
+            this.LOCATIONS$$.next(data);
+          },
+        });
     } else {
       this.LOCATIONS$$.next([]);
     }

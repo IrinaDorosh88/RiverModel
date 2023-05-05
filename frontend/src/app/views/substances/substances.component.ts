@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewEncapsulation,
+} from '@angular/core';
 import { Subscription, tap } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -28,11 +34,12 @@ import { TOOLBAR_ACTION$$ } from '@/views/home';
 import {
   SubstanceFormComponent,
   SubstanceFormData,
-} from './substance-form.component';
+} from '@/views/substance-form';
 
 @Component({
   standalone: true,
   imports: [CommonModule, ...MATERIAL_MODULES],
+  encapsulation: ViewEncapsulation.None,
   selector: 'app-substances',
   template: `
     <mat-paginator
