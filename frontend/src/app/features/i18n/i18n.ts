@@ -71,8 +71,13 @@ const I18N_ENG = {
   'New Location': 'New Location',
   '$name location is successfully created.': (name: string) => `${name} location is successfully created.`,
   '$name location is successfully edited.': (name: string) => `${name} location is successfully edited.`,
-  // map
+  // measurement-form
+  'New Measurement': 'New Measurement',
   'Date': 'Date',
+  'Measurement must be a number.': 'Measurement must be a number.',
+  'Measurement must be greater or equal to 0.': 'Measurement must be greater or equal to 0.',
+  'Measurement is successfully added.': 'Measurement is successfully added.',
+  // map
   'Values': 'Values',
   'Choose location to display measurements.': 'Choose location to display Measurements.',
   '$name location is successfully deleted.': (name: string) => `${name} location is successfully deleted.`,
@@ -155,8 +160,13 @@ const I18N_UKR: typeof I18N_ENG = {
   'New Location': 'Створення локації',
   '$name location is successfully created.': (name: string) => `Локація ${name} успішно створена.`,
   '$name location is successfully edited.': (name: string) => `Локація ${name} успішно редагована.`,
-  // map
+  // measurement-form
+  'New Measurement': 'Створення виміру',
   'Date': 'Дата',
+  'Measurement must be a number.': 'Вимір повинен бути числом.',
+  'Measurement must be greater or equal to 0.': 'Вимір повинен бути більший рівний 0',
+  'Measurement is successfully added.': 'Вимір успішно додано.',
+  // map
   'Values': 'Значення',
   'Choose location to display measurements.': 'Оберіть локацію для виведення вимірів.',
   'Delete $name location': (name: string) => `Видалення локації ${name}`,
