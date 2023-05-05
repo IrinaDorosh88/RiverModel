@@ -1,6 +1,5 @@
-import { Component, importProvidersFrom, OnInit } from '@angular/core';
+import { ApplicationConfig, Component, importProvidersFrom, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ApplicationConfig } from '@angular/platform-browser';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { Observable } from 'rxjs';

@@ -122,7 +122,9 @@ export class HomeComponent implements OnInit {
   public readonly I18N = I18N;
   public tabGroupSelectedIndex: number;
 
-  public RIVERS$!: Observable<RiverCRUDModel['getPaginatedEntitiesResult']['data']>;
+  public RIVERS$!: Observable<
+    RiverCRUDModel['getPaginatedEntitiesResult']['data']
+  >;
   public LOCATIONS$$!: BehaviorSubject<
     LocationCRUDModel['getPaginatedEntitiesResult'][]
   >;
