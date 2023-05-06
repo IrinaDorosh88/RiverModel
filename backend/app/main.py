@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from routers.user import router as users_router
 from routers.auth import router as auth_router
+from routers.chemical_element import router as chemical_element_router
 
 
 app = FastAPI()
@@ -22,3 +23,4 @@ app.add_middleware(
 
 app.include_router(auth_router, prefix='/auth', tags=['auth'])
 app.include_router(users_router, prefix='/users', tags=['users'])
+app.include_router(chemical_element_router, prefix='/elements', tags=['elements'])

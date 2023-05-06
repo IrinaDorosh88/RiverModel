@@ -7,6 +7,9 @@ class ChemicalElementBase(BaseModel):
     units: str
     timedelta_decay: int
 
+    class Config:
+        orm_mode = True
+
 class ChemicalElementCreate(ChemicalElementBase):
     pass
 
@@ -19,5 +22,3 @@ class ChemicalElement(ChemicalElementBase):
     modified_at: str
     is_active: bool
 
-class Config:
-    orm_mode = True
