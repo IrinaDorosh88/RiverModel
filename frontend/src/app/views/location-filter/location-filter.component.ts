@@ -5,6 +5,7 @@ import {
   Output,
   EventEmitter,
   OnDestroy,
+  ViewEncapsulation,
 } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import {
@@ -24,15 +25,17 @@ import {
   LocationCRUDModel,
   RiverCRUDModel,
 } from '@/features/api-client';
+import { I18N } from '@/features/i18n';
 
 @Component({
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ...MATERIAL_MODULES],
+  encapsulation: ViewEncapsulation.None,
   selector: 'app-location-filter',
   template: `
     <div class="display-flex flex-wrap gap-2">
       <mat-form-field style="width: 200px">
-        <mat-label>River</mat-label>
+        <mat-label>{{ I18N['River'] }}</mat-label>
         <mat-select (selectionChange)="onRiverSelectionChange($event.value)">
           <mat-option [value]="null">---</mat-option>
           <mat-option
@@ -44,7 +47,7 @@ import {
         </mat-select>
       </mat-form-field>
       <mat-form-field style="width: 200px">
-        <mat-label>Location</mat-label>
+        <mat-label>{{ I18N['Location'] }}</mat-label>
         <mat-select [formControl]="LOCATION_FORM_CONTROL">
           <mat-option [value]="null">---</mat-option>
           <mat-option
@@ -59,6 +62,8 @@ import {
   `,
 })
 export class LocationFilterComponent implements OnInit, OnDestroy {
+  public readonly I18N = I18N;
+
   @Output('selectionChange') public readonly RIVER_SELECTION_CHANGE_EMITTER =
     new EventEmitter<number | null>();
 
@@ -66,18 +71,20 @@ export class LocationFilterComponent implements OnInit, OnDestroy {
   public readonly LOCATION_FORM_CONTROL;
   public LOCATIONS$$;
 
-  public RIVERS$!: Observable<RiverCRUDModel['getEntitiesResult']['data']>;
+  public RIVERS$!: Observable<
+    RiverCRUDModel['getPaginatedEntitiesResult']['data']
+  >;
 
   constructor(private apiClient: ApiClient) {
     this.SUBSCRIPTIONS = new Subscription();
     this.LOCATION_FORM_CONTROL = new FormControl<number | null>(null);
     this.LOCATIONS$$ = new BehaviorSubject<
-      LocationCRUDModel['getEntitiesResult']
+      LocationCRUDModel['getPaginatedEntitiesResult']
     >([]);
   }
 
   public ngOnInit() {
-    this.RIVERS$ = this.apiClient.river.getEntities().pipe(
+    this.RIVERS$ = this.apiClient.river.getPaginatedEntities().pipe(
       map((next) => next.data),
       startWith([])
     );
@@ -96,11 +103,13 @@ export class LocationFilterComponent implements OnInit, OnDestroy {
 
   public onRiverSelectionChange(riverId: number | null) {
     if (riverId) {
-      this.apiClient.location.getEntities({ river: riverId }).subscribe({
-        next: (data) => {
-          this.LOCATIONS$$.next(data);
-        },
-      });
+      this.apiClient.location
+        .getPaginatedEntities({ river: riverId })
+        .subscribe({
+          next: (data) => {
+            this.LOCATIONS$$.next(data);
+          },
+        });
     } else {
       this.LOCATIONS$$.next([]);
     }

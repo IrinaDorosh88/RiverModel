@@ -1,12 +1,13 @@
-import { Component } from '@angular/core';
+import { Component, ViewEncapsulation } from '@angular/core';
 
-import { RiversComponent } from './rivers';
-import { SubstancesComponent } from './substances';
+import { RiversComponent } from '@/views/rivers';
+import { SubstancesComponent } from '@/views/substances';
 const VIEWS = [RiversComponent, SubstancesComponent];
 
 @Component({
   standalone: true,
   imports: [...VIEWS],
+  encapsulation: ViewEncapsulation.None,
   selector: 'app-rivers-and-substances',
   template: `
     <div class="home-content app-card-container">

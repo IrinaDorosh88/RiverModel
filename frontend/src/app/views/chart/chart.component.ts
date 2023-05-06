@@ -1,4 +1,10 @@
-import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewEncapsulation,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Subject, Subscription } from 'rxjs';
 import { Chart } from 'chart.js/auto';
@@ -7,12 +13,14 @@ import { MatTableModule } from '@angular/material/table';
 const MATERIAL_MODULES = [MatTableModule];
 
 import { ApiClient, PredictionCRUDModel } from '@/features/api-client';
+import { I18N } from '@/features/i18n';
 
 import { TOOLBAR_ACTION$$ } from '@/views/home';
 
 @Component({
   standalone: true,
   imports: [CommonModule, ...MATERIAL_MODULES],
+  encapsulation: ViewEncapsulation.None,
   selector: 'app-chart',
   template: `
     <div class="home-content app-card-container">
@@ -48,9 +56,9 @@ import { TOOLBAR_ACTION$$ } from '@/views/home';
         <ng-template #noData>
           <div
             class="display-flex align-items-center justify-content-center"
-            style="height: 100%"
+            style="height: 100%; font-size: 1.5rem;"
           >
-            Choose location to display Data
+            {{ I18N['Choose location to display predictions.'] }}
           </div>
         </ng-template>
       </div>
@@ -58,6 +66,7 @@ import { TOOLBAR_ACTION$$ } from '@/views/home';
   `,
 })
 export class ChartComponent implements OnInit, AfterViewInit, OnDestroy {
+  public I18N = I18N;
   public readonly DISPLAYED_COLUMNS;
   public readonly PREDICTION$$;
   private readonly SUBSCRIPTIONS;
@@ -130,6 +139,16 @@ export class ChartComponent implements OnInit, AfterViewInit, OnDestroy {
         scales: {
           y: {
             beginAtZero: true,
+            title: {
+              display: true,
+              text: '',
+            },
+          },
+          x: {
+            title: {
+              display: true,
+              text: I18N['days'],
+            },
           },
         },
       },
@@ -165,8 +184,10 @@ export class ChartComponent implements OnInit, AfterViewInit, OnDestroy {
       this.CHART.data.datasets = [
         { label: entity.name, data: entity.values.map((value) => value.y) },
       ];
+      this.CHART.options.scales!['y']!.title!.text = entity.unit;
     } else {
       this.CHART.data = { datasets: [] };
+      this.CHART.options.scales!['y']!.title!.text = '';
     }
     this.CHART.update();
   }

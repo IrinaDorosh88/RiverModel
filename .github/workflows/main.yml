@@ -18,4 +18,4 @@ jobs:
           git checkout master
           git pull
           cd backend
-          docker compose up -d --build
+          docker compose down && docker compose up -d --build

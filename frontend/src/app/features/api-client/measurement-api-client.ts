@@ -7,7 +7,7 @@ import { PaginatedData } from '@/features/paginated-data';
 import { CRUDApiClientModel, CRUDApiClient } from './crud-api-client';
 
 export interface MeasurementCRUDModel extends CRUDApiClientModel {
-  getEntitiesResult: PaginatedData<{
+  getPaginatedEntitiesResult: PaginatedData<{
     date: Date;
     id: number;
     locationId: number;
@@ -23,8 +23,8 @@ export class MeasurementApiClient extends CRUDApiClient<MeasurementCRUDModel> {
     super('measurements');
   }
 
-  public override getEntities(params?: HttpClientQueryParams) {
-    let result: MeasurementCRUDModel['getEntitiesResult'] = {
+  public override getPaginatedEntities(params?: HttpClientQueryParams) {
+    let result: MeasurementCRUDModel['getPaginatedEntitiesResult'] = {
       data: [
         {
           date: new Date(),
@@ -63,7 +63,7 @@ export class MeasurementApiClient extends CRUDApiClient<MeasurementCRUDModel> {
     return of(true).pipe(delay(2000));
   }
 
-  public override putEntity(id: number, value: any): Observable<unknown> {
+  public override patchEntity(id: number, value: any): Observable<unknown> {
     return of(true).pipe(delay(2000));
   }
 

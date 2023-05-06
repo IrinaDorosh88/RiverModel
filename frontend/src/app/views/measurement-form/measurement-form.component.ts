@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 import {
   AbstractControl,
   FormBuilder,
@@ -28,23 +28,25 @@ const MATERIAL_MODULES = [
 ];
 
 import { LocationCRUDModel, ApiClient } from '@/features/api-client';
+import { I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
 
 export type MeasurementFormData = {
-  location: LocationCRUDModel['getEntitiesResult'][number];
+  location: LocationCRUDModel['getPaginatedEntitiesResult'][number];
   mapper: { [key: string]: string };
 };
 
 @Component({
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ...MATERIAL_MODULES],
+  encapsulation: ViewEncapsulation.None,
   selector: 'app-measurement-form',
   template: `
     <form spellcheck="false" [formGroup]="FORM_GROUP">
-      <div mat-dialog-title>New Measurement</div>
+      <div mat-dialog-title>{{ I18N['New Measurement'] }}</div>
       <div mat-dialog-content>
         <mat-form-field class="width-full">
-          <mat-label>Date</mat-label>
+          <mat-label>{{ I18N['Date'] }}</mat-label>
           <input
             matInput
             formControlName="date"
@@ -87,14 +89,17 @@ export type MeasurementFormData = {
           [disabled]="FORM_GROUP.invalid || isFormSubmitted"
           (click)="onSubmitClick()"
         >
-          Submit
+          {{ I18N['Submit'] }}
         </button>
-        <button mat-flat-button [mat-dialog-close]="false">Close</button>
+        <button mat-flat-button [mat-dialog-close]="false">
+          {{ I18N['Close'] }}
+        </button>
       </div>
     </form>
   `,
 })
 export class MeasurementFormComponent implements OnInit {
+  public readonly I18N = I18N;
   public readonly CURRENT_DATE;
   private readonly FORM_BUILDER: FormBuilder;
   public readonly FORM_GROUP;
@@ -129,9 +134,9 @@ export class MeasurementFormComponent implements OnInit {
     });
     const validator = (control: AbstractControl) => {
       if (control.value == null || Number.isNaN(+control.value)) {
-        return { message: 'Must be a number.' };
+        return { message: I18N['Measurement must be a number.'] };
       } else if (control.value < 0) {
-        return { message: 'Must be greater or equal to 0.' };
+        return { message: I18N['Measurement must be greater or equal to 0.'] };
       }
       return null;
     };
@@ -168,7 +173,7 @@ export class MeasurementFormComponent implements OnInit {
     const value = this.FORM_GROUP.value;
     return this.apiClient.measurement.postEntity(value).pipe(
       tap(() => {
-        this.notificationService.notify(`Measurement is successfully added!`);
+        this.notificationService.notify(I18N['Measurement is successfully added.']);
       })
     );
   }

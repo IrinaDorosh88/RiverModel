@@ -4,11 +4,11 @@ from typing import Optional
 from pydantic import BaseModel
 
 
-class RoleBase(BaseModel):
+class RiverBase(BaseModel):
     name: str
 
 
-class Role(RoleBase):
+class River(RiverBase):
     id: int
     created_at: Optional[datetime] = None
     modified_at: Optional[datetime] = None
@@ -18,10 +18,10 @@ class Role(RoleBase):
         orm_mode = True
 
 
-class RoleCreate(RoleBase):
+class RiverCreate(RiverBase):
     pass
 
 
-class RoleUpdate(RoleBase):
+class RiverUpdate(RiverBase):
     is_active: Optional[bool] = None
     pass

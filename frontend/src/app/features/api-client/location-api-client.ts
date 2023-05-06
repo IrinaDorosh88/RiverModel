@@ -5,7 +5,7 @@ import { HttpClientQueryParams } from '@/features/http-client-extensions';
 import { CRUDApiClient, CRUDApiClientModel } from './crud-api-client';
 
 export interface LocationCRUDModel extends CRUDApiClientModel {
-  getEntitiesResult: {
+  getPaginatedEntitiesResult: {
     id: number;
     latitude: number;
     longitude: number;
@@ -23,7 +23,7 @@ export class LocationApiClient extends CRUDApiClient<LocationCRUDModel> {
     super('locations');
   }
 
-  public override getEntities(params?: HttpClientQueryParams) {
+  public override getPaginatedEntities(params?: HttpClientQueryParams) {
     let result = [
       {
         id: 1,
@@ -54,7 +54,7 @@ export class LocationApiClient extends CRUDApiClient<LocationCRUDModel> {
     return of(true).pipe(delay(2000));
   }
 
-  public override putEntity(id: number, value: any): Observable<unknown> {
+  public override patchEntity(id: number, value: any): Observable<unknown> {
     return of(true).pipe(delay(2000));
   }
 
