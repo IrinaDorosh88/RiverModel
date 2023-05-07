@@ -12,7 +12,7 @@ def create_chemical_element(db: Session, chemical_element: ChemicalElementCreate
     db.refresh(db_chemical_element)
     return db_chemical_element
 
-def update_chemical_element(db: Session, chemical_element_id: int):
+def update_chemical_element(db: Session, chemical_element_id: int, chemical_element: ChemicalElementUpdate):
     db_chemical_element = db.query(ChemicalElement).filter(ChemicalElement.id == chemical_element_id).first()
     db_chemical_element.name = chemical_element.name
     db_chemical_element.min_value = chemical_element.min_value
