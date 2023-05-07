@@ -36,7 +36,7 @@ services:
       - app_net
 
   db:
-    restart: on-failure
+    restart: always
     image: postgres:latest
     environment:
       - POSTGRES_USER=user
