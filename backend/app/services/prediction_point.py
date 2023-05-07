@@ -1,8 +1,8 @@
 from typing import Optional
 
 from . import AppService
-from models.role import PredictionPoint as Model
-from schemas.role import Role, PredictionPointCreate, RoleUpdate
+from models.prediction_point import PredictionPoint as PredictionPointModel
+from schemas.prediction_point import PredictionPointCreate
 
 
 class PredictionPointService(AppService):
