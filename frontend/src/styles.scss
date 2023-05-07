@@ -27,11 +27,10 @@ body {
     100vh - var(--app-toolbar-height) - 2 * var(--app-content-wrapper-padding)
   );
   --home-toolbar-min-height: 5rem;
-  --mat-tab-header-min-height: 3rem;
   --home-content-wrapper-padding: 1rem;
   --home-content-min-height: calc(
-    var(--app-content-min-height) - var(--home-toolbar-min-height) -
-      var(--mat-tab-header-min-height) - 2 * var(--home-content-wrapper-padding)
+    var(--app-content-min-height) - var(--home-toolbar-min-height) - 2 *
+      var(--home-content-wrapper-padding)
   );
 }
 
@@ -59,10 +58,6 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-}
-
-mat-tab-header {
-  min-height: var(--mat-tab-header-min-height);
 }
 
 .home-content-wrapper {

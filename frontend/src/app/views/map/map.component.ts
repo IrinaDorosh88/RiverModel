@@ -41,13 +41,14 @@ import { NotificationService } from '@/features/notification';
 
 import { TOOLBAR_ACTION$$ } from '@/views/home';
 
+import { ChartComponent, ChartComponentData } from '@/views/chart';
 import { LocationFormComponent, LocationFormData } from '@/views/location-form';
 import {
   MeasurementFormComponent,
   MeasurementFormData,
 } from '@/views/measurement-form';
-import { RiversComponent } from '../rivers';
-import { SubstancesComponent } from '../substances';
+import { RiversComponent } from '@/views/rivers';
+import { SubstancesComponent } from '@/views/substances';
 
 @Component({
   standalone: true,
@@ -349,6 +350,18 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.refreshMeasurements(entity, marker);
   }
 
+  private onDisplayChartClick(
+    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]
+  ) {
+    this.matDialog
+      .open<ChartComponent, ChartComponentData>(ChartComponent, {
+        width: '1000px',
+        data: { location: entity.id },
+      })
+      .afterClosed()
+      .subscribe();
+  }
+
   private onRiversClick() {
     this.matDialog
       .open(RiversComponent, {
@@ -476,7 +489,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     button = this.getButton('show_chart');
     button.addEventListener('click', () => {
       this.POPUP.remove();
-      this.onDisplayMeasurementsClicked(entity, marker);
+      this.onDisplayChartClick(entity);
     });
     content.appendChild(button);
     this.POPUP.setLngLat([entity.longitude, entity.latitude])

@@ -1,21 +1,31 @@
 import {
   AfterViewInit,
   Component,
-  OnDestroy,
+  Inject,
   OnInit,
   ViewEncapsulation,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Subject, Subscription } from 'rxjs';
+import { Observable, map } from 'rxjs';
 import { Chart } from 'chart.js/auto';
 
-import { MatTableModule } from '@angular/material/table';
-const MATERIAL_MODULES = [MatTableModule];
+import { MAT_DIALOG_DATA, MatDialogModule } from '@angular/material/dialog';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
+const MATERIAL_MODULES = [
+  MatDialogModule,
+  MatFormFieldModule,
+  MatInputModule,
+  MatSelectModule,
+];
 
 import { ApiClient, PredictionCRUDModel } from '@/features/api-client';
 import { I18N } from '@/features/i18n';
 
-import { TOOLBAR_ACTION$$ } from '@/views/home';
+export type ChartComponentData = {
+  location: number;
+};
 
 @Component({
   standalone: true,
@@ -23,21 +33,32 @@ import { TOOLBAR_ACTION$$ } from '@/views/home';
   encapsulation: ViewEncapsulation.None,
   selector: 'app-chart',
   template: `
-    <div class="home-content app-card-container">
-      <div
-        class="app-card display-flex align-items-center justify-content-center"
-        style="flex: 3;"
-      >
-        <canvas id="chart-container"></canvas>
-      </div>
-      <div class="app-card" style="flex: 2;">
+    <div mat-dialog-title style="padding-top: 1.5rem; text-align: end;">
+      <mat-form-field>
+        <mat-label>{{ I18N['Substance'] }}</mat-label>
+        <mat-select
+          (selectionChange)="onSubstanceSelectionChange($event.value)"
+        >
+          <mat-option [value]="null">---</mat-option>
+          <mat-option
+            *ngFor="let entity of SUBSTANCES$ | async"
+            [value]="entity"
+          >
+            {{ entity.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+    </div>
+    <div mat-dialog-content class="display-flex justify-content-center">
+      <canvas id="chart-container"></canvas>
+    </div>
+    <!-- <div class="app-card" style="flex: 2;">
         <ng-template
           [ngIf]="PREDICTION$$ | async"
           [ngIfElse]="noData"
           let-dataSource
         >
           <table mat-table class="p-3" [dataSource]="dataSource">
-            <!-- name -->
             <ng-container matColumnDef="name">
               <th *matHeaderCellDef mat-header-cell>Name</th>
               <td *matCellDef="let item" mat-cell>
@@ -61,42 +82,26 @@ import { TOOLBAR_ACTION$$ } from '@/views/home';
             {{ I18N['Choose location to display predictions.'] }}
           </div>
         </ng-template>
-      </div>
-    </div>
+      </div> -->
   `,
 })
-export class ChartComponent implements OnInit, AfterViewInit, OnDestroy {
+export class ChartComponent implements OnInit, AfterViewInit {
   public I18N = I18N;
-  public readonly DISPLAYED_COLUMNS;
-  public readonly PREDICTION$$;
-  private readonly SUBSCRIPTIONS;
-
+  public SUBSTANCES$!: Observable<
+    PredictionCRUDModel['getEntityByLocationIdResult']['substances']
+  >;
   public CHART!: Chart<'line', number[], number>;
 
-  constructor(private apiClient: ApiClient) {
-    this.PREDICTION$$ = new Subject<
-      PredictionCRUDModel['getEntityByLocationIdResult']['substances'] | null
-    >();
-    this.DISPLAYED_COLUMNS = ['name'];
-    this.SUBSCRIPTIONS = new Subscription();
-  }
+  constructor(
+    private apiClient: ApiClient,
+    @Inject(MAT_DIALOG_DATA)
+    private data: ChartComponentData
+  ) {}
 
   public ngOnInit() {
-    this.SUBSCRIPTIONS.add(
-      TOOLBAR_ACTION$$.subscribe({
-        next: ({ key, params }) => {
-          switch (key) {
-            case 'CHART_LOCATION_SELECTED':
-              this.onLocationSelected(params[0]);
-              break;
-          }
-        },
-      })
-    );
-  }
-
-  public ngOnDestroy() {
-    this.SUBSCRIPTIONS.unsubscribe();
+    this.SUBSTANCES$ = this.apiClient.prediction
+      .getEntityByLocationId(this.data.location)
+      .pipe(map((next) => next.substances));
   }
 
   public ngAfterViewInit() {
@@ -155,23 +160,12 @@ export class ChartComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  public onSubstanceClick(
-    entity: PredictionCRUDModel['getEntityByLocationIdResult']['substances'][number]
+  public onSubstanceSelectionChange(
+    entity:
+      | PredictionCRUDModel['getEntityByLocationIdResult']['substances'][number]
+      | null
   ) {
     this.refreshChart(entity);
-  }
-
-  private onLocationSelected(id: number | null) {
-    if (id) {
-      this.apiClient.prediction.getEntityByLocationId(id).subscribe({
-        next: (next) => {
-          this.PREDICTION$$.next(next.substances);
-        },
-      });
-    } else {
-      this.PREDICTION$$.next(null);
-      this.refreshChart(null);
-    }
   }
 
   private refreshChart(
