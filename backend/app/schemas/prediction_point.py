@@ -6,7 +6,6 @@ from pydantic import BaseModel
 
 
 class PredictionPointBase(BaseModel):
-    id: int
     measurement_id: int
     value: Decimal
     time: int
@@ -14,9 +13,6 @@ class PredictionPointBase(BaseModel):
 
 class PredictionPoint(PredictionPointBase):
     id: int
-    measurement_id: int
-    value: Decimal
-    time: int
 
     created_at: Optional[datetime] = None
     modified_at: Optional[datetime] = None
