@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, DateTime, Boolean, Sequence
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from core.db import Base
 
@@ -14,4 +15,5 @@ class River(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     modified_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
-  
+
+    locations = relationship('Location', back_populates='river')
