@@ -1,5 +1,11 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  ViewEncapsulation,
+} from '@angular/core';
 import { Subscription, tap } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -18,18 +24,23 @@ const MATERIAL_MODULES = [
   MatTableModule,
 ];
 
-import { ApiClient, RiverCRUDModel } from '@/features/api-client';
+import { SubstanceCRUDModel, ApiClient } from '@/features/api-client';
 import { ConfirmationDialogService } from '@/features/confirmation-dialog';
+import { I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
 
 import { TOOLBAR_ACTION$$ } from '@/views/home';
 
-import { RiverFormComponent, RiverFormData } from './river-form.component';
+import {
+  SubstanceFormComponent,
+  SubstanceFormData,
+} from '@/views/substance-form';
 
 @Component({
   standalone: true,
   imports: [CommonModule, ...MATERIAL_MODULES],
-  selector: 'app-rivers',
+  encapsulation: ViewEncapsulation.None,
+  selector: 'app-substances',
   template: `
     <mat-paginator
       [length]="length"
@@ -39,18 +50,28 @@ import { RiverFormComponent, RiverFormData } from './river-form.component';
       (page)="onPaginatorPage($event)"
     ></mat-paginator>
     <table mat-table class="p-2" [dataSource]="DATA_SOURCE">
-      <ng-container matColumnDef="index">
-        <th *matHeaderCellDef mat-header-cell>No.</th>
-        <td *matCellDef="let index = index" mat-cell>{{ index + 1 }}</td>
-      </ng-container>
-
       <ng-container matColumnDef="name">
-        <th *matHeaderCellDef mat-header-cell>Name</th>
+        <th *matHeaderCellDef mat-header-cell>{{ I18N['Name'] }}</th>
         <td *matCellDef="let item" mat-cell>{{ item.name }}</td>
       </ng-container>
 
+      <ng-container matColumnDef="min">
+        <th *matHeaderCellDef mat-header-cell>{{ I18N['Min'] }}</th>
+        <td *matCellDef="let item" mat-cell>{{ item.min }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="max">
+        <th *matHeaderCellDef mat-header-cell>{{ I18N['Max'] }}</th>
+        <td *matCellDef="let item" mat-cell>{{ item.max }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="unit">
+        <th *matHeaderCellDef mat-header-cell>{{ I18N['Unit'] }}</th>
+        <td *matCellDef="let item" mat-cell>{{ item.unit }}</td>
+      </ng-container>
+
       <ng-container matColumnDef="actions">
-        <th *matHeaderCellDef mat-header-cell style="width: 100px"></th>
+        <th *matHeaderCellDef mat-header-cell style="width: 96px"></th>
         <td *matCellDef="let item" mat-cell>
           <div class="display-flex gap-2">
             <button mat-mini-fab color="accent" (click)="onEditClick(item)">
@@ -68,7 +89,8 @@ import { RiverFormComponent, RiverFormData } from './river-form.component';
     </table>
   `,
 })
-export class RiversComponent implements OnInit, OnDestroy {
+export class SubstancesComponent implements OnInit, OnDestroy {
+  public readonly I18N = I18N;
   @ViewChild(MatPaginator) public paginator!: MatPaginator;
   private readonly SUBSCRIPTIONS;
   public readonly DISPLAYED_COLUMNS;
@@ -80,16 +102,16 @@ export class RiversComponent implements OnInit, OnDestroy {
   }
 
   constructor(
-    private readonly matDialog: MatDialog,
-    private readonly confirmationDialogService: ConfirmationDialogService,
-    private readonly notificationService: NotificationService,
-    private readonly apiClient: ApiClient
+    private matDialog: MatDialog,
+    private confirmationDialogService: ConfirmationDialogService,
+    private notificationService: NotificationService,
+    private apiClient: ApiClient
   ) {
-    this.SUBSCRIPTIONS = new Subscription();
-    this.DISPLAYED_COLUMNS = ['index', 'name', 'actions'];
+    this.DISPLAYED_COLUMNS = ['name', 'min', 'max', 'unit', 'actions'];
     this.DATA_SOURCE = new MatTableDataSource<
-      RiverCRUDModel['getEntitiesResult']['data'][number]
+      SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
     >([]);
+    this.SUBSCRIPTIONS = new Subscription();
     this.paginationParams = { limit: 10 };
     this.length = 0;
   }
@@ -101,7 +123,7 @@ export class RiversComponent implements OnInit, OnDestroy {
       TOOLBAR_ACTION$$.subscribe({
         next: ({ key }) => {
           switch (key) {
-            case 'RIVERS_NEW_RIVER':
+            case 'SUBSTANCES_NEW_SUBSTANCE':
               this.onCreateClick();
               break;
           }
@@ -129,21 +151,21 @@ export class RiversComponent implements OnInit, OnDestroy {
   }
 
   public onEditClick(
-    item: RiverCRUDModel['getEntitiesResult']['data'][number]
+    item: SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
   ) {
     this.openDialog(item);
   }
 
   public onDeleteClick(
-    item: RiverCRUDModel['getEntitiesResult']['data'][number]
+    item: SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
   ) {
     this.confirmationDialogService.open({
-      title: `Delete ${item.name}`,
+      title: I18N['Delete $name substance'](item.name),
       confirmCallback: () => {
-        return this.apiClient.river.deleteEntity(item.id).pipe(
+        return this.apiClient.substance.deleteEntity(item.id).pipe(
           tap(() => {
             this.notificationService.notify(
-              `${item.name} is successfully deleted!`
+              I18N['$name substance is successfully deleted.'](item.name)
             );
             if (!this.DATA_SOURCE.data.length && this.paginationParams.offset) {
               this.paginator.previousPage();
@@ -157,13 +179,16 @@ export class RiversComponent implements OnInit, OnDestroy {
   }
 
   private openDialog(
-    data?: RiverCRUDModel['getEntitiesResult']['data'][number]
+    data?: SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
   ) {
     this.matDialog
-      .open<RiverFormComponent, RiverFormData, boolean>(RiverFormComponent, {
-        width: '400px',
-        data,
-      })
+      .open<SubstanceFormComponent, SubstanceFormData, boolean>(
+        SubstanceFormComponent,
+        {
+          width: '400px',
+          data,
+        }
+      )
       .afterClosed()
       .subscribe({
         next: (next) => {
@@ -175,8 +200,7 @@ export class RiversComponent implements OnInit, OnDestroy {
   }
 
   private refreshEntities() {
-    console.log({ RIVERS: this.params });
-    this.apiClient.river.getEntities(this.params).subscribe({
+    this.apiClient.substance.getPaginatedEntities(this.params).subscribe({
       next: (next) => {
         this.length = next.count;
         this.DATA_SOURCE.data = next.data;

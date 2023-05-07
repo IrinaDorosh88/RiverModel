@@ -8,27 +8,14 @@
   padding: 0;
 }
 
-* {
-  font-family: sans-serif;
-}
-
 img {
   max-height: 100%;
   max-width: 100%;
 }
 
-html,
 body {
-  height: 100%;
-}
-
-body {
-  font-family: Roboto, "Helvetica Neue", sans-serif;
+  font-family: sans-serif;
   background-color: #eee;
-}
-
-canvas:not(:active) {
-  cursor: pointer;
 }
 
 // layout
@@ -98,41 +85,7 @@ mat-tab-header {
   box-shadow: rgba(0, 0, 0, 0.35) 0px 5px 15px;
 }
 
-// custom
-
-:root {
-  --primary: #3f51b5;
-  --accent: #ff4081;
-  --warn: #f44336;
-}
-
-.color-primary {
-  color: var(--primary) !important;
-}
-
-.color-accent {
-  color: var(--accent) !important;
-}
-
-.color-warn {
-  color: var(--warn) !important;
-}
-
-.background-color-primary {
-  background-color: var(--primary) !important;
-}
-
-.background-color-primary\:hover:hover {
-  background-color: var(--primary) !important;
-}
-
-.background-color-accent {
-  background-color: var(--accent) !important;
-}
-
-.background-color-warn {
-  background-color: var(--warn) !important;
-}
+// map
 
 .map-mini-fab-button {
   height: 48px;
@@ -140,6 +93,10 @@ mat-tab-header {
   border: none;
   border-radius: 50%;
   color: white;
+  cursor: pointer;
+}
+
+canvas:not(:active) {
   cursor: pointer;
 }
 
@@ -294,4 +251,38 @@ mat-tab-header {
 
 .hover\:text-decoration-underline:hover {
   text-decoration: underline !important;
+}
+
+:root {
+  --primary: #3f51b5;
+  --accent: #ff4081;
+  --warn: #f44336;
+}
+
+.color-primary {
+  color: var(--primary) !important;
+}
+
+.color-accent {
+  color: var(--accent) !important;
+}
+
+.color-warn {
+  color: var(--warn) !important;
+}
+
+.background-color-primary {
+  background-color: var(--primary) !important;
+}
+
+.background-color-primary\:hover:hover {
+  background-color: var(--primary) !important;
+}
+
+.background-color-accent {
+  background-color: var(--accent) !important;
+}
+
+.background-color-warn {
+  background-color: var(--warn) !important;
 }

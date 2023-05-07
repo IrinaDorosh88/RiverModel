@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Inject, OnInit } from '@angular/core';
+import { Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { Observable, tap } from 'rxjs';
 
@@ -19,23 +19,25 @@ const MATERIAL_MODULES = [
 ];
 
 import { ApiClient, RiverCRUDModel } from '@/features/api-client';
+import { I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
 
 export type RiverFormData =
-  | RiverCRUDModel['getEntitiesResult']['data'][number]
+  | RiverCRUDModel['getPaginatedEntitiesResult']['data'][number]
   | undefined
   | null;
 
 @Component({
   standalone: true,
   imports: [CommonModule, ReactiveFormsModule, ...MATERIAL_MODULES],
+  encapsulation: ViewEncapsulation.None,
   selector: 'app-river-form',
   template: `
     <form spellcheck="false" [formGroup]="FORM_GROUP">
       <div mat-dialog-title>{{ TITLE }}</div>
       <div mat-dialog-content>
         <mat-form-field class="width-full">
-          <mat-label>Name</mat-label>
+          <mat-label>{{ I18N['Name'] }}</mat-label>
           <input matInput formControlName="name" />
           <mat-error *ngIf="FORM_GROUP.controls['name'].errors as errors">
             {{ errors['message'] }}
@@ -50,14 +52,18 @@ export type RiverFormData =
           [disabled]="FORM_GROUP.invalid || isFormSubmitted"
           (click)="onSubmitClick()"
         >
-          Submit
+          {{ I18N['Submit'] }}
         </button>
-        <button mat-flat-button [mat-dialog-close]="false">Close</button>
+        <button mat-flat-button [mat-dialog-close]="false">
+          {{ I18N['Close'] }}
+        </button>
       </div>
     </form>
   `,
 })
 export class RiverFormComponent implements OnInit {
+  public readonly I18N = I18N;
+
   public readonly FORM_GROUP;
   public isFormSubmitted;
 
@@ -82,7 +88,7 @@ export class RiverFormComponent implements OnInit {
           const { name } = formGroup.controls;
           // Name
           if (name.value === '') {
-            name.setErrors({ message: 'Name is required.' });
+            name.setErrors({ message: I18N['Name is required.'] });
           } else {
             name.setErrors(null);
           }
@@ -95,11 +101,11 @@ export class RiverFormComponent implements OnInit {
   public ngOnInit() {
     if (this.data) {
       this.FORM_GROUP.patchValue(this.data);
-      this.TITLE = `Edit ${this.data.name}`;
+      this.TITLE = I18N['Edit $name river'](this.data.name);
       this.SUBMIT_BUTTON_COLOR = 'accent';
-      this.HANDLE_ENTITY = this.putEntity;
+      this.HANDLE_ENTITY = this.patchEntity;
     } else {
-      this.TITLE = `New River`;
+      this.TITLE = I18N['New River'];
       this.SUBMIT_BUTTON_COLOR = 'primary';
       this.HANDLE_ENTITY = this.postEntity;
     }
@@ -124,18 +130,18 @@ export class RiverFormComponent implements OnInit {
     return this.apiClient.river.postEntity(value).pipe(
       tap(() => {
         this.notificationService.notify(
-          `${value.name} is successfully created!`
+          I18N['$name river is successfully created.'](value.name)
         );
       })
     );
   }
 
-  private putEntity() {
+  private patchEntity() {
     const value = this.FORM_GROUP.value;
-    return this.apiClient.river.putEntity(this.data!.id, value).pipe(
+    return this.apiClient.river.patchEntity(this.data!.id, value).pipe(
       tap(() => {
         this.notificationService.notify(
-          `${value.name} is successfully edited!`
+          I18N['$name river is successfully edited.'](value.name)
         );
       })
     );
