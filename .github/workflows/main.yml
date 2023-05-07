@@ -17,5 +17,5 @@ jobs:
           cd /opt/app/RiverModel
           git checkout master
           git pull
-          cd backend
+          cd .github
           docker compose down && docker compose up -d --build
