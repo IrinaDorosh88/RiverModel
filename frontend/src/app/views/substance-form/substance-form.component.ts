@@ -45,8 +45,13 @@ export type SubstanceFormData =
         </mat-form-field>
         <mat-form-field class="width-full">
           <mat-label>{{ I18N['Min'] }}</mat-label>
-          <input matInput type="number" formControlName="min" [attr.min]="0" />
-          <mat-error *ngIf="FORM_GROUP.controls['min'].errors as errors">
+          <input
+            matInput
+            type="number"
+            formControlName="min_value"
+            [attr.min]="0"
+          />
+          <mat-error *ngIf="FORM_GROUP.controls['min_value'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -55,17 +60,26 @@ export type SubstanceFormData =
           <input
             matInput
             type="number"
-            formControlName="max"
-            [attr.min]="FORM_GROUP.controls['min'].value"
+            formControlName="max_value"
+            [attr.min]="FORM_GROUP.controls['min_value'].value"
           />
-          <mat-error *ngIf="FORM_GROUP.controls['max'].errors as errors">
+          <mat-error *ngIf="FORM_GROUP.controls['max_value'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
         <mat-form-field class="width-full">
           <mat-label>{{ I18N['Unit'] }}</mat-label>
-          <input matInput formControlName="unit" />
-          <mat-error *ngIf="FORM_GROUP.controls['unit'].errors as errors">
+          <input matInput formControlName="units" />
+          <mat-error *ngIf="FORM_GROUP.controls['units'].errors as errors">
+            {{ errors['message'] }}
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="width-full">
+          <mat-label>{{ I18N['Time delta decay'] }}</mat-label>
+          <input matInput type="number" formControlName="timedelta_decay" />
+          <mat-error
+            *ngIf="FORM_GROUP.controls['timedelta_decay'].errors as errors"
+          >
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -89,10 +103,8 @@ export type SubstanceFormData =
 })
 export class SubstanceFormComponent implements OnInit {
   public readonly I18N = I18N;
-
   public readonly FORM_GROUP;
   public isFormSubmitted;
-
   public TITLE!: string;
   public SUBMIT_BUTTON_COLOR!: 'primary' | 'accent';
   private HANDLE_ENTITY!: () => Observable<any>;
@@ -107,14 +119,16 @@ export class SubstanceFormComponent implements OnInit {
     const fb = new FormBuilder();
     this.FORM_GROUP = fb.group(
       {
+        max_value: fb.control(0),
+        min_value: fb.control(0),
         name: fb.control(''),
-        min: fb.control(0),
-        max: fb.control(0),
-        unit: fb.control(''),
+        timedelta_decay: fb.control(0),
+        units: fb.control(''),
       },
       {
         validators: (formGroup: FormGroup) => {
-          const { name, min, max, unit } = formGroup.controls;
+          const { max_value, min_value, name, timedelta_decay, units } =
+            formGroup.controls;
           // Name
           if (name.value === '') {
             name.setErrors({ message: I18N['Name is required.'] });
@@ -122,34 +136,52 @@ export class SubstanceFormComponent implements OnInit {
             name.setErrors(null);
           }
           // Min
-          let minValue = min.value;
-          if (min.value == null || Number.isNaN(+min.value)) {
-            min.setErrors({ message: I18N['Min must be a number.'] });
+          let minValue = min_value.value;
+          if (min_value.value == null || Number.isNaN(+min_value.value)) {
+            min_value.setErrors({ message: I18N['Min must be a number.'] });
             minValue = 0;
-          } else if (min.value < 0) {
-            min.setErrors({
+          } else if (min_value.value < 0) {
+            min_value.setErrors({
               message: I18N['Min must be greater or equal to 0.'],
             });
             minValue = 0;
           } else {
-            min.setErrors(null);
+            min_value.setErrors(null);
           }
           // Max
-          if (max.value == null || Number.isNaN(+max.value)) {
-            max.setErrors({ message: I18N['Max must be a number.'] });
-          } else if (max.value < minValue) {
-            max.setErrors({
+          if (max_value.value == null || Number.isNaN(+max_value.value)) {
+            max_value.setErrors({ message: I18N['Max must be a number.'] });
+          } else if (max_value.value < minValue) {
+            max_value.setErrors({
               message:
                 I18N['Min must be greater or equal to $value.'](minValue),
             });
           } else {
-            max.setErrors(null);
+            max_value.setErrors(null);
           }
-          // Unit
-          if (unit.value === '') {
-            unit.setErrors({ message: I18N['Unit is required.'] });
+          // Units
+          if (units.value === '') {
+            units.setErrors({ message: I18N['Unit is required.'] });
           } else {
-            unit.setErrors(null);
+            units.setErrors(null);
+          }
+
+          // Timedelta Decay
+          if (
+            timedelta_decay.value == null ||
+            Number.isNaN(+timedelta_decay.value)
+          ) {
+            timedelta_decay.setErrors({
+              message: I18N['Min must be a number.'],
+            });
+            minValue = 0;
+          } else if (timedelta_decay.value < 0) {
+            timedelta_decay.setErrors({
+              message: I18N['Min must be greater or equal to 0.'],
+            });
+            minValue = 0;
+          } else {
+            timedelta_decay.setErrors(null);
           }
         },
       }
@@ -172,7 +204,6 @@ export class SubstanceFormComponent implements OnInit {
 
   public onSubmitClick() {
     if (this.FORM_GROUP.invalid || this.isFormSubmitted) return;
-
     this.isFormSubmitted = true;
     this.HANDLE_ENTITY().subscribe({
       next: () => {

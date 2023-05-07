@@ -57,8 +57,39 @@ export type LocationFormData =
           <input matInput formControlName="longitude" />
         </mat-form-field>
         <mat-form-field class="width-full">
+          <mat-label>{{ I18N['Name'] }}</mat-label>
+          <input matInput formControlName="name" />
+          <mat-error *ngIf="FORM_GROUP.controls['name'].errors as errors">
+            {{ errors['message'] }}
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="width-full">
+          <mat-label>{{ I18N['Flow rate'] }}</mat-label>
+          <input matInput type="number" formControlName="flow_rate" />
+          <mat-error *ngIf="FORM_GROUP.controls['flow_rate'].errors as errors">
+            {{ errors['message'] }}
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="width-full">
+          <mat-label>{{ I18N['Turbulent diffusive coefficient'] }}</mat-label>
+          <input
+            matInput
+            type="number"
+            formControlName="turbulent_diffusive_coefficient"
+          />
+          <mat-error
+            *ngIf="
+              FORM_GROUP.controls['turbulent_diffusive_coefficient']
+                .errors as errors
+            "
+          >
+            {{ errors['message'] }}
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="width-full">
           <mat-label>{{ I18N['Substances'] }}</mat-label>
           <mat-select multiple formControlName="substancesIds">
+            <mat-option [value]="1">Tmp</mat-option>
             <mat-option
               *ngFor="let entity of SUBSTANCES$ | async"
               [value]="entity.id"
@@ -74,7 +105,7 @@ export type LocationFormData =
         </mat-form-field>
         <mat-form-field class="width-full">
           <mat-label>{{ I18N['River'] }}</mat-label>
-          <mat-select formControlName="riverId">
+          <mat-select formControlName="river_id">
             <mat-option [value]="null">---</mat-option>
             <mat-option
               *ngFor="let entity of RIVERS$ | async"
@@ -83,15 +114,7 @@ export type LocationFormData =
               {{ entity.name }}
             </mat-option>
           </mat-select>
-          <mat-error *ngIf="FORM_GROUP.controls['riverId'].errors as errors">
-            {{ errors['message'] }}
-          </mat-error>
-        </mat-form-field>
-
-        <mat-form-field class="width-full">
-          <mat-label>{{ I18N['Name'] }}</mat-label>
-          <input matInput formControlName="name" />
-          <mat-error *ngIf="FORM_GROUP.controls['name'].errors as errors">
+          <mat-error *ngIf="FORM_GROUP.controls['river_id'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -138,15 +161,35 @@ export class LocationFormComponent implements OnInit {
     const fb = new FormBuilder();
     this.FORM_GROUP = fb.group(
       {
+        flow_rate: fb.control(0),
         latitude: fb.control({ value: null, disabled: true }),
         longitude: fb.control({ value: null, disabled: true }),
         name: fb.control(''),
-        riverId: fb.control(null),
+        river_id: fb.control(null),
         substancesIds: fb.control(''),
+        turbulent_diffusive_coefficient: fb.control(0),
       },
       {
         validators: (formGroup: FormGroup) => {
-          const { name, riverId, substancesIds } = formGroup.controls;
+          const {
+            flow_rate,
+            name,
+            river_id,
+            substancesIds,
+            turbulent_diffusive_coefficient,
+          } = formGroup.controls;
+          // Flow Rate
+          if (flow_rate.value == null || Number.isNaN(+flow_rate.value)) {
+            flow_rate.setErrors({
+              message: I18N['Min must be a number.'],
+            });
+          } else if (flow_rate.value < 0) {
+            flow_rate.setErrors({
+              message: I18N['Min must be greater or equal to 0.'],
+            });
+          } else {
+            flow_rate.setErrors(null);
+          }
           // Name
           if (name.value === '') {
             name.setErrors({ message: I18N['Name is required.'] });
@@ -154,10 +197,10 @@ export class LocationFormComponent implements OnInit {
             name.setErrors(null);
           }
           // River Id
-          if (riverId.value == null) {
-            riverId.setErrors({ message: I18N['River is required.'] });
+          if (river_id.value == null) {
+            river_id.setErrors({ message: I18N['River is required.'] });
           } else {
-            riverId.setErrors(null);
+            river_id.setErrors(null);
           }
           // Substances
           if (!(substancesIds.value && substancesIds.value.length)) {
@@ -166,6 +209,21 @@ export class LocationFormComponent implements OnInit {
             });
           } else {
             substancesIds.setErrors(null);
+          }
+          // Turbulent Diffusive Coefficient Decay
+          if (
+            turbulent_diffusive_coefficient.value == null ||
+            Number.isNaN(+turbulent_diffusive_coefficient.value)
+          ) {
+            turbulent_diffusive_coefficient.setErrors({
+              message: I18N['Must be a number.'],
+            });
+          } else if (turbulent_diffusive_coefficient.value < 0) {
+            turbulent_diffusive_coefficient.setErrors({
+              message: I18N['Must be greater or equal to 0.'],
+            });
+          } else {
+            turbulent_diffusive_coefficient.setErrors(null);
           }
         },
       }
@@ -189,7 +247,7 @@ export class LocationFormComponent implements OnInit {
     } else {
       this.FORM_GROUP.patchValue(this.data.coordinates);
       if (this.data.riverId) {
-        this.FORM_GROUP.controls['riverId'].patchValue(this.data.riverId);
+        this.FORM_GROUP.controls['river_id'].patchValue(this.data.riverId);
       }
       this.TITLE = I18N['New Location'];
       this.SUBMIT_BUTTON_COLOR = 'primary';
@@ -212,7 +270,10 @@ export class LocationFormComponent implements OnInit {
   }
 
   private postEntity() {
-    const value = this.FORM_GROUP.value;
+    const value = {
+      ...this.FORM_GROUP.getRawValue(),
+      is_active: true
+    };
     return this.apiClient.location.postEntity(value).pipe(
       tap(() => {
         this.notificationService.notify(
@@ -223,7 +284,10 @@ export class LocationFormComponent implements OnInit {
   }
 
   private patchEntity() {
-    const value = this.FORM_GROUP.value;
+    const value = {
+      ...this.FORM_GROUP.getRawValue(),
+      is_active: true
+    };
     return this.apiClient.location
       .patchEntity(this.data!.entity!.id, value)
       .pipe(

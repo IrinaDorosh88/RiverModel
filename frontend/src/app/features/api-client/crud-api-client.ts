@@ -4,6 +4,7 @@ import { AbstractApiClient } from './abstract-api-client';
 
 export interface CRUDApiClientModel {
   getPaginatedEntitiesResult: unknown;
+  getEntitiesResult: unknown;
   getEntityResult: unknown;
   postEntitysResult: unknown;
   postEntitysValue: any;
@@ -35,6 +36,12 @@ export abstract class CRUDApiClient<
           : next
       )
     );
+  }
+
+  public getEntities(
+    params?: HttpClientQueryParams
+  ): Observable<T['getEntitiesResult']> {
+    return this.httpClient.get<any>(this.url, { params });
   }
 
   public getEntity(id: number): Observable<T['getEntityResult']> {

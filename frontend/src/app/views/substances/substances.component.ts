@@ -50,29 +50,14 @@ import {
       (page)="onPaginatorPage($event)"
     ></mat-paginator>
     <table mat-table class="p-2" [dataSource]="DATA_SOURCE">
-      <ng-container matColumnDef="name">
-        <th *matHeaderCellDef mat-header-cell>{{ I18N['Name'] }}</th>
-        <td *matCellDef="let item" mat-cell>{{ item.name }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="min">
-        <th *matHeaderCellDef mat-header-cell>{{ I18N['Min'] }}</th>
-        <td *matCellDef="let item" mat-cell>{{ item.min }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="max">
-        <th *matHeaderCellDef mat-header-cell>{{ I18N['Max'] }}</th>
-        <td *matCellDef="let item" mat-cell>{{ item.max }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="unit">
-        <th *matHeaderCellDef mat-header-cell>{{ I18N['Unit'] }}</th>
-        <td *matCellDef="let item" mat-cell>{{ item.unit }}</td>
-      </ng-container>
-
       <ng-container matColumnDef="actions">
         <th *matHeaderCellDef mat-header-cell style="width: 96px"></th>
         <td *matCellDef="let item" mat-cell>
+          <button mat-mini-fab color="accent" (click)="onEditClick(item)">
+            <mat-icon>edit</mat-icon>
+          </button>
+        </td>
+        <!-- <td *matCellDef="let item" mat-cell>
           <div class="display-flex gap-2">
             <button mat-mini-fab color="accent" (click)="onEditClick(item)">
               <mat-icon>edit</mat-icon>
@@ -81,9 +66,30 @@ import {
               <mat-icon>delete</mat-icon>
             </button>
           </div>
-        </td>
+        </td> -->
       </ng-container>
-
+      <ng-container matColumnDef="name">
+        <th *matHeaderCellDef mat-header-cell>{{ I18N['Name'] }}</th>
+        <td *matCellDef="let item" mat-cell>{{ item.name }}</td>
+      </ng-container>
+      <ng-container matColumnDef="max_value">
+        <th *matHeaderCellDef mat-header-cell>{{ I18N['Max'] }}</th>
+        <td *matCellDef="let item" mat-cell>{{ item.max_value }}</td>
+      </ng-container>
+      <ng-container matColumnDef="min_value">
+        <th *matHeaderCellDef mat-header-cell>{{ I18N['Min'] }}</th>
+        <td *matCellDef="let item" mat-cell>{{ item.min_value }}</td>
+      </ng-container>
+      <ng-container matColumnDef="units">
+        <th *matHeaderCellDef mat-header-cell>{{ I18N['Unit'] }}</th>
+        <td *matCellDef="let item" mat-cell>{{ item.units }}</td>
+      </ng-container>
+      <ng-container matColumnDef="timedelta_decay">
+        <th *matHeaderCellDef mat-header-cell>
+          {{ I18N['Time delta decay'] }}
+        </th>
+        <td *matCellDef="let item" mat-cell>{{ item.timedelta_decay }}</td>
+      </ng-container>
       <tr mat-header-row *matHeaderRowDef="DISPLAYED_COLUMNS"></tr>
       <tr mat-row *matRowDef="let row; columns: DISPLAYED_COLUMNS"></tr>
     </table>
@@ -107,7 +113,14 @@ export class SubstancesComponent implements OnInit, OnDestroy {
     private notificationService: NotificationService,
     private apiClient: ApiClient
   ) {
-    this.DISPLAYED_COLUMNS = ['name', 'min', 'max', 'unit', 'actions'];
+    this.DISPLAYED_COLUMNS = [
+      'name',
+      'min_value',
+      'max_value',
+      'units',
+      'timedelta_decay',
+      'actions',
+    ];
     this.DATA_SOURCE = new MatTableDataSource<
       SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
     >([]);

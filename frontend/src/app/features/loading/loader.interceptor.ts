@@ -6,12 +6,16 @@ import { LOADING$$ } from './loader.models';
 export const loaderInterceptorFn: HttpInterceptorFn = (() => {
   let totalRequests = 0;
   return (req, next) => {
-    if (!totalRequests++) LOADING$$.next(true);
+    if (!totalRequests++) {
+      LOADING$$.next(true);
+    }
     return next(req).pipe(
       finalize(() => {
         setTimeout(() => {
-          if (!--totalRequests) LOADING$$.next(false);
-        })
+          if (!--totalRequests) {
+            LOADING$$.next(false);
+          }
+        });
       })
     );
   };

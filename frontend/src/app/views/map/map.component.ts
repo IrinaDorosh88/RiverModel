@@ -207,6 +207,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
           scan<LocationCRUDModel['getPaginatedEntitiesResult'], Marker[]>(
             (accumulator, value) => {
               // remove previous markers from map
+              console.log(value);
               accumulator.forEach((item) => {
                 item.remove();
               });
@@ -368,11 +369,11 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
   private refreshLocations() {
     let params;
     if (this.river) {
-      params = { river: this.river };
+      params = { river_id: this.river };
     }
-    this.apiClient.location.getPaginatedEntities(params).subscribe({
+    this.apiClient.location.getEntities(params).subscribe({
       next: (next) => {
-        this.LOCATIONS$$.next(next);
+        this.LOCATIONS$$.next(next as any);
       },
     });
   }
