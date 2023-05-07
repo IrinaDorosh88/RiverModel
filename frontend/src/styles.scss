@@ -27,10 +27,10 @@ body {
     100vh - var(--app-toolbar-height) - 2 * var(--app-content-wrapper-padding)
   );
   --home-toolbar-min-height: 5rem;
-  --home-content-wrapper-padding: 1rem;
+  --home-content-wrapper-padding-top: 1rem;
   --home-content-min-height: calc(
-    var(--app-content-min-height) - var(--home-toolbar-min-height) - 2 *
-      var(--home-content-wrapper-padding)
+    var(--app-content-min-height) - var(--home-toolbar-min-height) -
+      var(--home-content-wrapper-padding-top)
   );
 }
 
@@ -61,7 +61,7 @@ body {
 }
 
 .home-content-wrapper {
-  padding: var(--home-content-wrapper-padding);
+  padding-top: var(--home-content-wrapper-padding-top);
 }
 
 .home-content {

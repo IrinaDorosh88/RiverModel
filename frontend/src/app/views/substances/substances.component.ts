@@ -29,8 +29,6 @@ import { ConfirmationDialogService } from '@/features/confirmation-dialog';
 import { I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
 
-import { TOOLBAR_ACTION$$ } from '@/views/home';
-
 import {
   SubstanceFormComponent,
   SubstanceFormData,
@@ -107,10 +105,9 @@ import {
     </table>
   `,
 })
-export class SubstancesComponent implements OnInit, OnDestroy {
+export class SubstancesComponent implements OnInit {
   public readonly I18N = I18N;
   @ViewChild(MatPaginator) public paginator!: MatPaginator;
-  private readonly SUBSCRIPTIONS;
   public readonly DISPLAYED_COLUMNS;
   public readonly DATA_SOURCE;
   public readonly paginationParams: { limit: number; offset?: number };
@@ -136,29 +133,12 @@ export class SubstancesComponent implements OnInit, OnDestroy {
     this.DATA_SOURCE = new MatTableDataSource<
       SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
     >([]);
-    this.SUBSCRIPTIONS = new Subscription();
     this.paginationParams = { limit: 10 };
     this.length = 0;
   }
 
   public ngOnInit() {
     this.refreshEntities();
-
-    this.SUBSCRIPTIONS.add(
-      TOOLBAR_ACTION$$.subscribe({
-        next: ({ key }) => {
-          switch (key) {
-            case 'SUBSTANCES_NEW_SUBSTANCE':
-              this.onCreateClick();
-              break;
-          }
-        },
-      })
-    );
-  }
-
-  public ngOnDestroy() {
-    this.SUBSCRIPTIONS.unsubscribe();
   }
 
   public onPaginatorPage(event: PageEvent) {
