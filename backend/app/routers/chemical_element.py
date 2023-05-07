@@ -16,7 +16,7 @@ def create_chemical_element(chemical_element: chemical_element_schema.ChemicalEl
     db_chemical_element = chemical_element_service.create_chemical_element(db, chemical_element)
     return db_chemical_element
 
-@router.patch("/{chemical_element.id}", response_model=chemical_element_schema.ChemicalElement, description="This endpoint allows to update chemical element given by id")
-def update_chemical_element(chemical_element: chemical_element_schema.ChemicalElementUpdate, db: Session = Depends(get_db)):
-    db_chemical_element = chemical_element_service.update_chemical_element(db, chemical_element)
+@router.patch("/{chemical_element_id}", response_model=chemical_element_schema.ChemicalElement, description="This endpoint allows to update chemical element given by id")
+def update_chemical_element(chemical_element_id:int, chemical_element: chemical_element_schema.ChemicalElementUpdate, db: Session = Depends(get_db)):
+    db_chemical_element = chemical_element_service.update_chemical_element(db, chemical_element_id, chemical_element)
     return db_chemical_element
