@@ -30,7 +30,6 @@ const I18N_ENG = {
   // home
   'River': 'River',
   'Substance': 'Substance',
-  'Rivers & Substances': 'Rivers & Substances',
   'Map': 'Map',
   'Chart': 'Chart',
   // location-filter
@@ -65,7 +64,6 @@ const I18N_ENG = {
   // location-form
   'Latitude': 'Latitude',
   'Longitude': 'Longitude',
-  'Substances': 'Substances',
   'River is required.': 'River is required.',
   'Choose at least one substance.': 'Choose at least one substance.',
   'Edit $name location': (name: string) => `Edit ${name} location`,
@@ -90,6 +88,9 @@ const I18N_ENG = {
   // chart
   'Choose location to display predictions.': 'Choose location to display data.',
   'days': 'days',
+  // ...
+  "Rivers": 'Rivers',
+  "Substances": 'Substances',
 };
 
 const I18N_UKR: typeof I18N_ENG = {
@@ -124,7 +125,6 @@ const I18N_UKR: typeof I18N_ENG = {
   // home
   'River': 'Річка',
   'Substance': 'Речовина',
-  'Rivers & Substances': 'Річки & Речовини',
   'Map': 'Мапа',
   'Chart': 'Діаграма',
   // location-filter
@@ -159,7 +159,6 @@ const I18N_UKR: typeof I18N_ENG = {
   // location-form
   'Latitude': 'Широта',
   'Longitude': 'Довгота',
-  'Substances': 'Речовини',
   'River is required.': 'Річка обов\'язкова.',
   'Choose at least one substance.': 'Оберіть принаймні одну речовину.',
   'Edit $name location': (name: string) => `Редагування локації ${name}`,
@@ -184,6 +183,9 @@ const I18N_UKR: typeof I18N_ENG = {
   // chart
   'Choose location to display predictions.': 'Оберіть локацію для виведення передбачень.',
   'days': 'дні',
+  // ...
+  "Rivers": 'Річки',
+  "Substances": 'Речовини',
 };
 
 export const I18N = { ...I18N_UKR };

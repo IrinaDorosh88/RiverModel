@@ -27,13 +27,7 @@ import { I18N } from '@/features/i18n';
 import { ChartComponent } from '@/views/chart';
 import { LocationFilterComponent } from '@/views/location-filter';
 import { MapComponent } from '@/views/map';
-import { RiversAndSubstancesComponent } from '@/views/rivers-and-substances';
-const VIEWS = [
-  ChartComponent,
-  LocationFilterComponent,
-  MapComponent,
-  RiversAndSubstancesComponent,
-];
+const VIEWS = [ChartComponent, LocationFilterComponent, MapComponent];
 
 export const TOOLBAR_ACTION$$ = new Subject<{
   key: string;
@@ -51,21 +45,19 @@ export const TOOLBAR_ACTION$$ = new Subject<{
         <button
           mat-flat-button
           color="primary"
-          (click)="onToolbarActionInvoked('RIVERS_NEW_RIVER')"
+          (click)="onToolbarActionInvoked('RIVERS')"
         >
-          <mat-icon>add</mat-icon>
-          {{ I18N['River'] }}
+          <mat-icon>water</mat-icon>
+          {{ I18N['Rivers'] }}
         </button>
         <button
           mat-flat-button
           color="primary"
-          (click)="onToolbarActionInvoked('SUBSTANCES_NEW_SUBSTANCE')"
+          (click)="onToolbarActionInvoked('SUBSTANCES')"
         >
-          <mat-icon>add</mat-icon>
-          {{ I18N['Substance'] }}
+          <mat-icon>science</mat-icon>
+          {{ I18N['Substances'] }}
         </button>
-      </ng-template>
-      <ng-template [ngSwitchCase]="1">
         <mat-form-field class="ml-auto" style="width: 200px">
           <mat-label>{{ I18N['River'] }}</mat-label>
           <mat-select
@@ -83,7 +75,7 @@ export const TOOLBAR_ACTION$$ = new Subject<{
           </mat-select>
         </mat-form-field>
       </ng-template>
-      <ng-template [ngSwitchCase]="2">
+      <ng-template [ngSwitchCase]="1">
         <app-location-filter
           class="ml-auto"
           (selectionChange)="
@@ -94,13 +86,6 @@ export const TOOLBAR_ACTION$$ = new Subject<{
     </div>
 
     <mat-tab-group [(selectedIndex)]="tabGroupSelectedIndex">
-      <mat-tab [label]="I18N['Rivers & Substances']">
-        <ng-template matTabContent>
-          <div class="home-content-wrapper">
-            <app-rivers-and-substances></app-rivers-and-substances>
-          </div>
-        </ng-template>
-      </mat-tab>
       <mat-tab [label]="I18N['Map']">
         <ng-template matTabContent>
           <div class="home-content-wrapper">

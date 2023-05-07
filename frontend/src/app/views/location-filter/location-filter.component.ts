@@ -104,10 +104,10 @@ export class LocationFilterComponent implements OnInit, OnDestroy {
   public onRiverSelectionChange(riverId: number | null) {
     if (riverId) {
       this.apiClient.location
-        .getPaginatedEntities({ river: riverId })
+        .getPaginatedEntities({ river_id: riverId })
         .subscribe({
-          next: (data) => {
-            this.LOCATIONS$$.next(data);
+          next: (next) => {
+            this.LOCATIONS$$.next((next as any).data);
           },
         });
     } else {

@@ -39,41 +39,50 @@ import { RiverFormComponent, RiverFormData } from '@/views/river-form';
   encapsulation: ViewEncapsulation.None,
   selector: 'app-rivers',
   template: `
-    <mat-paginator
-      [length]="length"
-      [hidePageSize]="true"
-      [pageSize]="10"
-      [showFirstLastButtons]="true"
-      (page)="onPaginatorPage($event)"
-    ></mat-paginator>
+    <div
+      class="p-2 display-flex align-items-center justify-content-space-between"
+    >
+      <button
+        mat-mini-fab
+        class="color-white background-color-primary"
+        (click)="onCreateClick()"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+      <mat-paginator
+        [length]="length"
+        [hidePageSize]="true"
+        [pageSize]="10"
+        [showFirstLastButtons]="true"
+        (page)="onPaginatorPage($event)"
+      ></mat-paginator>
+    </div>
     <table mat-table class="p-2" [dataSource]="DATA_SOURCE">
       <ng-container matColumnDef="name">
         <th *matHeaderCellDef mat-header-cell>{{ I18N['Name'] }}</th>
         <td *matCellDef="let item" mat-cell>{{ item.name }}</td>
       </ng-container>
       <ng-container matColumnDef="actions">
-        <th *matHeaderCellDef mat-header-cell style="width: 48px"></th>
-        <td *matCellDef="let item" mat-cell>
-          <div class="display-flex gap-2">
-            <button mat-mini-fab color="accent" (click)="onEditClick(item)">
-              <mat-icon>edit</mat-icon>
-            </button>
-          </div>
-        </td>
-      </ng-container>
-      <!-- <ng-container matColumnDef="actions">
         <th *matHeaderCellDef mat-header-cell style="width: 96px"></th>
         <td *matCellDef="let item" mat-cell>
           <div class="display-flex gap-2">
-            <button mat-mini-fab color="accent" (click)="onEditClick(item)">
+            <button
+              mat-mini-fab
+              class="color-white background-color-accent"
+              (click)="onEditClick(item)"
+            >
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-mini-fab color="warn" (click)="onDeleteClick(item)">
+            <button
+              mat-mini-fab
+              class="color-white background-color-warn"
+              (click)="onDeleteClick(item)"
+            >
               <mat-icon>delete</mat-icon>
             </button>
           </div>
         </td>
-      </ng-container> -->
+      </ng-container>
       <tr mat-header-row *matHeaderRowDef="DISPLAYED_COLUMNS"></tr>
       <tr mat-row *matRowDef="let row; columns: DISPLAYED_COLUMNS"></tr>
     </table>
@@ -137,7 +146,7 @@ export class RiversComponent implements OnInit, OnDestroy {
     this.refreshEntities();
   }
 
-  private onCreateClick() {
+  public onCreateClick() {
     this.openDialog();
   }
 

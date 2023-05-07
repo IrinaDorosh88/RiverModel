@@ -46,6 +46,8 @@ import {
   MeasurementFormComponent,
   MeasurementFormData,
 } from '@/views/measurement-form';
+import { RiversComponent } from '../rivers';
+import { SubstancesComponent } from '../substances';
 
 @Component({
   standalone: true,
@@ -187,6 +189,12 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
             case 'MAP_RIVER_SELECTED':
               this.onRiverSelected(params[0]);
               break;
+            case 'RIVERS':
+              this.onRiversClick();
+              break;
+            case 'SUBSTANCES':
+              this.onSubstancesClick();
+              break;
           }
         },
       })
@@ -207,7 +215,6 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
           scan<LocationCRUDModel['getPaginatedEntitiesResult'], Marker[]>(
             (accumulator, value) => {
               // remove previous markers from map
-              console.log(value);
               accumulator.forEach((item) => {
                 item.remove();
               });
@@ -342,6 +349,26 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     this.refreshMeasurements(entity, marker);
   }
 
+  private onRiversClick() {
+    this.matDialog
+      .open(RiversComponent, {
+        width: '400px',
+        minHeight: '700px',
+      })
+      .afterClosed()
+      .subscribe();
+  }
+
+  private onSubstancesClick() {
+    this.matDialog
+      .open(SubstancesComponent, {
+        width: '600px',
+        minHeight: '700px',
+      })
+      .afterClosed()
+      .subscribe();
+  }
+
   private onRiverSelected(river: number | null) {
     this.river = river;
     this.refreshLocations();
@@ -421,7 +448,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
     marker: Marker
   ) {
     const content = document.createElement('div');
-    content.classList.add('display-flex', 'gap-2');
+    content.classList.add('display-flex', 'flex-wrap', 'gap-2');
     let button = this.getButton('edit_location_alt');
     button.addEventListener('click', () => {
       this.POPUP.remove();
@@ -446,6 +473,12 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       this.onAddMeasurementsClicked(entity, marker);
     });
     content.appendChild(button);
+    button = this.getButton('show_chart');
+    button.addEventListener('click', () => {
+      this.POPUP.remove();
+      this.onDisplayMeasurementsClicked(entity, marker);
+    });
+    content.appendChild(button);
     this.POPUP.setLngLat([entity.longitude, entity.latitude])
       .setDOMContent(content)
       .addTo(this.map);
@@ -458,6 +491,7 @@ export class MapComponent implements OnInit, AfterViewInit, OnDestroy {
       | 'wrong_location'
       | 'post_add'
       | 'list_alt'
+      | 'show_chart'
   ) {
     const result = document.createElement('button');
     result.textContent = textContent;

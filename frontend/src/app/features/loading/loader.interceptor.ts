@@ -15,7 +15,7 @@ export const loaderInterceptorFn: HttpInterceptorFn = (() => {
           if (!--totalRequests) {
             LOADING$$.next(false);
           }
-        });
+        }, 200);
       })
     );
   };
