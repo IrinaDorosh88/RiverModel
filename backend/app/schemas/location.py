@@ -12,11 +12,11 @@ class LocationBase(BaseModel):
     latitude: float
     flow_rate: Decimal
     turbulent_diffusive_coefficient: Decimal
-    is_active: bool
 
 
 class Location(LocationBase):
     id: int
+    is_active: bool
 
     class Config:
         orm_mode = True
@@ -27,7 +27,7 @@ class LocationCreate(LocationBase):
 
 
 class LocationUpdate(LocationBase):
-    pass
+    is_active: bool
 
 
 class PaginatedLocation(PaginatedResponse):
