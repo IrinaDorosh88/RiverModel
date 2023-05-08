@@ -2,6 +2,8 @@ from decimal import Decimal
 
 from pydantic import BaseModel
 
+from . import PaginatedResponse
+
 
 class LocationBase(BaseModel):
     name: str
@@ -26,3 +28,7 @@ class LocationCreate(LocationBase):
 
 class LocationUpdate(LocationBase):
     pass
+
+
+class PaginatedLocation(PaginatedResponse):
+    data: list[Location]
