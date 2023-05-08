@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, Numeric, DateTime, Boolean, Sequence, UniqueConstraint
+from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from core.db import Base
 
@@ -17,3 +18,5 @@ class ChemicalElement(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     modified_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
     is_active = Column(Boolean, default=True)
+
+    measurements = relationship('Measurement', back_populates='chemical_element')

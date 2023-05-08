@@ -1,10 +1,16 @@
+import logging
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 
-from .settings import DATABASE_URL
+from .settings import DATABASE_URL, is_local_env
 
 
 Base = declarative_base()
+
+if is_local_env():
+    logging.basicConfig()
+    logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

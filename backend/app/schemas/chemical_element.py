@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Optional
+
 from pydantic import BaseModel
 
 class ChemicalElementBase(BaseModel):
@@ -18,7 +21,6 @@ class ChemicalElementUpdate(ChemicalElementBase):
 
 class ChemicalElement(ChemicalElementBase):
     id: int
-    created_at: str
-    modified_at: str
+    created_at: Optional[datetime]
+    modified_at: Optional[datetime]
     is_active: bool
-
