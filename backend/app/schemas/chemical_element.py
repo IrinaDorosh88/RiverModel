@@ -19,7 +19,7 @@ class ChemicalElementUpdate(ChemicalElementBase):
 
 class ChemicalElement(ChemicalElementBase):
     id: int
-    created_at: Optional[datetime]
+    created_at: Optional[datetime] 
     modified_at: Optional[datetime]
     is_active: bool
 
