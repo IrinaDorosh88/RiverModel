@@ -100,11 +100,6 @@ canvas:not(:active) {
     display: none;
   }
 
-  &.active path {
-    fill: #f00;
-  }
-
-  &.active .marker-title,
   &:hover .marker-title {
     display: initial;
     position: absolute;

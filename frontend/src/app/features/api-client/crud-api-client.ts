@@ -3,8 +3,8 @@ import { Observable, map } from 'rxjs';
 import { AbstractApiClient } from './abstract-api-client';
 
 export interface CRUDApiClientModel {
-  getPaginatedEntitiesResult: unknown;
   getEntitiesResult: unknown;
+  getPaginatedEntitiesResult: unknown;
   getEntityResult: unknown;
   postEntitysResult: unknown;
   postEntitysValue: any;
@@ -23,6 +23,23 @@ export abstract class CRUDApiClient<
     this.url = `${this.apiHost}/${this.path}/`;
   }
 
+  public getEntities(
+    params?: HttpClientQueryParams
+  ): Observable<T['getEntitiesResult'][]> {
+    if (params) {
+      delete params['limit'];
+      delete params['offset'];
+    }
+    return this.httpClient.get<any>(this.url, { params }).pipe(
+      map((next) => {
+        if (!(next instanceof Array)) {
+          return next.data;
+        }
+        return next;
+      })
+    );
+  }
+
   public getPaginatedEntities(
     params?: HttpClientQueryParams
   ): Observable<T['getPaginatedEntitiesResult']> {
@@ -36,12 +53,6 @@ export abstract class CRUDApiClient<
           : next
       )
     );
-  }
-
-  public getEntities(
-    params?: HttpClientQueryParams
-  ): Observable<T['getEntitiesResult']> {
-    return this.httpClient.get<any>(this.url, { params });
   }
 
   public getEntity(id: number): Observable<T['getEntityResult']> {

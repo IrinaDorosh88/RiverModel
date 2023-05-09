@@ -5,6 +5,7 @@ import { PaginatedData } from '@/features/paginated-data';
 import { CRUDApiClient, CRUDApiClientModel } from './crud-api-client';
 
 export interface RiverCRUDModel extends CRUDApiClientModel {
+  getEntitiesResult: { id: number; name: string };
   getPaginatedEntitiesResult: PaginatedData<{ id: number; name: string }>;
 }
 

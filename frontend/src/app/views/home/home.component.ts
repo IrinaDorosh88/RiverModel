@@ -9,11 +9,8 @@ import { CommonModule } from '@angular/common';
 import {
   Observable,
   ReplaySubject,
-  Subscription,
-  combineLatestWith,
   map,
   scan,
-  shareReplay,
   startWith,
   switchMap,
   tap,
@@ -24,22 +21,17 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTableModule } from '@angular/material/table';
 const MATERIAL_MODULES = [
   MatButtonModule,
   MatFormFieldModule,
   MatIconModule,
-  MatPaginatorModule,
   MatSelectModule,
-  MatTableModule,
 ];
 
 import {
   ApiClient,
   LocationCRUDModel,
-  MeasurementCRUDModel,
   RiverCRUDModel,
 } from '@/features/api-client';
 import { ConfirmationDialogService } from '@/features/confirmation-dialog';
@@ -54,6 +46,7 @@ import {
 } from '@/views/measurement-form';
 import { RiversComponent } from '@/views/rivers';
 import { SubstancesComponent } from '@/views/substances';
+import { MeasurementsComponent, MeasurementsData } from '../measurements';
 
 @Component({
   standalone: true,
@@ -83,51 +76,10 @@ import { SubstancesComponent } from '@/views/substances';
         </mat-select>
       </mat-form-field>
     </div>
-
     <div class="home-content-wrapper">
       <div class="home-content app-card-container">
         <div class="app-card" style="flex: 3;">
           <div id="map-container" style="height: 100%"></div>
-        </div>
-        <div class="app-card background-color-white" style="flex: 2;">
-          <ng-template
-            [ngIf]="DATA_SOURCE$ | async"
-            [ngIfElse]="noData"
-            let-dataSource
-          >
-            <mat-paginator
-              [length]="length"
-              [hidePageSize]="true"
-              [pageSize]="10"
-              [showFirstLastButtons]="true"
-              (page)="onPaginatorPage($event)"
-            ></mat-paginator>
-            <table mat-table class="p-3" [dataSource]="dataSource">
-              <ng-container matColumnDef="date">
-                <th *matHeaderCellDef mat-header-cell>{{ I18N['Date'] }}</th>
-                <td *matCellDef="let item" mat-cell>
-                  {{ item.date | date : 'dd/MM/yyyy' }}
-                </td>
-              </ng-container>
-
-              <ng-container matColumnDef="values">
-                <th *matHeaderCellDef mat-header-cell>{{ I18N['Values'] }}</th>
-                <td *matCellDef="let item" mat-cell>
-                  <div [innerHTML]="item.innerHTML"></div>
-                </td>
-              </ng-container>
-              <tr mat-header-row *matHeaderRowDef="DISPLAYED_COLUMNS"></tr>
-              <tr mat-row *matRowDef="let row; columns: DISPLAYED_COLUMNS"></tr>
-            </table>
-          </ng-template>
-          <ng-template #noData>
-            <div
-              class="display-flex align-items-center justify-content-center"
-              style="height: 100%; font-size: 1.5rem;"
-            >
-              {{ I18N['Choose location to display measurements.'] }}
-            </div>
-          </ng-template>
         </div>
       </div>
     </div>
@@ -135,23 +87,10 @@ import { SubstancesComponent } from '@/views/substances';
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public readonly I18N = I18N;
-  private readonly LOCATIONS$$;
-  private readonly MEASUREMENTS$$;
-  private readonly POPUP;
-  private readonly SUBSCRIPTIONS;
-  private readonly SUBSTANCES_MAPPER$;
-  public readonly DATA_SOURCE$;
-  public readonly DISPLAYED_COLUMNS;
-  public readonly filtrationParams: { location?: number };
-  public readonly paginationParams: { limit: number; offset?: number };
+  private readonly locations$$;
+  private readonly popup;
+  public readonly params: { river_id?: number };
   public length;
-  public river: number | null;
-  private get params() {
-    return {
-      ...this.filtrationParams,
-      ...this.paginationParams,
-    };
-  }
 
   private map!: Map;
 
@@ -159,68 +98,22 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     RiverCRUDModel['getPaginatedEntitiesResult']['data']
   >;
 
-  public currentLocationAndMarker:
-    | {
-        location: LocationCRUDModel['getPaginatedEntitiesResult'][number];
-        marker: Marker;
-      }
-    | undefined;
-
   constructor(
     private matDialog: MatDialog,
     private confirmationDialogService: ConfirmationDialogService,
     private notificationService: NotificationService,
     private apiClient: ApiClient
   ) {
-    this.DISPLAYED_COLUMNS = ['date', 'values'];
-    this.LOCATIONS$$ = new ReplaySubject<
+    this.locations$$ = new ReplaySubject<
       LocationCRUDModel['getPaginatedEntitiesResult']
     >(1);
-    this.MEASUREMENTS$$ = new ReplaySubject<
-      MeasurementCRUDModel['getPaginatedEntitiesResult']['data'] | undefined
-    >(1);
-    this.POPUP = new Popup({ closeButton: false, closeOnClick: false });
-    this.SUBSCRIPTIONS = new Subscription();
-    this.SUBSTANCES_MAPPER$ = this.apiClient.substance
-      .getPaginatedEntities()
-      .pipe(
-        map((next) => {
-          return next.data.reduce((accumulator, entity) => {
-            accumulator[entity.id] = entity.name;
-            return accumulator;
-          }, {} as { [key: string]: string });
-        }),
-        shareReplay(1)
-      );
-    this.DATA_SOURCE$ = this.MEASUREMENTS$$.pipe(
-      combineLatestWith(this.SUBSTANCES_MAPPER$),
-      map((next) => {
-        return next[0]?.map((entity) => {
-          return {
-            id: entity.id,
-            date: entity.date,
-            innerHTML: Object.entries(entity.values).reduce<string>(
-              (accumulator, [key, value]) => {
-                accumulator += `<div><b>${next[1][key]}</b>: ${value}</div>`;
-                return accumulator;
-              },
-              ''
-            ),
-          };
-        });
-      })
-    );
-    this.filtrationParams = {};
-    this.paginationParams = { limit: 10 };
+    this.popup = new Popup({ closeButton: false, closeOnClick: false });
+    this.params = {};
     this.length = 0;
-    this.river = null;
   }
 
   public ngOnInit() {
-    this.RIVERS$ = this.apiClient.river.getPaginatedEntities().pipe(
-      map((next) => next.data),
-      startWith([])
-    );
+    this.RIVERS$ = this.apiClient.river.getEntities().pipe(startWith([]));
     this.refreshLocations();
   }
 
@@ -229,56 +122,41 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       container: 'map-container',
       style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${'n88LfTJPWSHvvGGIETtw'}`,
       center: [31.1828699, 48.383022],
-      zoom: 5,
+      zoom: 5.4,
       attributionControl: false,
     })
       .on('load', () => {
-        this.LOCATIONS$$.pipe(
-          scan<LocationCRUDModel['getPaginatedEntitiesResult'], Marker[]>(
-            (accumulator, value) => {
-              // remove previous markers from map
-              accumulator.forEach((item) => {
-                item.remove();
-              });
-              // add markers for current locations on map
-              let shouldClearMeasurementsTab = true;
-              const result = value.map((item) => {
-                const result = new Marker()
-                  .setLngLat([item.longitude, item.latitude])
-                  .addTo(this.map);
-                const resultE = result.getElement();
-                resultE.classList.add('cursor-pointer');
-                resultE.addEventListener('click', (e) => {
-                  e.stopPropagation();
-                  this.openLocationPopup(item, result);
+        this.locations$$
+          .pipe(
+            scan<LocationCRUDModel['getPaginatedEntitiesResult'], Marker[]>(
+              (accumulator, value) => {
+                // remove previous markers from map
+                accumulator.forEach((item) => {
+                  item.remove();
                 });
-                const titleE = document.createElement('div');
-                titleE.textContent = item.name;
-                titleE.classList.add('marker-title');
-                resultE.appendChild(titleE);
-                if (
-                  shouldClearMeasurementsTab &&
-                  this.currentLocationAndMarker &&
-                  this.currentLocationAndMarker.location.id == item.id
-                ) {
-                  this.currentLocationAndMarker = {
-                    location: item,
-                    marker: result,
-                  };
-                  resultE.classList.add('active');
-                  shouldClearMeasurementsTab = false;
-                }
+                // add markers for current locations on map
+                const result = value.map((item: any) => {
+                  const result = new Marker()
+                    .setLngLat([item.longitude, item.latitude])
+                    .addTo(this.map);
+                  const resultE = result.getElement();
+                  resultE.classList.add('cursor-pointer');
+                  resultE.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    this.openLocationPopup(item, result);
+                  });
+                  const titleE = document.createElement('div');
+                  titleE.textContent = item.name;
+                  titleE.classList.add('marker-title');
+                  resultE.appendChild(titleE);
+                  return result;
+                });
                 return result;
-              });
-              if (shouldClearMeasurementsTab) {
-                this.MEASUREMENTS$$.next(undefined);
-                this.currentLocationAndMarker = undefined;
-              }
-              return result;
-            },
-            []
+              },
+              []
+            )
           )
-        ).subscribe();
+          .subscribe();
       })
       .on('click', (e) => {
         this.openNewLocationPopup({
@@ -289,34 +167,26 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   public ngOnDestroy(): void {
-    this.SUBSCRIPTIONS.unsubscribe();
-    this.LOCATIONS$$.complete();
+    this.locations$$.complete();
   }
 
-  public onPaginatorPage(event: PageEvent) {
-    if (event.pageIndex) {
-      this.paginationParams.offset =
-        event.pageIndex * this.paginationParams.limit;
-    } else {
-      delete this.paginationParams.offset;
-    }
-    this.refreshMeasurements();
-  }
-
-  private onCreateClick(coordinates: { longitude: number; latitude: number }) {
-    this.openDialog({
+  private onCreateLocationClick(coordinates: {
+    longitude: number;
+    latitude: number;
+  }) {
+    this.openLocationDialog({
       coordinates,
-      riverId: this.river,
+      riverId: this.params.river_id,
     });
   }
 
-  private onEditClick(
+  private onEditLocationClick(
     entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]
   ) {
-    this.openDialog({ entity });
+    this.openLocationDialog({ entity });
   }
 
-  private onDeleteClick(
+  private onDeleteLocationClick(
     entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]
   ) {
     this.confirmationDialogService.open({
@@ -333,45 +203,50 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private onAddMeasurementsClicked(
+  private onMeasurementsClick(
     entity: LocationCRUDModel['getPaginatedEntitiesResult'][number],
     marker: Marker
   ) {
-    this.SUBSTANCES_MAPPER$.pipe(
-      switchMap((mapper) => {
-        return this.matDialog
-          .open<MeasurementFormComponent, MeasurementFormData, boolean>(
-            MeasurementFormComponent,
-            {
-              width: '400px',
-              data: {
-                location: entity,
-                mapper,
-              },
-            }
-          )
-          .afterClosed();
+    this.matDialog
+      .open<MeasurementsComponent, MeasurementsData>(MeasurementsComponent, {
+        width: '1000px',
+        data: { location_id: entity.id },
       })
-    ).subscribe({
-      next: (next) => {
-        if (next) {
-          this.onDisplayMeasurementsClicked(entity, marker);
-        }
-      },
-    });
+      .afterClosed()
+      .subscribe();
   }
 
-  private onDisplayMeasurementsClicked(
-    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number],
-    marker: Marker
+  private onCreateMeasurementClick(
+    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]
   ) {
-    this.filtrationParams.location = entity.id;
-    delete this.paginationParams.offset;
-    this.length = 0;
-    this.refreshMeasurements(entity, marker);
+    this.apiClient.substance
+      .getEntities()
+      .pipe(
+        map((next) => {
+          return next.reduce((accumulator, entity) => {
+            accumulator[entity.id] = entity.name;
+            return accumulator;
+          }, {} as { [key: string]: string });
+        }),
+        switchMap((mapper) => {
+          return this.matDialog
+            .open<MeasurementFormComponent, MeasurementFormData, boolean>(
+              MeasurementFormComponent,
+              {
+                width: '400px',
+                data: {
+                  location: entity,
+                  mapper,
+                },
+              }
+            )
+            .afterClosed();
+        })
+      )
+      .subscribe();
   }
 
-  private onDisplayChartClick(
+  private onChartClick(
     entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]
   ) {
     this.matDialog
@@ -403,12 +278,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe();
   }
 
-  public onRiverSelected(river: number | null) {
-    this.river = river;
+  public onRiverSelected(river_id: number | null) {
+    if (river_id) {
+      this.params.river_id = river_id;
+    } else {
+      delete this.params.river_id;
+    }
     this.refreshLocations();
   }
 
-  private openDialog(data: LocationFormData) {
+  private openLocationDialog(data: LocationFormData) {
     this.matDialog
       .open<LocationFormComponent, LocationFormData, boolean>(
         LocationFormComponent,
@@ -428,37 +307,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private refreshLocations() {
-    let params;
-    if (this.river) {
-      params = { river_id: this.river };
-    }
-    this.apiClient.location.getEntities(params).subscribe({
+    this.apiClient.location.getEntities(this.params).subscribe({
       next: (next) => {
-        this.LOCATIONS$$.next(next as any);
-      },
-    });
-  }
-
-  private refreshMeasurements(
-    entity?: LocationCRUDModel['getPaginatedEntitiesResult'][number],
-    marker?: Marker
-  ) {
-    this.apiClient.measurement.getPaginatedEntities(this.params).subscribe({
-      next: (next) => {
-        if (this.currentLocationAndMarker) {
-          this.currentLocationAndMarker.marker
-            .getElement()
-            .classList.remove('active');
-        }
-        if (entity && marker) {
-          this.currentLocationAndMarker = {
-            location: entity,
-            marker,
-          };
-          marker.getElement().classList.add('active');
-        }
-        this.length = next.count;
-        this.MEASUREMENTS$$.next(next.data);
+        this.locations$$.next(next as any);
       },
     });
   }
@@ -469,10 +320,11 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }) {
     const content = this.getButton('add_location_alt');
     content.addEventListener('click', () => {
-      this.POPUP.remove();
-      this.onCreateClick(coordinates);
+      this.popup.remove();
+      this.onCreateLocationClick(coordinates);
     });
-    this.POPUP.setLngLat([coordinates.longitude, coordinates.latitude])
+    this.popup
+      .setLngLat([coordinates.longitude, coordinates.latitude])
       .setDOMContent(content)
       .addTo(this.map);
   }
@@ -485,35 +337,36 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     content.classList.add('display-flex', 'flex-wrap', 'gap-2');
     let button = this.getButton('edit_location_alt');
     button.addEventListener('click', () => {
-      this.POPUP.remove();
-      this.onEditClick(entity);
+      this.popup.remove();
+      this.onEditLocationClick(entity);
     });
     content.appendChild(button);
     button = this.getButton('wrong_location');
     button.addEventListener('click', () => {
-      this.POPUP.remove();
-      this.onDeleteClick(entity);
+      this.popup.remove();
+      this.onDeleteLocationClick(entity);
     });
     content.appendChild(button);
     button = this.getButton('list_alt');
     button.addEventListener('click', () => {
-      this.POPUP.remove();
-      this.onDisplayMeasurementsClicked(entity, marker);
+      this.popup.remove();
+      this.onMeasurementsClick(entity, marker);
     });
     content.appendChild(button);
     button = this.getButton('post_add');
     button.addEventListener('click', () => {
-      this.POPUP.remove();
-      this.onAddMeasurementsClicked(entity, marker);
+      this.popup.remove();
+      this.onCreateMeasurementClick(entity);
     });
     content.appendChild(button);
     button = this.getButton('show_chart');
     button.addEventListener('click', () => {
-      this.POPUP.remove();
-      this.onDisplayChartClick(entity);
+      this.popup.remove();
+      this.onChartClick(entity);
     });
     content.appendChild(button);
-    this.POPUP.setLngLat([entity.longitude, entity.latitude])
+    this.popup
+      .setLngLat([entity.longitude, entity.latitude])
       .setDOMContent(content)
       .addTo(this.map);
   }
