@@ -34,7 +34,7 @@ import { I18N } from '@/features/i18n';
     <form
       spellcheck="false"
       class="background-color-white"
-      [formGroup]="FORM_GROUP"
+      [formGroup]="formGroup"
     >
       <h2 mat-dialog-title>{{ I18N[register ? 'SIGN UP' : 'SIGN IN'] }}</h2>
 
@@ -42,7 +42,7 @@ import { I18N } from '@/features/i18n';
         <mat-form-field class="width-full">
           <mat-label>{{ I18N['Login'] }}</mat-label>
           <input matInput formControlName="login" />
-          <mat-error *ngIf="FORM_GROUP.controls['login'].errors as errors">
+          <mat-error *ngIf="formGroup.controls['login'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -57,7 +57,7 @@ import { I18N } from '@/features/i18n';
           <mat-icon matSuffix (click)="passwordHidden = !passwordHidden">{{
             passwordHidden ? 'visibility_off' : 'visibility'
           }}</mat-icon>
-          <mat-error *ngIf="FORM_GROUP.controls['password'].errors as errors">
+          <mat-error *ngIf="formGroup.controls['password'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -72,7 +72,7 @@ import { I18N } from '@/features/i18n';
           <mat-icon matSuffix (click)="confirmHidden = !confirmHidden">{{
             confirmHidden ? 'visibility_off' : 'visibility'
           }}</mat-icon>
-          <mat-error *ngIf="FORM_GROUP.controls['confirm'].errors as errors">
+          <mat-error *ngIf="formGroup.controls['confirm'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -89,8 +89,8 @@ import { I18N } from '@/features/i18n';
           mat-flat-button
           color="primary"
           type="submit"
-          [disabled]="FORM_GROUP.invalid || isFormSubmitted"
-          (click)="onSubmitClick(FORM_GROUP.value)"
+          [disabled]="formGroup.invalid || isFormSubmitted"
+          (click)="onSubmitClick(formGroup.value)"
         >
           {{ I18N['Submit'] }}
         </button>
@@ -101,7 +101,7 @@ import { I18N } from '@/features/i18n';
 })
 export class AuthorizationFormComponent implements OnInit {
   public readonly I18N = I18N;
-  public readonly FORM_GROUP;
+  public readonly formGroup;
   public isFormSubmitted;
   public passwordHidden;
   public confirmHidden;
@@ -115,7 +115,7 @@ export class AuthorizationFormComponent implements OnInit {
     private apiClient: ApiClient
   ) {
     const fb = new FormBuilder();
-    this.FORM_GROUP = fb.group(
+    this.formGroup = fb.group(
       {
         login: fb.control(''),
         password: fb.control(''),
@@ -155,18 +155,18 @@ export class AuthorizationFormComponent implements OnInit {
   public ngOnInit() {
     this.register = this.data?.register ?? false;
     if (!this.register) {
-      this.FORM_GROUP.controls['confirm'].disable();
+      this.formGroup.controls['confirm'].disable();
     }
   }
 
   public onAuthorizationTypeToggle() {
     this.register = !this.register;
     if (this.register) {
-      this.FORM_GROUP.controls['confirm'].enable();
-      this.FORM_GROUP.controls['confirm'].patchValue('');
-      this.FORM_GROUP.controls['confirm'].markAsUntouched();
+      this.formGroup.controls['confirm'].enable();
+      this.formGroup.controls['confirm'].patchValue('');
+      this.formGroup.controls['confirm'].markAsUntouched();
     } else {
-      this.FORM_GROUP.controls['confirm'].disable();
+      this.formGroup.controls['confirm'].disable();
     }
   }
 
@@ -190,7 +190,7 @@ export class AuthorizationFormComponent implements OnInit {
           this.isFormSubmitted = false;
           if (error.status === HttpStatusCode.UnprocessableEntity) {
             Object.entries(error.error).forEach(([key, value]) => {
-              this.FORM_GROUP.controls[key].setErrors({ message: value });
+              this.formGroup.controls[key].setErrors({ message: value });
             });
           } else {
             this.notificationService.notify(I18N['Something went wrong.']);

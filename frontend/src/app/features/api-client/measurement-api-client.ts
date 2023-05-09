@@ -11,6 +11,7 @@ export interface MeasurementCRUDModel extends CRUDApiClientModel {
     date: Date;
     values: { substance_name: string; value: number }[];
   };
+  postEntityResult: { id: number };
 }
 
 @Injectable({
@@ -65,8 +66,8 @@ export class MeasurementApiClient extends CRUDApiClient<MeasurementCRUDModel> {
     return of(result);
   }
 
-  public override postEntity(value: any): Observable<unknown> {
-    return of(true).pipe(delay(2000));
+  public override postEntity(value: any) {
+    return of({ id: 1 }).pipe(delay(2000));
   }
 
   public override patchEntity() {

@@ -27,22 +27,31 @@ const MATERIAL_MODULES = [
   MatSelectModule,
 ];
 
-import { LocationCRUDModel, ApiClient } from '@/features/api-client';
+import {
+  ApiClient,
+  LocationCRUDModel,
+  SubstanceCRUDModel,
+} from '@/features/api-client';
+import { CallPipe } from '@/features/call-pipe';
 import { I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
 
 export type MeasurementFormData = {
   location: LocationCRUDModel['getEntitiesResult'];
-  mapper: { [key: string]: string };
+  substances: SubstanceCRUDModel['getEntitiesResult'][];
 };
+
+export type MeasurementFormResult =
+  | boolean
+  | SubstanceCRUDModel['getEntitiesResult'][];
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ...MATERIAL_MODULES],
+  imports: [CommonModule, ReactiveFormsModule, ...MATERIAL_MODULES, CallPipe],
   encapsulation: ViewEncapsulation.None,
   selector: 'app-measurement-form',
   template: `
-    <form spellcheck="false" [formGroup]="FORM_GROUP">
+    <form spellcheck="false" [formGroup]="formGroup">
       <div mat-dialog-title>{{ I18N['New Measurement'] }}</div>
       <div mat-dialog-content>
         <mat-form-field class="width-full">
@@ -70,9 +79,20 @@ export type MeasurementFormData = {
               type="number"
               [formControlName]="field.formControlName"
             />
+            <mat-hint
+              *ngIf="
+                field.hint
+                  | call
+                    : formGroup.controls['values'].controls[
+                        field.formControlName
+                      ].value as message
+              "
+            >
+              {{ message }}
+            </mat-hint>
             <mat-error
               *ngIf="
-                FORM_GROUP.controls['values'].controls[field.formControlName]
+                formGroup.controls['values'].controls[field.formControlName]
                   .errors as errors
               "
             >
@@ -86,7 +106,7 @@ export type MeasurementFormData = {
           mat-flat-button
           color="primary"
           type="submit"
-          [disabled]="FORM_GROUP.invalid || isFormSubmitted"
+          [disabled]="formGroup.invalid || isFormSubmitted"
           (click)="onSubmitClick()"
         >
           {{ I18N['Submit'] }}
@@ -99,27 +119,29 @@ export type MeasurementFormData = {
   `,
 })
 export class MeasurementFormComponent implements OnInit {
+  public readonly CURRENT_DATE = new Date();
   public readonly I18N = I18N;
-  public readonly CURRENT_DATE;
-  private readonly FORM_BUILDER: FormBuilder;
-  public readonly FORM_GROUP;
-  public isFormSubmitted;
+  private readonly FORM_BUILDER = new FormBuilder();
+  public readonly formGroup;
+  public isFormSubmitted: boolean;
 
   public SUBSTANCES_FIELDS_MODEL!: {
     formControlName: string;
     label: string;
+    hint: (value: number) => string | null;
   }[];
 
   constructor(
-    private dialogRef: MatDialogRef<MeasurementFormComponent>,
+    private dialogRef: MatDialogRef<
+      MeasurementFormComponent,
+      MeasurementFormResult
+    >,
     @Inject(MAT_DIALOG_DATA)
     private data: MeasurementFormData,
     private notificationService: NotificationService,
     private apiClient: ApiClient
   ) {
-    this.CURRENT_DATE = new Date();
-    this.FORM_BUILDER = new FormBuilder();
-    this.FORM_GROUP = this.FORM_BUILDER.group({
+    this.formGroup = this.FORM_BUILDER.group({
       locationId: this.FORM_BUILDER.control<number | null>(null),
       date: this.FORM_BUILDER.control<Date | null>(null),
       values: this.FORM_BUILDER.group<{ [key: string]: FormControl }>({}),
@@ -128,55 +150,72 @@ export class MeasurementFormComponent implements OnInit {
   }
 
   public ngOnInit() {
-    this.FORM_GROUP.patchValue({
+    this.formGroup.patchValue({
       date: this.CURRENT_DATE,
       locationId: this.data.location.id,
     });
-    const validator = (control: AbstractControl) => {
-      if (control.value == null || Number.isNaN(+control.value)) {
-        return { message: I18N['Measurement must be a number.'] };
-      } else if (control.value < 0) {
-        return { message: I18N['Measurement must be greater or equal to 0.'] };
-      }
-      return null;
-    };
 
-    this.SUBSTANCES_FIELDS_MODEL = this.data.location.substancesIds.map(
-      (item) => {
-        this.FORM_GROUP.controls['values'].addControl(
-          item.toString(),
-          this.FORM_BUILDER.control(0, validator)
+    this.SUBSTANCES_FIELDS_MODEL = this.data.location.substances_ids.map(
+      (id) => {
+        const substance = this.data.substances.find((item) => item.id === id)!;
+        this.formGroup.controls['values'].addControl(
+          id.toString(),
+          this.FORM_BUILDER.control(
+            substance.min_value,
+            (control: AbstractControl) => {
+              if (control.value == null || Number.isNaN(+control.value)) {
+                return { message: I18N['Measurement must be a number.'] };
+              } else if (control.value < substance.min_value) {
+                return {
+                  message: I18N[
+                    'Measurement must be greater or equal to $number.'
+                  ](substance.min_value),
+                };
+              }
+              return null;
+            }
+          )
         );
         return {
-          formControlName: item.toString(),
-          label: this.data.mapper[item],
+          formControlName: id.toString(),
+          label: substance.name,
+          hint: (value: number) =>
+            value > substance.max_value
+              ? I18N['Maximum value exceeding: $number'](substance.max_value)
+              : null,
         };
       }
     );
   }
 
   public onSubmitClick() {
-    if (this.FORM_GROUP.invalid || this.isFormSubmitted) return;
+    if (this.formGroup.invalid || this.isFormSubmitted) return;
+
+    const value = this.formGroup.value;
 
     this.isFormSubmitted = true;
-    this.postEntity().subscribe({
-      next: () => {
-        this.dialogRef.close(true);
+    this.apiClient.measurement.postEntity(value).subscribe({
+      next: (next) => {
+        this.notificationService.notify(
+          I18N['Measurement is successfully added.']
+        );
+        const substances = Object.entries(value.values!).reduce(
+          (accumulator, [key, value]) => {
+            const substance = this.data.substances.find(
+              (item) => item.id == (key as any)
+            )!;
+            if (value > substance.max_value) {
+              accumulator.push(substance);
+            }
+            return accumulator;
+          },
+          [] as SubstanceCRUDModel['getEntitiesResult'][]
+        );
+        this.dialogRef.close(substances.length ? substances : true);
       },
       error: () => {
         this.isFormSubmitted = false;
       },
     });
-  }
-
-  private postEntity() {
-    const value = this.FORM_GROUP.value;
-    return this.apiClient.measurement.postEntity(value).pipe(
-      tap(() => {
-        this.notificationService.notify(
-          I18N['Measurement is successfully added.']
-        );
-      })
-    );
   }
 }

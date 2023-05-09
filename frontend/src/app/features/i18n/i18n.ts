@@ -78,8 +78,9 @@ const I18N_ENG = {
   'New Measurement': 'New Measurement',
   'Date': 'Date',
   'Measurement must be a number.': 'Measurement must be a number.',
-  'Measurement must be greater or equal to 0.': 'Measurement must be greater or equal to 0.',
+  'Measurement must be greater or equal to $number.': (number: number) => `Measurement must be greater or equal to ${number}.`,
   'Measurement is successfully added.': 'Measurement is successfully added.',
+  'Maximum value exceeding: $number': (number: number) => `Maximum value exceeding: ${number}`,
   // map
   'Values': 'Values',
   'Choose location to display measurements.': 'Choose location to display Measurements.',
@@ -173,8 +174,9 @@ const I18N_UKR: typeof I18N_ENG = {
   'New Measurement': 'Створення виміру',
   'Date': 'Дата',
   'Measurement must be a number.': 'Вимір повинен бути числом.',
-  'Measurement must be greater or equal to 0.': 'Вимір повинен бути більший рівний 0',
+  'Measurement must be greater or equal to $number.': (number: number) => `Вимір повинен бути більший рівний ${number}`,
   'Measurement is successfully added.': 'Вимір успішно додано.',
+  'Maximum value exceeding: $number': (number: number) => `Перевищення максимального значення: ${number}`,
   // map
   'Values': 'Значення',
   'Choose location to display measurements.': 'Оберіть локацію для виведення вимірів.',

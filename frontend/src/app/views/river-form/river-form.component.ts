@@ -33,13 +33,13 @@ export type RiverFormData =
   encapsulation: ViewEncapsulation.None,
   selector: 'app-river-form',
   template: `
-    <form spellcheck="false" [formGroup]="FORM_GROUP">
+    <form spellcheck="false" [formGroup]="formGroup">
       <div mat-dialog-title>{{ TITLE }}</div>
       <div mat-dialog-content>
         <mat-form-field class="width-full">
           <mat-label>{{ I18N['Name'] }}</mat-label>
           <input matInput formControlName="name" />
-          <mat-error *ngIf="FORM_GROUP.controls['name'].errors as errors">
+          <mat-error *ngIf="formGroup.controls['name'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -49,7 +49,7 @@ export type RiverFormData =
           mat-flat-button
           [color]="SUBMIT_BUTTON_COLOR"
           type="submit"
-          [disabled]="FORM_GROUP.invalid || isFormSubmitted"
+          [disabled]="formGroup.invalid || isFormSubmitted"
           (click)="onSubmitClick()"
         >
           {{ I18N['Submit'] }}
@@ -64,7 +64,7 @@ export type RiverFormData =
 export class RiverFormComponent implements OnInit {
   public readonly I18N = I18N;
 
-  public readonly FORM_GROUP;
+  public readonly formGroup;
   public isFormSubmitted;
 
   public TITLE!: string;
@@ -79,7 +79,7 @@ export class RiverFormComponent implements OnInit {
     private apiClient: ApiClient
   ) {
     const fb = new FormBuilder();
-    this.FORM_GROUP = fb.group(
+    this.formGroup = fb.group(
       {
         name: fb.control(''),
       },
@@ -100,7 +100,7 @@ export class RiverFormComponent implements OnInit {
 
   public ngOnInit() {
     if (this.data) {
-      this.FORM_GROUP.patchValue(this.data);
+      this.formGroup.patchValue(this.data);
       this.TITLE = I18N['Edit $name river'](this.data.name);
       this.SUBMIT_BUTTON_COLOR = 'accent';
       this.HANDLE_ENTITY = this.patchEntity;
@@ -112,7 +112,7 @@ export class RiverFormComponent implements OnInit {
   }
 
   public onSubmitClick() {
-    if (this.FORM_GROUP.invalid || this.isFormSubmitted) return;
+    if (this.formGroup.invalid || this.isFormSubmitted) return;
 
     this.isFormSubmitted = true;
     this.HANDLE_ENTITY().subscribe({
@@ -126,7 +126,7 @@ export class RiverFormComponent implements OnInit {
   }
 
   private postEntity() {
-    const value = this.FORM_GROUP.value;
+    const value = this.formGroup.value;
     return this.apiClient.river.postEntity(value).pipe(
       tap(() => {
         this.notificationService.notify(
@@ -137,7 +137,7 @@ export class RiverFormComponent implements OnInit {
   }
 
   private patchEntity() {
-    const value = this.FORM_GROUP.value;
+    const value = this.formGroup.value;
     return this.apiClient.river.patchEntity(this.data!.id, value).pipe(
       tap(() => {
         this.notificationService.notify(

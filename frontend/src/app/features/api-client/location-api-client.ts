@@ -1,6 +1,10 @@
 import { Injectable } from '@angular/core';
+import { Observable, combineLatest, map } from 'rxjs';
+
+import { HttpClientQueryParams } from '@/features/http-client-extensions';
 
 import { CRUDApiClient, CRUDApiClientModel } from './crud-api-client';
+import { RiverApiClient } from './river-api-client';
 
 export interface LocationCRUDModel extends CRUDApiClientModel {
   getEntitiesResult: {
@@ -9,8 +13,9 @@ export interface LocationCRUDModel extends CRUDApiClientModel {
     latitude: number;
     longitude: number;
     name: string;
-    riverId: number;
-    substancesIds: number[];
+    river_id: number;
+    river_name: string;
+    substances_ids: number[];
     turbulent_diffusive_coefficient: number;
   };
 }
@@ -19,7 +24,28 @@ export interface LocationCRUDModel extends CRUDApiClientModel {
   providedIn: 'root',
 })
 export class LocationApiClient extends CRUDApiClient<LocationCRUDModel> {
-  constructor() {
+  constructor(private riverApiClient: RiverApiClient) {
     super('locations');
+  }
+
+  public override getEntities(params: HttpClientQueryParams) {
+    return combineLatest([
+      super.getEntities(params) as Observable<any>,
+      this.riverApiClient.getEntities().pipe(
+        map((next) =>
+          next.reduce((accumulator, item) => {
+            accumulator[item.id] = item.name;
+            return accumulator;
+          }, {} as { [key: string]: string })
+        )
+      ),
+    ]).pipe(
+      map(([next, rivers]) => {
+        next.forEach((item: any) => {
+          item.river_name = rivers[item.river_id];
+        });
+        return next as LocationCRUDModel['getEntitiesResult'][];
+      })
+    );
   }
 }

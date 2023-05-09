@@ -24,7 +24,8 @@ import { ApiClient, PredictionCRUDModel } from '@/features/api-client';
 import { I18N } from '@/features/i18n';
 
 export type ChartComponentData = {
-  location: number;
+  location_id: number;
+  substance_id?: number | undefined;
 };
 
 @Component({
@@ -37,6 +38,7 @@ export type ChartComponentData = {
       <mat-form-field>
         <mat-label>{{ I18N['Substance'] }}</mat-label>
         <mat-select
+          [value]="data.substance_id"
           (selectionChange)="onSubstanceSelectionChange($event.value)"
         >
           <mat-option [value]="null">---</mat-option>
@@ -52,37 +54,6 @@ export type ChartComponentData = {
     <div mat-dialog-content class="display-flex justify-content-center">
       <canvas id="chart-container"></canvas>
     </div>
-    <!-- <div class="app-card" style="flex: 2;">
-        <ng-template
-          [ngIf]="PREDICTION$$ | async"
-          [ngIfElse]="noData"
-          let-dataSource
-        >
-          <table mat-table class="p-3" [dataSource]="dataSource">
-            <ng-container matColumnDef="name">
-              <th *matHeaderCellDef mat-header-cell>Name</th>
-              <td *matCellDef="let item" mat-cell>
-                {{ item.name }}
-              </td>
-            </ng-container>
-            <tr mat-header-row *matHeaderRowDef="DISPLAYED_COLUMNS"></tr>
-            <tr
-              *matRowDef="let row; columns: DISPLAYED_COLUMNS"
-              mat-row
-              class="cursor-pointer"
-              (click)="onSubstanceClick(row)"
-            ></tr>
-          </table>
-        </ng-template>
-        <ng-template #noData>
-          <div
-            class="display-flex align-items-center justify-content-center"
-            style="height: 100%; font-size: 1.5rem;"
-          >
-            {{ I18N['Choose location to display predictions.'] }}
-          </div>
-        </ng-template>
-      </div> -->
   `,
 })
 export class ChartComponent implements OnInit, AfterViewInit {
@@ -95,48 +66,18 @@ export class ChartComponent implements OnInit, AfterViewInit {
   constructor(
     private apiClient: ApiClient,
     @Inject(MAT_DIALOG_DATA)
-    private data: ChartComponentData
+    public data: ChartComponentData
   ) {}
 
   public ngOnInit() {
     this.SUBSTANCES$ = this.apiClient.prediction
-      .getEntityByLocationId(this.data.location)
+      .getEntityByLocationId(this.data.location_id)
       .pipe(map((next) => next.substances));
   }
 
   public ngAfterViewInit() {
     this.CHART = new Chart('chart-container', {
       type: 'line',
-      // data: {
-      //   labels: [
-      //     'January',
-      //     'February',
-      //     'March',
-      //     'April',
-      //     'May',
-      //   ],
-      //   datasets: [
-      //     {
-      //       label: 'My First Dataset',
-      //       data: [65, 59, 80, 81, 56],
-      //       backgroundColor: [
-      //         'rgba(255, 99, 132, 0.2)',
-      //         'rgba(255, 159, 64, 0.2)',
-      //         'rgba(255, 205, 86, 0.2)',
-      //         'rgba(75, 192, 192, 0.2)',
-      //         'rgba(54, 162, 235, 0.2)',
-      //       ],
-      //       borderColor: [
-      //         'rgb(255, 99, 132)',
-      //         'rgb(255, 159, 64)',
-      //         'rgb(255, 205, 86)',
-      //         'rgb(75, 192, 192)',
-      //         'rgb(54, 162, 235)',
-      //       ],
-      //       borderWidth: 1,
-      //     },
-      //   ],
-      // },
       data: {
         datasets: [],
       },

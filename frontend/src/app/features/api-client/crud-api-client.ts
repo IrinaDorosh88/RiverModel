@@ -9,11 +9,11 @@ export interface CRUDApiClientModel {
   getEntitiesResult: unknown;
   getPaginatedEntitiesResult: unknown;
   getEntityResult: unknown;
-  postEntitysResult: unknown;
-  postEntitysValue: any;
-  putEntityResult: unknown;
-  putEntitysValue: any;
-  deleteEntitysResult: unknown;
+  postEntityResult: unknown;
+  postEntityValue: any;
+  patchEntityResult: unknown;
+  patchEntityValue: any;
+  deleteEntityResult: unknown;
 }
 
 export abstract class CRUDApiClient<
@@ -63,19 +63,19 @@ export abstract class CRUDApiClient<
   }
 
   public postEntity(
-    value: T['postEntitysValue']
-  ): Observable<T['postEntitysResult']> {
+    value: T['postEntityValue']
+  ): Observable<T['postEntityResult']> {
     return this.httpClient.post(this.url, value);
   }
 
   public patchEntity(
     id: number,
-    value: T['putEntitysValue']
-  ): Observable<T['putEntityResult']> {
+    value: T['patchEntityValue']
+  ): Observable<T['patchEntityResult']> {
     return this.httpClient.patch(`${this.url}${id}/`, value);
   }
 
-  public deleteEntity(id: number): Observable<T['deleteEntitysResult']> {
+  public deleteEntity(id: number): Observable<T['deleteEntityResult']> {
     return this.httpClient.delete(`${this.url}${id}/`);
   }
 }

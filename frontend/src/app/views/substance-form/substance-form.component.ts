@@ -33,13 +33,13 @@ export type SubstanceFormData =
   encapsulation: ViewEncapsulation.None,
   selector: 'app-substance-form',
   template: `
-    <form spellcheck="false" [formGroup]="FORM_GROUP">
+    <form spellcheck="false" [formGroup]="formGroup">
       <div mat-dialog-title>{{ TITLE }}</div>
       <div mat-dialog-content>
         <mat-form-field class="width-full">
           <mat-label>{{ I18N['Name'] }}</mat-label>
           <input matInput formControlName="name" />
-          <mat-error *ngIf="FORM_GROUP.controls['name'].errors as errors">
+          <mat-error *ngIf="formGroup.controls['name'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -51,7 +51,7 @@ export type SubstanceFormData =
             formControlName="min_value"
             [attr.min]="0"
           />
-          <mat-error *ngIf="FORM_GROUP.controls['min_value'].errors as errors">
+          <mat-error *ngIf="formGroup.controls['min_value'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -61,16 +61,16 @@ export type SubstanceFormData =
             matInput
             type="number"
             formControlName="max_value"
-            [attr.min]="FORM_GROUP.controls['min_value'].value"
+            [attr.min]="formGroup.controls['min_value'].value"
           />
-          <mat-error *ngIf="FORM_GROUP.controls['max_value'].errors as errors">
+          <mat-error *ngIf="formGroup.controls['max_value'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
         <mat-form-field class="width-full">
           <mat-label>{{ I18N['Unit'] }}</mat-label>
           <input matInput formControlName="units" />
-          <mat-error *ngIf="FORM_GROUP.controls['units'].errors as errors">
+          <mat-error *ngIf="formGroup.controls['units'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -78,7 +78,7 @@ export type SubstanceFormData =
           <mat-label>{{ I18N['Time delta decay'] }}</mat-label>
           <input matInput type="number" formControlName="timedelta_decay" />
           <mat-error
-            *ngIf="FORM_GROUP.controls['timedelta_decay'].errors as errors"
+            *ngIf="formGroup.controls['timedelta_decay'].errors as errors"
           >
             {{ errors['message'] }}
           </mat-error>
@@ -89,7 +89,7 @@ export type SubstanceFormData =
           mat-flat-button
           [color]="SUBMIT_BUTTON_COLOR"
           type="submit"
-          [disabled]="FORM_GROUP.invalid || isFormSubmitted"
+          [disabled]="formGroup.invalid || isFormSubmitted"
           (click)="onSubmitClick()"
         >
           {{ I18N['Submit'] }}
@@ -103,7 +103,7 @@ export type SubstanceFormData =
 })
 export class SubstanceFormComponent implements OnInit {
   public readonly I18N = I18N;
-  public readonly FORM_GROUP;
+  public readonly formGroup;
   public isFormSubmitted;
   public TITLE!: string;
   public SUBMIT_BUTTON_COLOR!: 'primary' | 'accent';
@@ -117,7 +117,7 @@ export class SubstanceFormComponent implements OnInit {
     private apiClient: ApiClient
   ) {
     const fb = new FormBuilder();
-    this.FORM_GROUP = fb.group(
+    this.formGroup = fb.group(
       {
         max_value: fb.control(0),
         min_value: fb.control(0),
@@ -191,7 +191,7 @@ export class SubstanceFormComponent implements OnInit {
 
   public ngOnInit() {
     if (this.data) {
-      this.FORM_GROUP.patchValue(this.data);
+      this.formGroup.patchValue(this.data);
       this.TITLE = I18N['Edit $name substance'](this.data.name);
       this.SUBMIT_BUTTON_COLOR = 'accent';
       this.HANDLE_ENTITY = this.patchEntity;
@@ -203,7 +203,7 @@ export class SubstanceFormComponent implements OnInit {
   }
 
   public onSubmitClick() {
-    if (this.FORM_GROUP.invalid || this.isFormSubmitted) return;
+    if (this.formGroup.invalid || this.isFormSubmitted) return;
     this.isFormSubmitted = true;
     this.HANDLE_ENTITY().subscribe({
       next: () => {
@@ -216,7 +216,7 @@ export class SubstanceFormComponent implements OnInit {
   }
 
   private postEntity() {
-    const value = this.FORM_GROUP.value;
+    const value = this.formGroup.value;
     return this.apiClient.substance.postEntity(value).pipe(
       tap(() => {
         this.notificationService.notify(
@@ -227,7 +227,7 @@ export class SubstanceFormComponent implements OnInit {
   }
 
   private patchEntity() {
-    const value = this.FORM_GROUP.value;
+    const value = this.formGroup.value;
     return this.apiClient.substance.patchEntity(this.data!.id, value).pipe(
       tap(() => {
         this.notificationService.notify(

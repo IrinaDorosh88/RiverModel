@@ -44,13 +44,15 @@ import { LocationFormComponent, LocationFormData } from '@/views/location-form';
 import {
   MeasurementFormComponent,
   MeasurementFormData,
+  MeasurementFormResult,
 } from '@/views/measurement-form';
 import { RiversTableComponent } from '@/views/rivers-table';
 import { SubstancesTableComponent } from '@/views/substances-table';
 import {
   MeasurementsTableComponent,
   MeasurementsData,
-} from '../measurements-table';
+} from '@/views/measurements-table';
+import { ExcessComponent, ExcessData } from '@/views/excess';
 
 @Component({
   standalone: true,
@@ -218,35 +220,49 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.apiClient.substance
       .getEntities()
       .pipe(
-        map((next) => {
-          return next.reduce((accumulator, entity) => {
-            accumulator[entity.id] = entity.name;
-            return accumulator;
-          }, {} as { [key: string]: string });
-        }),
-        switchMap((mapper) => {
+        switchMap((next) => {
+          (entity as any).substances_ids = [next[0].id];
           return this.matDialog
-            .open<MeasurementFormComponent, MeasurementFormData, boolean>(
+            .open<
               MeasurementFormComponent,
-              {
-                width: '400px',
-                data: {
-                  location: entity,
-                  mapper,
-                },
-              }
-            )
+              MeasurementFormData,
+              MeasurementFormResult
+            >(MeasurementFormComponent, {
+              width: '400px',
+              data: {
+                location: entity,
+                substances: next,
+              },
+            })
             .afterClosed();
         })
       )
-      .subscribe();
+      .subscribe({
+        next: (next) => {
+          if (next && typeof next !== 'boolean') {
+            this.matDialog.open<ExcessComponent, ExcessData>(ExcessComponent, {
+              width: '400px',
+              data: {
+                location: entity,
+                substances: next,
+              },
+            });
+          }
+        },
+      });
   }
 
-  private onChartClick(entity: LocationCRUDModel['getEntitiesResult']) {
+  private onChartClick(
+    entity: LocationCRUDModel['getEntitiesResult'],
+    substance_id?: number
+  ) {
     this.matDialog
       .open<ChartComponent, ChartComponentData>(ChartComponent, {
         width: '1000px',
-        data: { location: entity.id },
+        data: {
+          location_id: entity.id,
+          substance_id,
+        },
       })
       .afterClosed()
       .subscribe();
@@ -338,6 +354,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private openLocationPopup(entity: LocationCRUDModel['getEntitiesResult']) {
     const content = document.createElement('div');
     content.classList.add('display-flex', 'flex-wrap', 'gap-2');
+    content.style.justifyContent = 'center';
+    content.style.width = '160px';
     let button = this.getButton('edit_location_alt');
     button.addEventListener('click', () => {
       this.popup.remove();
@@ -350,16 +368,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.onDeleteLocationClick(entity);
     });
     content.appendChild(button);
-    button = this.getButton('list_alt');
-    button.addEventListener('click', () => {
-      this.popup.remove();
-      this.onMeasurementsClick(entity);
-    });
-    content.appendChild(button);
     button = this.getButton('post_add');
     button.addEventListener('click', () => {
       this.popup.remove();
       this.onCreateMeasurementClick(entity);
+    });
+    content.appendChild(button);
+    button = this.getButton('list_alt');
+    button.addEventListener('click', () => {
+      this.popup.remove();
+      this.onMeasurementsClick(entity);
     });
     content.appendChild(button);
     button = this.getButton('show_chart');
