@@ -1,5 +1,9 @@
-from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
+
+from pydantic import BaseModel
+
+from . import PaginatedResponse
 
 class ChemicalElementBase(BaseModel):
     name: str
@@ -8,18 +12,21 @@ class ChemicalElementBase(BaseModel):
     units: str
     timedelta_decay: int
 
-    class Config:
-        orm_mode = True
 
 class ChemicalElementCreate(ChemicalElementBase):
     pass
 
 class ChemicalElementUpdate(ChemicalElementBase):
-    id: int
+    is_active: bool
 
 class ChemicalElement(ChemicalElementBase):
     id: int
-    created_at: Optional[datetime] 
-    modified_at: Optional[datetime]
-    is_active: bool
+    created_at: Optional[datetime] = None
+    modified_at: Optional[datetime] = None
+    is_active: Optional[bool] = None
 
+    class Config:
+        orm_mode = True
+
+class PaginatedChemicalElement(PaginatedResponse):
+    data: list[ChemicalElement]
