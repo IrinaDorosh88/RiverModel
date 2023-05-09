@@ -1,8 +1,6 @@
-from datetime import datetime
-from typing import Optional, List
-
 from pydantic import BaseModel
 
+from . import PaginatedResponse
 from schemas.location import Location
 
 
@@ -12,10 +10,8 @@ class RiverBase(BaseModel):
 
 class River(RiverBase):
     id: int
-    created_at: Optional[datetime] = None
-    modified_at: Optional[datetime] = None
-    is_active: Optional[bool] = None
-    locations: List[Location] = []
+    is_active: bool
+    locations: list[Location] = []
     
     class Config:
         orm_mode = True
@@ -26,5 +22,8 @@ class RiverCreate(RiverBase):
 
 
 class RiverUpdate(RiverBase):
-    is_active: Optional[bool] = None
-    pass
+    is_active: bool
+
+
+class PaginatedRiver(PaginatedResponse):
+    data: list[River]
