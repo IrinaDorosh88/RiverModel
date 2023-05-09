@@ -2,16 +2,15 @@ import { Injectable } from '@angular/core';
 import { Observable, delay, of } from 'rxjs';
 
 import { HttpClientQueryParams } from '@/features/http-client-extensions';
-import { PaginatedData } from '@/features/paginated-data';
 
 import { CRUDApiClientModel, CRUDApiClient } from './crud-api-client';
 
 export interface MeasurementCRUDModel extends CRUDApiClientModel {
-  getPaginatedEntitiesResult: PaginatedData<{
+  getPaginatedEntitiesResult: {
     location_id: number;
     date: Date;
     values: { substance_name: string; value: number }[];
-  }>;
+  };
 }
 
 @Injectable({
@@ -23,7 +22,7 @@ export class MeasurementApiClient extends CRUDApiClient<MeasurementCRUDModel> {
   }
 
   public override getPaginatedEntities(params?: HttpClientQueryParams) {
-    let result: MeasurementCRUDModel['getPaginatedEntitiesResult'] = {
+    let result = {
       data: [
         {
           date: new Date(),
@@ -70,11 +69,11 @@ export class MeasurementApiClient extends CRUDApiClient<MeasurementCRUDModel> {
     return of(true).pipe(delay(2000));
   }
 
-  public override patchEntity(id: number, value: any): Observable<unknown> {
+  public override patchEntity() {
     return this.methodNotImplemented();
   }
 
-  public override deleteEntity(id: number): Observable<unknown> {
+  public override deleteEntity() {
     return this.methodNotImplemented();
   }
 }

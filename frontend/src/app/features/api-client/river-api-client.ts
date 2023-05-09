@@ -1,12 +1,12 @@
 import { Injectable } from '@angular/core';
 
-import { PaginatedData } from '@/features/paginated-data';
-
 import { CRUDApiClient, CRUDApiClientModel } from './crud-api-client';
 
+type GetEntitiesResult = { id: number; name: string };
+
 export interface RiverCRUDModel extends CRUDApiClientModel {
-  getEntitiesResult: { id: number; name: string };
-  getPaginatedEntitiesResult: PaginatedData<{ id: number; name: string }>;
+  getEntitiesResult: GetEntitiesResult;
+  getPaginatedEntitiesResult: GetEntitiesResult;
 }
 
 @Injectable({

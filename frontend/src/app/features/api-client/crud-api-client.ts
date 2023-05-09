@@ -1,5 +1,8 @@
 import { HttpClientQueryParams } from '@/features/http-client-extensions';
 import { Observable, map } from 'rxjs';
+
+import { PaginatedData } from '@/features/paginated-data';
+
 import { AbstractApiClient } from './abstract-api-client';
 
 export interface CRUDApiClientModel {
@@ -42,7 +45,7 @@ export abstract class CRUDApiClient<
 
   public getPaginatedEntities(
     params?: HttpClientQueryParams
-  ): Observable<T['getPaginatedEntitiesResult']> {
+  ): Observable<PaginatedData<T['getPaginatedEntitiesResult']>> {
     return this.httpClient.get<any>(this.url, { params }).pipe(
       map((next) =>
         next instanceof Array

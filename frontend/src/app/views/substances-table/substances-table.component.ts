@@ -1,12 +1,6 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-  ViewEncapsulation,
-} from '@angular/core';
-import { Subscription, tap } from 'rxjs';
+import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
+import { tap } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -58,24 +52,26 @@ import {
         (page)="onPaginatorPage($event)"
       ></mat-paginator>
     </div>
-    <table mat-table class="p-2" [dataSource]="DATA_SOURCE">
+    <table mat-table class="p-2" [dataSource]="dataSource">
       <ng-container matColumnDef="actions">
         <th *matHeaderCellDef mat-header-cell style="width: 96px"></th>
         <td *matCellDef="let item" mat-cell>
-          <button
-            mat-mini-fab
-            class="color-white background-color-accent"
-            (click)="onEditClick(item)"
-          >
-            <mat-icon>edit</mat-icon>
-          </button>
-          <button
-            mat-mini-fab
-            class="color-white background-color-warn"
-            (click)="onDeleteClick(item)"
-          >
-            <mat-icon>delete</mat-icon>
-          </button>
+          <div class="display-flex gap-2">
+            <button
+              mat-mini-fab
+              class="color-white background-color-accent"
+              (click)="onEditClick(item)"
+            >
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-mini-fab
+              class="color-white background-color-warn"
+              (click)="onDeleteClick(item)"
+            >
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
         </td>
       </ng-container>
       <ng-container matColumnDef="name">
@@ -100,29 +96,29 @@ import {
         </th>
         <td *matCellDef="let item" mat-cell>{{ item.timedelta_decay }}</td>
       </ng-container>
-      <tr mat-header-row *matHeaderRowDef="DISPLAYED_COLUMNS"></tr>
-      <tr mat-row *matRowDef="let row; columns: DISPLAYED_COLUMNS"></tr>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
   `,
 })
-export class SubstancesComponent implements OnInit {
+export class SubstancesTableComponent implements OnInit {
   public readonly I18N = I18N;
   @ViewChild(MatPaginator) public paginator!: MatPaginator;
-  public readonly DISPLAYED_COLUMNS;
-  public readonly DATA_SOURCE;
-  public readonly paginationParams: { limit: number; offset?: number };
-  public length;
-  private get params() {
-    return this.paginationParams;
-  }
+  public readonly dataSource: MatTableDataSource<
+    SubstanceCRUDModel['getPaginatedEntitiesResult']
+  >;
+  public readonly displayedColumns: string[];
+  public readonly params: { limit: number; offset?: number };
+  public length: number;
 
   constructor(
-    private matDialog: MatDialog,
-    private confirmationDialogService: ConfirmationDialogService,
-    private notificationService: NotificationService,
-    private apiClient: ApiClient
+    private readonly matDialog: MatDialog,
+    private readonly apiClient: ApiClient,
+    private readonly confirmationDialogService: ConfirmationDialogService,
+    private readonly notificationService: NotificationService
   ) {
-    this.DISPLAYED_COLUMNS = [
+    this.dataSource = new MatTableDataSource([] as any);
+    this.displayedColumns = [
       'name',
       'min_value',
       'max_value',
@@ -130,10 +126,7 @@ export class SubstancesComponent implements OnInit {
       'timedelta_decay',
       'actions',
     ];
-    this.DATA_SOURCE = new MatTableDataSource<
-      SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
-    >([]);
-    this.paginationParams = { limit: 10 };
+    this.params = { limit: 10 };
     this.length = 0;
   }
 
@@ -143,10 +136,9 @@ export class SubstancesComponent implements OnInit {
 
   public onPaginatorPage(event: PageEvent) {
     if (event.pageIndex) {
-      this.paginationParams.offset =
-        event.pageIndex * this.paginationParams.limit;
+      this.params['offset'] = event.pageIndex * this.params['limit'];
     } else {
-      delete this.paginationParams.offset;
+      delete this.params['offset'];
     }
     this.refreshEntities();
   }
@@ -155,15 +147,7 @@ export class SubstancesComponent implements OnInit {
     this.openDialog();
   }
 
-  public onEditClick(
-    item: SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
-  ) {
-    this.openDialog(item);
-  }
-
-  public onDeleteClick(
-    item: SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
-  ) {
+  public onDeleteClick(item: SubstanceCRUDModel['getPaginatedEntitiesResult']) {
     this.confirmationDialogService.open({
       title: I18N['Delete $name substance'](item.name),
       confirmCallback: () => {
@@ -172,7 +156,7 @@ export class SubstancesComponent implements OnInit {
             this.notificationService.notify(
               I18N['$name substance is successfully deleted.'](item.name)
             );
-            if (!this.DATA_SOURCE.data.length && this.paginationParams.offset) {
+            if (!this.dataSource.data.length && this.params['offset']) {
               this.paginator.previousPage();
             } else {
               this.refreshEntities();
@@ -183,9 +167,11 @@ export class SubstancesComponent implements OnInit {
     });
   }
 
-  private openDialog(
-    data?: SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
-  ) {
+  public onEditClick(item: SubstanceCRUDModel['getPaginatedEntitiesResult']) {
+    this.openDialog(item);
+  }
+
+  private openDialog(data?: SubstanceCRUDModel['getPaginatedEntitiesResult']) {
     this.matDialog
       .open<SubstanceFormComponent, SubstanceFormData, boolean>(
         SubstanceFormComponent,
@@ -208,7 +194,7 @@ export class SubstancesComponent implements OnInit {
     this.apiClient.substance.getPaginatedEntities(this.params).subscribe({
       next: (next) => {
         this.length = next.count;
-        this.DATA_SOURCE.data = next.data;
+        this.dataSource.data = next.data;
       },
     });
   }

@@ -23,7 +23,7 @@ import { I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
 
 export type SubstanceFormData =
-  | SubstanceCRUDModel['getPaginatedEntitiesResult']['data'][number]
+  | SubstanceCRUDModel['getPaginatedEntitiesResult']
   | undefined
   | null;
 

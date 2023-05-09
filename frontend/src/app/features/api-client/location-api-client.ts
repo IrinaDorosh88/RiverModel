@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { CRUDApiClient, CRUDApiClientModel } from './crud-api-client';
 
 export interface LocationCRUDModel extends CRUDApiClientModel {
-  getPaginatedEntitiesResult: {
+  getEntitiesResult: {
     flow_rate: number;
     id: number;
     latitude: number;
@@ -12,7 +12,7 @@ export interface LocationCRUDModel extends CRUDApiClientModel {
     riverId: number;
     substancesIds: number[];
     turbulent_diffusive_coefficient: number;
-  }[];
+  };
 }
 
 @Injectable({

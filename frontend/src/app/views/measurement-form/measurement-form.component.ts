@@ -32,7 +32,7 @@ import { I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
 
 export type MeasurementFormData = {
-  location: LocationCRUDModel['getPaginatedEntitiesResult'][number];
+  location: LocationCRUDModel['getEntitiesResult'];
   mapper: { [key: string]: string };
 };
 
@@ -173,7 +173,9 @@ export class MeasurementFormComponent implements OnInit {
     const value = this.FORM_GROUP.value;
     return this.apiClient.measurement.postEntity(value).pipe(
       tap(() => {
-        this.notificationService.notify(I18N['Measurement is successfully added.']);
+        this.notificationService.notify(
+          I18N['Measurement is successfully added.']
+        );
       })
     );
   }

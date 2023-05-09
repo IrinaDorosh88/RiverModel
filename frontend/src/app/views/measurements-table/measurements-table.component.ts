@@ -77,7 +77,7 @@ export type MeasurementsData = {
     </table>
   `,
 })
-export class MeasurementsComponent implements OnInit {
+export class MeasurementsTableComponent implements OnInit {
   public readonly I18N = I18N;
   public readonly dataSource: MatTableDataSource<{
     date: Date;

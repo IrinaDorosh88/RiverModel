@@ -13,9 +13,9 @@ import { changeLanguage, I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
 import { User } from '@/features/user';
 
-import { AuthorizationComponent } from '@/views/authorization';
+import { AuthorizationFormComponent } from '@/views/authorization-form';
 import { HomeComponent } from '@/views/home';
-const VIEWS = [AuthorizationComponent, HomeComponent];
+const VIEWS = [AuthorizationFormComponent, HomeComponent];
 
 @Component({
   standalone: true,
@@ -112,7 +112,7 @@ export class LayoutComponent implements OnInit {
   }
 
   private openAuthorizationDialog(data?: any) {
-    this.matDialog.open(AuthorizationComponent, {
+    this.matDialog.open(AuthorizationFormComponent, {
       width: '400px',
       data,
     });

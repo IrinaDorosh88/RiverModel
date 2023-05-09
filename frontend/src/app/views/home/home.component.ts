@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  BehaviorSubject,
   Observable,
   ReplaySubject,
   map,
@@ -44,9 +45,12 @@ import {
   MeasurementFormComponent,
   MeasurementFormData,
 } from '@/views/measurement-form';
-import { RiversComponent } from '@/views/rivers';
-import { SubstancesComponent } from '@/views/substances';
-import { MeasurementsComponent, MeasurementsData } from '../measurements';
+import { RiversTableComponent } from '@/views/rivers-table';
+import { SubstancesTableComponent } from '@/views/substances-table';
+import {
+  MeasurementsTableComponent,
+  MeasurementsData,
+} from '../measurements-table';
 
 @Component({
   standalone: true,
@@ -67,11 +71,8 @@ import { MeasurementsComponent, MeasurementsData } from '../measurements';
         <mat-label>{{ I18N['River'] }}</mat-label>
         <mat-select (selectionChange)="onRiverSelected($event.value)">
           <mat-option [value]="null">---</mat-option>
-          <mat-option
-            *ngFor="let entity of RIVERS$ | async"
-            [value]="entity.id"
-          >
-            {{ entity.name }}
+          <mat-option *ngFor="let item of rivers$$ | async" [value]="item.id">
+            {{ item.name }}
           </mat-option>
         </mat-select>
       </mat-form-field>
@@ -87,16 +88,16 @@ import { MeasurementsComponent, MeasurementsData } from '../measurements';
 })
 export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public readonly I18N = I18N;
-  private readonly locations$$;
-  private readonly popup;
-  public readonly params: { river_id?: number };
-  public length;
-
-  private map!: Map;
-
-  public RIVERS$!: Observable<
-    RiverCRUDModel['getPaginatedEntitiesResult']['data']
+  private readonly locations$$: ReplaySubject<
+    LocationCRUDModel['getEntitiesResult'][]
   >;
+  public readonly params: { river_id?: number };
+  private readonly popup: Popup;
+  public readonly rivers$$: BehaviorSubject<
+    RiverCRUDModel['getPaginatedEntitiesResult'][]
+  >;
+  public length: number;
+  private map!: Map;
 
   constructor(
     private matDialog: MatDialog,
@@ -104,17 +105,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     private notificationService: NotificationService,
     private apiClient: ApiClient
   ) {
-    this.locations$$ = new ReplaySubject<
-      LocationCRUDModel['getPaginatedEntitiesResult']
-    >(1);
-    this.popup = new Popup({ closeButton: false, closeOnClick: false });
+    this.locations$$ = new ReplaySubject(1);
     this.params = {};
+    this.popup = new Popup({ closeButton: false, closeOnClick: false });
+    this.rivers$$ = new BehaviorSubject([] as any);
     this.length = 0;
   }
 
   public ngOnInit() {
-    this.RIVERS$ = this.apiClient.river.getEntities().pipe(startWith([]));
-    this.refreshLocations();
+    this.refreshRiversSelect();
+    this.refreshLocationsMap();
   }
 
   public ngAfterViewInit() {
@@ -128,33 +128,30 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       .on('load', () => {
         this.locations$$
           .pipe(
-            scan<LocationCRUDModel['getPaginatedEntitiesResult'], Marker[]>(
-              (accumulator, value) => {
-                // remove previous markers from map
-                accumulator.forEach((item) => {
-                  item.remove();
+            scan((accumulator, next) => {
+              // remove previous markers from map
+              accumulator.forEach((item) => {
+                item.remove();
+              });
+              // add markers for current locations on map
+              const result = next.map((item) => {
+                const marker = new Marker()
+                  .setLngLat([item.longitude, item.latitude])
+                  .addTo(this.map);
+                const markerE = marker.getElement();
+                markerE.classList.add('cursor-pointer');
+                markerE.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  this.openLocationPopup(item);
                 });
-                // add markers for current locations on map
-                const result = value.map((item: any) => {
-                  const result = new Marker()
-                    .setLngLat([item.longitude, item.latitude])
-                    .addTo(this.map);
-                  const resultE = result.getElement();
-                  resultE.classList.add('cursor-pointer');
-                  resultE.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.openLocationPopup(item, result);
-                  });
-                  const titleE = document.createElement('div');
-                  titleE.textContent = item.name;
-                  titleE.classList.add('marker-title');
-                  resultE.appendChild(titleE);
-                  return result;
-                });
-                return result;
-              },
-              []
-            )
+                const titleE = document.createElement('div');
+                titleE.textContent = item.name;
+                titleE.classList.add('marker-title');
+                markerE.appendChild(titleE);
+                return marker;
+              });
+              return result;
+            }, [] as Marker[])
           )
           .subscribe();
       })
@@ -168,6 +165,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public ngOnDestroy(): void {
     this.locations$$.complete();
+    this.rivers$$.complete();
   }
 
   private onCreateLocationClick(coordinates: {
@@ -180,14 +178,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private onEditLocationClick(
-    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]
-  ) {
-    this.openLocationDialog({ entity });
-  }
-
   private onDeleteLocationClick(
-    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]
+    entity: LocationCRUDModel['getEntitiesResult']
   ) {
     this.confirmationDialogService.open({
       title: I18N['Delete $name location'](entity.name),
@@ -203,21 +195,25 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private onMeasurementsClick(
-    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number],
-    marker: Marker
-  ) {
+  private onEditLocationClick(entity: LocationCRUDModel['getEntitiesResult']) {
+    this.openLocationDialog({ entity });
+  }
+
+  private onMeasurementsClick(entity: LocationCRUDModel['getEntitiesResult']) {
     this.matDialog
-      .open<MeasurementsComponent, MeasurementsData>(MeasurementsComponent, {
-        width: '1000px',
-        data: { location_id: entity.id },
-      })
+      .open<MeasurementsTableComponent, MeasurementsData>(
+        MeasurementsTableComponent,
+        {
+          width: '1000px',
+          data: { location_id: entity.id },
+        }
+      )
       .afterClosed()
       .subscribe();
   }
 
   private onCreateMeasurementClick(
-    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]
+    entity: LocationCRUDModel['getEntitiesResult']
   ) {
     this.apiClient.substance
       .getEntities()
@@ -246,9 +242,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe();
   }
 
-  private onChartClick(
-    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number]
-  ) {
+  private onChartClick(entity: LocationCRUDModel['getEntitiesResult']) {
     this.matDialog
       .open<ChartComponent, ChartComponentData>(ChartComponent, {
         width: '1000px',
@@ -260,17 +254,23 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   public onRiversClick() {
     this.matDialog
-      .open(RiversComponent, {
+      .open(RiversTableComponent, {
         width: '400px',
         minHeight: '700px',
       })
       .afterClosed()
-      .subscribe();
+      .subscribe({
+        next: (next) => {
+          if (next) {
+            this.refreshRiversSelect();
+          }
+        },
+      });
   }
 
   public onSubstancesClick() {
     this.matDialog
-      .open(SubstancesComponent, {
+      .open(SubstancesTableComponent, {
         width: '600px',
         minHeight: '700px',
       })
@@ -284,7 +284,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     } else {
       delete this.params.river_id;
     }
-    this.refreshLocations();
+    this.refreshLocationsMap();
   }
 
   private openLocationDialog(data: LocationFormData) {
@@ -300,17 +300,23 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe({
         next: (next) => {
           if (next) {
-            this.refreshLocations();
+            this.refreshLocationsMap();
           }
         },
       });
   }
 
-  private refreshLocations() {
+  private refreshLocationsMap() {
     this.apiClient.location.getEntities(this.params).subscribe({
       next: (next) => {
         this.locations$$.next(next as any);
       },
+    });
+  }
+
+  private refreshRiversSelect() {
+    this.apiClient.river.getEntities().subscribe({
+      next: (next) => this.rivers$$.next(next),
     });
   }
 
@@ -329,10 +335,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       .addTo(this.map);
   }
 
-  private openLocationPopup(
-    entity: LocationCRUDModel['getPaginatedEntitiesResult'][number],
-    marker: Marker
-  ) {
+  private openLocationPopup(entity: LocationCRUDModel['getEntitiesResult']) {
     const content = document.createElement('div');
     content.classList.add('display-flex', 'flex-wrap', 'gap-2');
     let button = this.getButton('edit_location_alt');
@@ -350,7 +353,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     button = this.getButton('list_alt');
     button.addEventListener('click', () => {
       this.popup.remove();
-      this.onMeasurementsClick(entity, marker);
+      this.onMeasurementsClick(entity);
     });
     content.appendChild(button);
     button = this.getButton('post_add');

@@ -99,7 +99,7 @@ import { I18N } from '@/features/i18n';
     </form>
   `,
 })
-export class AuthorizationComponent implements OnInit {
+export class AuthorizationFormComponent implements OnInit {
   public readonly I18N = I18N;
   public readonly FORM_GROUP;
   public isFormSubmitted;
@@ -110,7 +110,7 @@ export class AuthorizationComponent implements OnInit {
 
   constructor(
     @Inject(MAT_DIALOG_DATA) private data: { register: boolean } | undefined,
-    private dialogRef: MatDialogRef<AuthorizationComponent>,
+    private dialogRef: MatDialogRef<AuthorizationFormComponent>,
     private notificationService: NotificationService,
     private apiClient: ApiClient
   ) {

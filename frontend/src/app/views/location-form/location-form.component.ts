@@ -31,7 +31,7 @@ import { NotificationService } from '@/features/notification';
 
 export type LocationFormData =
   | {
-      entity: LocationCRUDModel['getPaginatedEntitiesResult'][number];
+      entity: LocationCRUDModel['getEntitiesResult'];
     }
   | {
       entity?: undefined;
@@ -144,11 +144,9 @@ export class LocationFormComponent implements OnInit {
   public TITLE!: string;
   public SUBMIT_BUTTON_COLOR!: 'primary' | 'accent';
   private HANDLE_ENTITY!: () => Observable<any>;
-  public RIVERS$!: Observable<
-    RiverCRUDModel['getPaginatedEntitiesResult']['data']
-  >;
+  public RIVERS$!: Observable<RiverCRUDModel['getPaginatedEntitiesResult'][]>;
   public SUBSTANCES$!: Observable<
-    SubstanceCRUDModel['getPaginatedEntitiesResult']['data']
+    SubstanceCRUDModel['getPaginatedEntitiesResult'][]
   >;
 
   constructor(
@@ -272,7 +270,7 @@ export class LocationFormComponent implements OnInit {
   private postEntity() {
     const value = {
       ...this.FORM_GROUP.getRawValue(),
-      is_active: true
+      is_active: true,
     };
     return this.apiClient.location.postEntity(value).pipe(
       tap(() => {
@@ -286,7 +284,7 @@ export class LocationFormComponent implements OnInit {
   private patchEntity() {
     const value = {
       ...this.FORM_GROUP.getRawValue(),
-      is_active: true
+      is_active: true,
     };
     return this.apiClient.location
       .patchEntity(this.data!.entity!.id, value)
