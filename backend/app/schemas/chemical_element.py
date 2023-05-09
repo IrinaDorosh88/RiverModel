@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Optional
+
 from pydantic import BaseModel
 
 from . import PaginatedResponse
@@ -18,7 +21,9 @@ class ChemicalElementUpdate(ChemicalElementBase):
 
 class ChemicalElement(ChemicalElementBase):
     id: int
-    is_active: bool
+    created_at: Optional[datetime] = None
+    modified_at: Optional[datetime] = None
+    is_active: Optional[bool] = None
 
     class Config:
         orm_mode = True

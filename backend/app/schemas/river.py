@@ -1,3 +1,6 @@
+from datetime import datetime
+from typing import Optional
+
 from pydantic import BaseModel
 
 from . import PaginatedResponse
@@ -11,6 +14,9 @@ class RiverBase(BaseModel):
 class River(RiverBase):
     id: int
     is_active: bool
+    created_at: Optional[datetime] = None
+    modified_at: Optional[datetime] = None
+    is_active: Optional[bool] = None
     locations: list[Location] = []
     
     class Config:
