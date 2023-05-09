@@ -15,13 +15,13 @@ def get(river_id: int = None, pagination: PaginationParams = Depends(), service:
 def create(location_data: LocationCreate, service: LocationService = Depends()):
     return service.create_location(location_data=location_data)
 
-@router.patch("/{location_id}/", description="This endpoint updates location information with the given ID. "
+@router.patch("/{location_id}", description="This endpoint updates location information with the given ID. "
                                          "The request body should contain a JSON object with the fields to be updated.",
                response_model=Location)
 def update(location_id: int, location_data: LocationUpdate, service: LocationService = Depends()):
     return service.update_location(location_id=location_id, location_data=location_data)
 
-@router.delete("/{location_id}/", description="This endpoint deletes a location entity with the specified ID "
+@router.delete("/{location_id}", description="This endpoint deletes a location entity with the specified ID "
                                               "from the database. Returns a 204 No Content response if the location "
                                               "entity was successfully deleted. Returns a 404 Not Found response "
                                               "if no location entity exists with the specified ID.")
