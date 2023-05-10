@@ -92,6 +92,10 @@ const I18N_ENG = {
   // ...
   "Rivers": 'Rivers',
   "Substances": 'Substances',
+  // excess
+  "PAY ATTENTION!": 'PAY ATTENTION!',
+  "Exceeding the norm!": "Exceeding the norm!",
+  "* Click on a substance to display the graph.": "* Click on a substance to display the graph.",
 };
 
 const I18N_UKR: typeof I18N_ENG = {
@@ -188,6 +192,10 @@ const I18N_UKR: typeof I18N_ENG = {
   // ...
   "Rivers": 'Річки',
   "Substances": 'Речовини',
+  // excess
+  "PAY ATTENTION!": 'ЗВЕРНІТЬ УВАГУ!',
+  "Exceeding the norm!": "Перевищення норми!",
+  "* Click on a substance to display the graph.": "* Натисність на речовину, щоб відобразити графік.",
 };
 
 export const I18N = { ...I18N_UKR };

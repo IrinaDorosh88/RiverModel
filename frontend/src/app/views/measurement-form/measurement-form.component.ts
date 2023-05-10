@@ -6,7 +6,6 @@ import {
   FormControl,
   ReactiveFormsModule,
 } from '@angular/forms';
-import { tap } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -54,20 +53,6 @@ export type MeasurementFormResult =
     <form spellcheck="false" [formGroup]="formGroup">
       <div mat-dialog-title>{{ I18N['New Measurement'] }}</div>
       <div mat-dialog-content>
-        <mat-form-field class="width-full">
-          <mat-label>{{ I18N['Date'] }}</mat-label>
-          <input
-            matInput
-            formControlName="date"
-            [matDatepicker]="picker"
-            [max]="CURRENT_DATE"
-          />
-          <mat-datepicker-toggle
-            matIconSuffix
-            [for]="picker"
-          ></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-        </mat-form-field>
         <ng-container formGroupName="values">
           <mat-form-field
             *ngFor="let field of SUBSTANCES_FIELDS_MODEL"
@@ -101,7 +86,7 @@ export type MeasurementFormResult =
           </mat-form-field>
         </ng-container>
       </div>
-      <div mat-dialog-actions class="justify-content-end gap-2">
+      <div mat-dialog-actions class="justify-content-end g-2">
         <button
           mat-flat-button
           color="primary"
@@ -119,7 +104,6 @@ export type MeasurementFormResult =
   `,
 })
 export class MeasurementFormComponent implements OnInit {
-  public readonly CURRENT_DATE = new Date();
   public readonly I18N = I18N;
   private readonly FORM_BUILDER = new FormBuilder();
   public readonly formGroup;
@@ -143,7 +127,6 @@ export class MeasurementFormComponent implements OnInit {
   ) {
     this.formGroup = this.FORM_BUILDER.group({
       locationId: this.FORM_BUILDER.control<number | null>(null),
-      date: this.FORM_BUILDER.control<Date | null>(null),
       values: this.FORM_BUILDER.group<{ [key: string]: FormControl }>({}),
     });
     this.isFormSubmitted = false;
@@ -151,7 +134,6 @@ export class MeasurementFormComponent implements OnInit {
 
   public ngOnInit() {
     this.formGroup.patchValue({
-      date: this.CURRENT_DATE,
       locationId: this.data.location.id,
     });
 
@@ -190,12 +172,10 @@ export class MeasurementFormComponent implements OnInit {
 
   public onSubmitClick() {
     if (this.formGroup.invalid || this.isFormSubmitted) return;
-
     const value = this.formGroup.value;
-
     this.isFormSubmitted = true;
     this.apiClient.measurement.postEntity(value).subscribe({
-      next: (next) => {
+      next: () => {
         this.notificationService.notify(
           I18N['Measurement is successfully added.']
         );

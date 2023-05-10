@@ -45,7 +45,7 @@ const VIEWS = [AuthorizationFormComponent, HomeComponent];
       </ng-template>
       <ng-template #nonAuthorizedUserView>
         <div
-          class="app-content app-card display-flex flex-direction-column align-items-center justify-content-center gap-5 p-2"
+          class="app-content app-card display-flex flex-direction-column align-items-center justify-content-center g-5 p-2"
           style="
             background-color: rgba(0, 0, 0, 0.5);
             background-image: url('./assets/home-background.jpg');

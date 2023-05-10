@@ -8,6 +8,7 @@ import {
 import { CommonModule } from '@angular/common';
 import {
   BehaviorSubject,
+  EMPTY,
   Observable,
   ReplaySubject,
   map,
@@ -52,7 +53,7 @@ import {
   MeasurementsTableComponent,
   MeasurementsData,
 } from '@/views/measurements-table';
-import { ExcessComponent, ExcessData } from '@/views/excess';
+import { ExcessComponent, ExcessData, ExcessResult } from '@/views/excess';
 
 @Component({
   standalone: true,
@@ -206,7 +207,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       .open<MeasurementsTableComponent, MeasurementsData>(
         MeasurementsTableComponent,
         {
-          width: '1000px',
+          width: '400px',
           data: { location_id: entity.id },
         }
       )
@@ -221,7 +222,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       .getEntities()
       .pipe(
         switchMap((next) => {
-          (entity as any).substances_ids = [next[0].id];
+          (entity as any).substances_ids = [next[0].id, next[1].id];
           return this.matDialog
             .open<
               MeasurementFormComponent,
@@ -235,18 +236,28 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
               },
             })
             .afterClosed();
-        })
+        }),
+        switchMap((next) =>
+          next && typeof next !== 'boolean'
+            ? this.matDialog
+                .open<ExcessComponent, ExcessData, ExcessResult>(
+                  ExcessComponent,
+                  {
+                    width: '400px',
+                    data: {
+                      location: entity,
+                      substances: next,
+                    },
+                  }
+                )
+                .afterClosed()
+            : EMPTY
+        )
       )
       .subscribe({
         next: (next) => {
-          if (next && typeof next !== 'boolean') {
-            this.matDialog.open<ExcessComponent, ExcessData>(ExcessComponent, {
-              width: '400px',
-              data: {
-                location: entity,
-                substances: next,
-              },
-            });
+          if (next) {
+            this.onChartClick(entity, next);
           }
         },
       });
@@ -256,15 +267,20 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     entity: LocationCRUDModel['getEntitiesResult'],
     substance_id?: number
   ) {
-    this.matDialog
-      .open<ChartComponent, ChartComponentData>(ChartComponent, {
-        width: '1000px',
-        data: {
-          location_id: entity.id,
-          substance_id,
-        },
-      })
-      .afterClosed()
+    this.apiClient.prediction
+      .getEntityByLocationId(entity.id)
+      .pipe(
+        switchMap((next) =>
+          this.matDialog
+            .open<ChartComponent, ChartComponentData>(ChartComponent, {
+              data: {
+                prediction: next,
+                substance_id: 2,
+              },
+            })
+            .afterClosed()
+        )
+      )
       .subscribe();
   }
 
@@ -353,7 +369,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private openLocationPopup(entity: LocationCRUDModel['getEntitiesResult']) {
     const content = document.createElement('div');
-    content.classList.add('display-flex', 'flex-wrap', 'gap-2');
+    content.classList.add('display-flex', 'flex-wrap', 'g-2');
     content.style.justifyContent = 'center';
     content.style.width = '160px';
     let button = this.getButton('edit_location_alt');

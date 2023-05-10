@@ -44,7 +44,7 @@ export type RiverFormData =
           </mat-error>
         </mat-form-field>
       </div>
-      <div mat-dialog-actions class="justify-content-end gap-2">
+      <div mat-dialog-actions class="justify-content-end g-2">
         <button
           mat-flat-button
           [color]="SUBMIT_BUTTON_COLOR"

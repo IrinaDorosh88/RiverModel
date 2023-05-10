@@ -35,7 +35,7 @@ import {
   selector: 'app-substances',
   template: `
     <div
-      class="p-2 display-flex align-items-center justify-content-space-between"
+      class="p-3 display-flex align-items-center justify-content-space-between"
     >
       <button
         mat-mini-fab
@@ -56,7 +56,7 @@ import {
       <ng-container matColumnDef="actions">
         <th *matHeaderCellDef mat-header-cell style="width: 96px"></th>
         <td *matCellDef="let item" mat-cell>
-          <div class="display-flex gap-2">
+          <div class="display-flex g-2">
             <button
               mat-mini-fab
               class="color-white background-color-accent"

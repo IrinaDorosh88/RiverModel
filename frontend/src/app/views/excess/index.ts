@@ -1,1 +1,1 @@
-export { ExcessComponent, ExcessData } from './excess.component';
+export { ExcessComponent, ExcessData, ExcessResult } from './excess.component';

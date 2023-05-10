@@ -95,21 +95,15 @@ canvas:not(:active) {
   cursor: pointer;
 }
 
-.maplibregl-marker {
-  .marker-title {
-    display: none;
-  }
-
-  &:hover .marker-title {
-    display: initial;
-    position: absolute;
-    top: -32px;
-    padding: 0.25rem 0.5rem;
-    margin-left: 50%;
-    transform: translateX(-50%);
-    background-color: white;
-    white-space: nowrap;
-  }
+.maplibregl-marker .marker-title {
+  display: initial;
+  position: absolute;
+  top: -32px;
+  padding: 0.25rem 0.5rem;
+  margin-left: 50%;
+  transform: translateX(-50%);
+  background-color: white;
+  white-space: nowrap;
 }
 
 // utility
@@ -150,15 +144,11 @@ canvas:not(:active) {
   justify-content: end !important;
 }
 
-.gap-2 {
+.g-2 {
   gap: 0.5rem !important;
 }
 
-.gap-3 {
-  gap: 1rem !important;
-}
-
-.gap-5 {
+.g-5 {
   gap: 2rem !important;
 }
 
@@ -182,6 +172,11 @@ canvas:not(:active) {
   padding: 2rem !important;
 }
 
+.py-5 {
+  padding-top: 2rem !important;
+  padding-bottom: 2rem !important;
+}
+
 .m-0 {
   margin: 0 !important;
 }
@@ -199,6 +194,10 @@ canvas:not(:active) {
   margin-left: auto !important;
 }
 
+.mt-2 {
+  margin-top: 0.5rem !important;
+}
+
 .mr-auto {
   margin-right: auto !important;
 }
@@ -211,12 +210,32 @@ canvas:not(:active) {
   margin-bottom: 1rem !important;
 }
 
+.mb-5 {
+  margin-bottom: 2rem !important;
+}
+
 .ml-auto {
   margin-left: auto !important;
 }
 
 .ml-3 {
   margin-left: 1rem !important;
+}
+
+.f-size-2{
+  font-size: 0.75rem;
+}
+
+.f-size-4 {
+  font-size: 1.5rem !important;
+}
+
+.f-size-5 {
+  font-size: 2rem !important;
+}
+
+.f-weight-700 {
+  font-weight: 700;
 }
 
 .color-white {
@@ -233,6 +252,10 @@ canvas:not(:active) {
 
 .cursor-pointer {
   cursor: pointer !important;
+}
+
+.user-select-none {
+  user-select: none;
 }
 
 .text-align-center {
