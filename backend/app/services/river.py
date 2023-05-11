@@ -8,21 +8,22 @@ from schemas.river import PaginatedRiver, River, RiverCreate, RiverUpdate
 
 
 class RiverService(AppService):
-  
   def get_rivers(self, pagination: PaginationParams) -> PaginatedRiver:
-    query = self.session.query(RiverModel)
+    query = self.session.query(RiverModel).order_by(RiverModel.name.asc())
 
-    data = query.order_by(RiverModel.name.asc()) \
-            .limit(pagination.limit) \
-            .offset(pagination.offset) \
-            .all()
+    is_paginated_response = isinstance(pagination.limit, int) and isinstance(pagination.offset, int)
+
+    if is_paginated_response:
+        query = query.limit(pagination.limit).offset(pagination.offset)
+
+    data = query.all()
 
     return PaginatedRiver(
             total=query.count(),
             limit=pagination.limit,
             offset=pagination.offset,
             data=data
-    )
+    ) if is_paginated_response else data
   
   def create_river(self, river_data: RiverCreate) -> RiverModel:
     db_river = RiverModel(**river_data.dict())

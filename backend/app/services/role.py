@@ -2,7 +2,8 @@ from typing import Optional
 
 from . import AppService
 from models.role import Role as RoleModel
-from schemas.role import Role, RoleCreate, RoleUpdate
+from schemas import PaginationParams
+from schemas.role import Role, RoleCreate, RoleUpdate, PaginatedRole
 
 
 class RoleService(AppService):
@@ -13,8 +14,22 @@ class RoleService(AppService):
     def get_role_by_name(self, name: str) -> Optional[RoleModel]:
         return self.session.query(RoleModel).filter_by(name=name, is_active=True).first()
 
-    def get_roles(self) -> list[RoleModel]:
-        return self.session.query(RoleModel).filter(RoleModel.is_active==True).all()
+    def get_roles(self, pagination: PaginationParams) -> list[RoleModel]:
+        query = self.session.query(RoleModel).filter(RoleModel.is_active == True)
+
+        is_paginated_response = isinstance(pagination.limit, int) and isinstance(pagination.offset, int)
+
+        if is_paginated_response:
+            query.limit(pagination.limit).offset(pagination.offset)
+
+        data = query.all()
+
+        return PaginatedRole(
+            total=query.count(),
+            limit=pagination.limit,
+            offset=pagination.offset,
+            data=data
+        ) if is_paginated_response else data
     
     def create_role(self, role_data: RoleCreate) -> RoleModel:
         db_role = RoleModel(**role_data.dict())
