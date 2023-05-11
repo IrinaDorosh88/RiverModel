@@ -11,4 +11,8 @@ export abstract class AbstractApiClient {
     this.httpClient = inject(HttpClient);
     this.apiHost = ENVIRONMENT.API_HOST;
   }
+
+  protected methodNotImplemented(): never {
+    throw new Error('Method not implemented.');
+  }
 }

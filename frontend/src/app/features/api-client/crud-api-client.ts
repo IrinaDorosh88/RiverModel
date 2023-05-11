@@ -1,15 +1,19 @@
 import { HttpClientQueryParams } from '@/features/http-client-extensions';
 import { Observable, map } from 'rxjs';
+
+import { PaginatedData } from '@/features/paginated-data';
+
 import { AbstractApiClient } from './abstract-api-client';
 
 export interface CRUDApiClientModel {
+  getEntitiesResult: unknown;
   getPaginatedEntitiesResult: unknown;
   getEntityResult: unknown;
-  postEntitysResult: unknown;
-  postEntitysValue: any;
-  putEntityResult: unknown;
-  putEntitysValue: any;
-  deleteEntitysResult: unknown;
+  postEntityResult: unknown;
+  postEntityValue: any;
+  patchEntityResult: unknown;
+  patchEntityValue: any;
+  deleteEntityResult: unknown;
 }
 
 export abstract class CRUDApiClient<
@@ -22,9 +26,26 @@ export abstract class CRUDApiClient<
     this.url = `${this.apiHost}/${this.path}/`;
   }
 
+  public getEntities(
+    params?: HttpClientQueryParams
+  ): Observable<T['getEntitiesResult'][]> {
+    if (params) {
+      delete params['limit'];
+      delete params['offset'];
+    }
+    return this.httpClient.get<any>(this.url, { params }).pipe(
+      map((next) => {
+        if (!(next instanceof Array)) {
+          return next.data;
+        }
+        return next;
+      })
+    );
+  }
+
   public getPaginatedEntities(
     params?: HttpClientQueryParams
-  ): Observable<T['getPaginatedEntitiesResult']> {
+  ): Observable<PaginatedData<T['getPaginatedEntitiesResult']>> {
     return this.httpClient.get<any>(this.url, { params }).pipe(
       map((next) =>
         next instanceof Array
@@ -42,19 +63,19 @@ export abstract class CRUDApiClient<
   }
 
   public postEntity(
-    value: T['postEntitysValue']
-  ): Observable<T['postEntitysResult']> {
+    value: T['postEntityValue']
+  ): Observable<T['postEntityResult']> {
     return this.httpClient.post(this.url, value);
   }
 
   public patchEntity(
     id: number,
-    value: T['putEntitysValue']
-  ): Observable<T['putEntityResult']> {
+    value: T['patchEntityValue']
+  ): Observable<T['patchEntityResult']> {
     return this.httpClient.patch(`${this.url}${id}/`, value);
   }
 
-  public deleteEntity(id: number): Observable<T['deleteEntitysResult']> {
+  public deleteEntity(id: number): Observable<T['deleteEntityResult']> {
     return this.httpClient.delete(`${this.url}${id}/`);
   }
 }

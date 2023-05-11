@@ -12,7 +12,7 @@ if is_local_env():
     logging.basicConfig()
     logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
 
-engine = create_engine(DATABASE_URL)
+engine = create_engine(DATABASE_URL, echo=True)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 

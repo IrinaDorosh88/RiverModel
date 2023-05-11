@@ -1,1 +1,1 @@
-export { HomeComponent, TOOLBAR_ACTION$$ } from './home.component';
+export { HomeComponent } from './home.component';

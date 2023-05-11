@@ -1,149 +1,436 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewEncapsulation,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Observable, Subject, BehaviorSubject, startWith, map } from 'rxjs';
+import {
+  BehaviorSubject,
+  EMPTY,
+  Observable,
+  ReplaySubject,
+  map,
+  scan,
+  startWith,
+  switchMap,
+  tap,
+} from 'rxjs';
+import { Map, Marker, Popup } from 'maplibre-gl';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSelectModule } from '@angular/material/select';
-import { MatTabsModule } from '@angular/material/tabs';
-import { MatToolbarModule } from '@angular/material/toolbar';
 const MATERIAL_MODULES = [
   MatButtonModule,
   MatFormFieldModule,
   MatIconModule,
   MatSelectModule,
-  MatTabsModule,
-  MatToolbarModule,
 ];
 
 import {
-  RiverCRUDModel,
   ApiClient,
   LocationCRUDModel,
+  RiverCRUDModel,
 } from '@/features/api-client';
+import { ConfirmationDialogService } from '@/features/confirmation-dialog';
 import { I18N } from '@/features/i18n';
+import { NotificationService } from '@/features/notification';
 
-import { ChartComponent } from '@/views/chart';
-import { LocationFilterComponent } from '@/views/location-filter';
-import { MapComponent } from '@/views/map';
-import { RiversAndSubstancesComponent } from '@/views/rivers-and-substances';
-const VIEWS = [
-  ChartComponent,
-  LocationFilterComponent,
-  MapComponent,
-  RiversAndSubstancesComponent,
-];
-
-export const TOOLBAR_ACTION$$ = new Subject<{
-  key: string;
-  params: any[];
-}>();
+import { ChartComponent, ChartComponentData } from '@/views/chart';
+import { LocationFormComponent, LocationFormData } from '@/views/location-form';
+import {
+  MeasurementFormComponent,
+  MeasurementFormData,
+  MeasurementFormResult,
+} from '@/views/measurement-form';
+import { RiversTableComponent } from '@/views/rivers-table';
+import { SubstancesTableComponent } from '@/views/substances-table';
+import {
+  MeasurementsTableComponent,
+  MeasurementsData,
+} from '@/views/measurements-table';
+import { ExcessComponent, ExcessData, ExcessResult } from '@/views/excess';
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ...MATERIAL_MODULES, ...VIEWS],
+  imports: [CommonModule, ...MATERIAL_MODULES],
   encapsulation: ViewEncapsulation.None,
   selector: 'app-home',
   template: `
-    <div class="home-toolbar" [ngSwitch]="tabGroupSelectedIndex">
-      <ng-template [ngSwitchCase]="0">
-        <button
-          mat-flat-button
-          color="primary"
-          (click)="onToolbarActionInvoked('RIVERS_NEW_RIVER')"
-        >
-          <mat-icon>add</mat-icon>
-          {{ I18N['River'] }}
-        </button>
-        <button
-          mat-flat-button
-          color="primary"
-          (click)="onToolbarActionInvoked('SUBSTANCES_NEW_SUBSTANCE')"
-        >
-          <mat-icon>add</mat-icon>
-          {{ I18N['Substance'] }}
-        </button>
-      </ng-template>
-      <ng-template [ngSwitchCase]="1">
-        <mat-form-field class="ml-auto" style="width: 200px">
-          <mat-label>{{ I18N['River'] }}</mat-label>
-          <mat-select
-            (selectionChange)="
-              onToolbarActionInvoked('MAP_RIVER_SELECTED', $event.value)
-            "
-          >
-            <mat-option [value]="null">---</mat-option>
-            <mat-option
-              *ngFor="let entity of RIVERS$ | async"
-              [value]="entity.id"
-            >
-              {{ entity.name }}
-            </mat-option>
-          </mat-select>
-        </mat-form-field>
-      </ng-template>
-      <ng-template [ngSwitchCase]="2">
-        <app-location-filter
-          class="ml-auto"
-          (selectionChange)="
-            onToolbarActionInvoked('CHART_LOCATION_SELECTED', $event)
-          "
-        ></app-location-filter>
-      </ng-template>
+    <div class="home-toolbar">
+      <button mat-flat-button color="primary" (click)="onRiversClick()">
+        <mat-icon>water</mat-icon>
+        {{ I18N['Rivers'] }}
+      </button>
+      <button mat-flat-button color="primary" (click)="onSubstancesClick()">
+        <mat-icon>science</mat-icon>
+        {{ I18N['Substances'] }}
+      </button>
+      <mat-form-field class="ml-auto" style="width: 200px">
+        <mat-label>{{ I18N['River'] }}</mat-label>
+        <mat-select (selectionChange)="onRiverSelected($event.value)">
+          <mat-option [value]="null">---</mat-option>
+          <mat-option *ngFor="let item of rivers$$ | async" [value]="item.id">
+            {{ item.name }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
     </div>
-
-    <mat-tab-group [(selectedIndex)]="tabGroupSelectedIndex">
-      <mat-tab [label]="I18N['Rivers & Substances']">
-        <ng-template matTabContent>
-          <div class="home-content-wrapper">
-            <app-rivers-and-substances></app-rivers-and-substances>
-          </div>
-        </ng-template>
-      </mat-tab>
-      <mat-tab [label]="I18N['Map']">
-        <ng-template matTabContent>
-          <div class="home-content-wrapper">
-            <app-map></app-map>
-          </div>
-        </ng-template>
-      </mat-tab>
-      <mat-tab [label]="I18N['Chart']">
-        <ng-template matTabContent>
-          <div class="home-content-wrapper">
-            <app-chart></app-chart>
-          </div>
-        </ng-template>
-      </mat-tab>
-    </mat-tab-group>
+    <div class="home-content-wrapper">
+      <div class="home-content app-card-container">
+        <div class="app-card" style="flex: 3;">
+          <div id="map-container" style="height: 100%"></div>
+        </div>
+      </div>
+    </div>
   `,
 })
-export class HomeComponent implements OnInit {
+export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   public readonly I18N = I18N;
-  public tabGroupSelectedIndex: number;
-
-  public RIVERS$!: Observable<
-    RiverCRUDModel['getPaginatedEntitiesResult']['data']
+  private readonly locations$$: ReplaySubject<
+    LocationCRUDModel['getEntitiesResult'][]
   >;
-  public LOCATIONS$$!: BehaviorSubject<
-    LocationCRUDModel['getPaginatedEntitiesResult'][]
+  public readonly params: { river_id?: number };
+  private readonly popup: Popup;
+  public readonly rivers$$: BehaviorSubject<
+    RiverCRUDModel['getPaginatedEntitiesResult'][]
   >;
+  public length: number;
+  private map!: Map;
 
-  constructor(private apiClient: ApiClient) {
-    this.tabGroupSelectedIndex = 0;
+  constructor(
+    private matDialog: MatDialog,
+    private confirmationDialogService: ConfirmationDialogService,
+    private notificationService: NotificationService,
+    private apiClient: ApiClient
+  ) {
+    this.locations$$ = new ReplaySubject(1);
+    this.params = {};
+    this.popup = new Popup({ closeButton: false, closeOnClick: false });
+    this.rivers$$ = new BehaviorSubject([] as any);
+    this.length = 0;
   }
 
   public ngOnInit() {
-    this.RIVERS$ = this.apiClient.river.getPaginatedEntities().pipe(
-      map((next) => next.data),
-      startWith([])
-    );
-    this.LOCATIONS$$ = new BehaviorSubject<
-      LocationCRUDModel['getPaginatedEntitiesResult'][]
-    >([]);
+    this.refreshRiversSelect();
+    this.refreshLocationsMap();
   }
 
-  public onToolbarActionInvoked(key: string, ...params: any[]) {
-    TOOLBAR_ACTION$$.next({ key, params });
+  public ngAfterViewInit() {
+    this.map = new Map({
+      container: 'map-container',
+      style: `https://api.maptiler.com/maps/streets-v2/style.json?key=${'n88LfTJPWSHvvGGIETtw'}`,
+      center: [31.1828699, 48.383022],
+      zoom: 5.4,
+      attributionControl: false,
+    })
+      .on('load', () => {
+        this.locations$$
+          .pipe(
+            scan((accumulator, next) => {
+              // remove previous markers from map
+              accumulator.forEach((item) => {
+                item.remove();
+              });
+              // add markers for current locations on map
+              const result = next.map((item) => {
+                const marker = new Marker()
+                  .setLngLat([item.longitude, item.latitude])
+                  .addTo(this.map);
+                const markerE = marker.getElement();
+                markerE.classList.add('cursor-pointer');
+                markerE.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  this.openLocationPopup(item);
+                });
+                const titleE = document.createElement('div');
+                titleE.textContent = item.name;
+                titleE.classList.add('marker-title');
+                markerE.appendChild(titleE);
+                return marker;
+              });
+              return result;
+            }, [] as Marker[])
+          )
+          .subscribe();
+      })
+      .on('click', (e) => {
+        this.openNewLocationPopup({
+          latitude: e.lngLat.lat,
+          longitude: e.lngLat.lng,
+        });
+      });
+  }
+
+  public ngOnDestroy(): void {
+    this.locations$$.complete();
+    this.rivers$$.complete();
+  }
+
+  private onCreateLocationClick(coordinates: {
+    longitude: number;
+    latitude: number;
+  }) {
+    this.openLocationDialog({
+      coordinates,
+      riverId: this.params.river_id,
+    });
+  }
+
+  private onDeleteLocationClick(
+    entity: LocationCRUDModel['getEntitiesResult']
+  ) {
+    this.confirmationDialogService.open({
+      title: I18N['Delete $name location'](entity.name),
+      confirmCallback: () => {
+        return this.apiClient.location.deleteEntity(entity.id).pipe(
+          tap(() => {
+            this.notificationService.notify(
+              I18N['$name location is successfully deleted.'](entity.name)
+            );
+          })
+        );
+      },
+    });
+  }
+
+  private onEditLocationClick(entity: LocationCRUDModel['getEntitiesResult']) {
+    this.openLocationDialog({ entity });
+  }
+
+  private onMeasurementsClick(entity: LocationCRUDModel['getEntitiesResult']) {
+    this.matDialog
+      .open<MeasurementsTableComponent, MeasurementsData>(
+        MeasurementsTableComponent,
+        {
+          width: '400px',
+          data: { location_id: entity.id },
+        }
+      )
+      .afterClosed()
+      .subscribe();
+  }
+
+  private onCreateMeasurementClick(
+    entity: LocationCRUDModel['getEntitiesResult']
+  ) {
+    this.apiClient.substance
+      .getEntities()
+      .pipe(
+        switchMap((next) => {
+          (entity as any).substances_ids = [next[0].id, next[1].id];
+          return this.matDialog
+            .open<
+              MeasurementFormComponent,
+              MeasurementFormData,
+              MeasurementFormResult
+            >(MeasurementFormComponent, {
+              width: '400px',
+              data: {
+                location: entity,
+                substances: next,
+              },
+            })
+            .afterClosed();
+        }),
+        switchMap((next) =>
+          next && typeof next !== 'boolean'
+            ? this.matDialog
+                .open<ExcessComponent, ExcessData, ExcessResult>(
+                  ExcessComponent,
+                  {
+                    width: '400px',
+                    data: {
+                      location: entity,
+                      substances: next,
+                    },
+                  }
+                )
+                .afterClosed()
+            : EMPTY
+        )
+      )
+      .subscribe({
+        next: (next) => {
+          if (next) {
+            this.onChartClick(entity, next);
+          }
+        },
+      });
+  }
+
+  private onChartClick(
+    entity: LocationCRUDModel['getEntitiesResult'],
+    substance_id?: number
+  ) {
+    this.apiClient.prediction
+      .getEntityByLocationId(entity.id)
+      .pipe(
+        switchMap((next) =>
+          this.matDialog
+            .open<ChartComponent, ChartComponentData>(ChartComponent, {
+              data: {
+                prediction: next,
+                substance_id: 2,
+              },
+            })
+            .afterClosed()
+        )
+      )
+      .subscribe();
+  }
+
+  public onRiversClick() {
+    this.matDialog
+      .open(RiversTableComponent, {
+        width: '400px',
+        minHeight: '700px',
+      })
+      .afterClosed()
+      .subscribe({
+        next: (next) => {
+          if (next) {
+            this.refreshRiversSelect();
+          }
+        },
+      });
+  }
+
+  public onSubstancesClick() {
+    this.matDialog
+      .open(SubstancesTableComponent, {
+        width: '600px',
+        minHeight: '700px',
+      })
+      .afterClosed()
+      .subscribe();
+  }
+
+  public onRiverSelected(river_id: number | null) {
+    if (river_id) {
+      this.params.river_id = river_id;
+    } else {
+      delete this.params.river_id;
+    }
+    this.refreshLocationsMap();
+  }
+
+  private openLocationDialog(data: LocationFormData) {
+    this.matDialog
+      .open<LocationFormComponent, LocationFormData, boolean>(
+        LocationFormComponent,
+        {
+          width: '400px',
+          data,
+        }
+      )
+      .afterClosed()
+      .subscribe({
+        next: (next) => {
+          if (next) {
+            this.refreshLocationsMap();
+          }
+        },
+      });
+  }
+
+  private refreshLocationsMap() {
+    this.apiClient.location.getEntities(this.params).subscribe({
+      next: (next) => {
+        this.locations$$.next(next as any);
+      },
+    });
+  }
+
+  private refreshRiversSelect() {
+    this.apiClient.river.getEntities().subscribe({
+      next: (next) => this.rivers$$.next(next),
+    });
+  }
+
+  private openNewLocationPopup(coordinates: {
+    longitude: number;
+    latitude: number;
+  }) {
+    const content = this.getButton('add_location_alt');
+    content.addEventListener('click', () => {
+      this.popup.remove();
+      this.onCreateLocationClick(coordinates);
+    });
+    this.popup
+      .setLngLat([coordinates.longitude, coordinates.latitude])
+      .setDOMContent(content)
+      .addTo(this.map);
+  }
+
+  private openLocationPopup(entity: LocationCRUDModel['getEntitiesResult']) {
+    const content = document.createElement('div');
+    content.classList.add('display-flex', 'flex-wrap', 'g-2');
+    content.style.justifyContent = 'center';
+    content.style.width = '160px';
+    let button = this.getButton('edit_location_alt');
+    button.addEventListener('click', () => {
+      this.popup.remove();
+      this.onEditLocationClick(entity);
+    });
+    content.appendChild(button);
+    button = this.getButton('wrong_location');
+    button.addEventListener('click', () => {
+      this.popup.remove();
+      this.onDeleteLocationClick(entity);
+    });
+    content.appendChild(button);
+    button = this.getButton('post_add');
+    button.addEventListener('click', () => {
+      this.popup.remove();
+      this.onCreateMeasurementClick(entity);
+    });
+    content.appendChild(button);
+    button = this.getButton('list_alt');
+    button.addEventListener('click', () => {
+      this.popup.remove();
+      this.onMeasurementsClick(entity);
+    });
+    content.appendChild(button);
+    button = this.getButton('show_chart');
+    button.addEventListener('click', () => {
+      this.popup.remove();
+      this.onChartClick(entity);
+    });
+    content.appendChild(button);
+    this.popup
+      .setLngLat([entity.longitude, entity.latitude])
+      .setDOMContent(content)
+      .addTo(this.map);
+  }
+
+  private getButton(
+    textContent:
+      | 'add_location_alt'
+      | 'edit_location_alt'
+      | 'wrong_location'
+      | 'post_add'
+      | 'list_alt'
+      | 'show_chart'
+  ) {
+    const result = document.createElement('button');
+    result.textContent = textContent;
+    result.classList.add('material-icons', 'map-mini-fab-button');
+    switch (textContent) {
+      case 'edit_location_alt':
+        result.classList.add('background-color-accent');
+        break;
+      case 'wrong_location':
+        result.classList.add('background-color-warn');
+        break;
+      default:
+        result.classList.add('background-color-primary');
+        break;
+    }
+    return result;
   }
 }

@@ -23,7 +23,7 @@ import { ConfirmationDialogData } from './confirmation-dialog.models';
     <form spellcheck="false" (submit)="$event.preventDefault()">
       <div mat-dialog-title>{{ data.title }}</div>
       <div mat-dialog-content>{{ I18N['Are you sure?'] }}</div>
-      <div mat-dialog-actions class="justify-content-end gap-2">
+      <div mat-dialog-actions class="justify-content-end g-2">
         <button
           mat-flat-button
           color="warn"
