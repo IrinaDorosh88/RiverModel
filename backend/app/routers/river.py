@@ -7,7 +7,7 @@ from services.river import RiverService
 router = APIRouter()
 
 @router.get("/", description="This endpoint returns all river data.",
-            response_model=PaginatedRiver)
+            response_model=list[River] | PaginatedRiver)
 def get_rivers(pagination: PaginationParams = Depends(), service: RiverService = Depends()):
     return service.get_rivers(pagination)
 
@@ -26,7 +26,7 @@ def update(river_id: int, river_data: RiverUpdate, service: RiverService = Depen
                                               "from the database. Returns a 204 No Content response if the river "
                                               "entity was successfully deleted. Returns a 404 Not Found response "
                                               "if no river entity exists with the specified ID.")
-async def delete_river(river_id: int, response: Response, service: RiverService = Depends()):
+def delete_river(river_id: int, response: Response, service: RiverService = Depends()):
     service.delete_river(river_id=river_id)
     response.status_code = status.HTTP_204_NO_CONTENT
     response.headers["X-Status-Message"] = "River deleted successfully."
