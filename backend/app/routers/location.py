@@ -6,7 +6,8 @@ from services.location import LocationService
 
 router = APIRouter()
 
-@router.get("/", description="This endpoint returns all locations data by river_id.", response_model=PaginatedLocation)
+@router.get("/", description="This endpoint returns all locations data by river_id.",
+            response_model=list[Location] | PaginatedLocation)
 def get(river_id: int = None, pagination: PaginationParams = Depends(), service: LocationService = Depends()):
     return service.get_locations(river_id, pagination)
 
@@ -25,7 +26,7 @@ def update(location_id: int, location_data: LocationUpdate, service: LocationSer
                                               "from the database. Returns a 204 No Content response if the location "
                                               "entity was successfully deleted. Returns a 404 Not Found response "
                                               "if no location entity exists with the specified ID.")
-async def delete_location(location_id: int, response: Response, service: LocationService = Depends()):
+def delete_location(location_id: int, response: Response, service: LocationService = Depends()):
     service.delete_location(location_id=location_id)
     response.status_code = status.HTTP_204_NO_CONTENT
     response.headers["X-Status-Message"] = "Location deleted successfully."
