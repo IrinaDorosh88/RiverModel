@@ -21,20 +21,24 @@ class LocationService(AppService):
     def get_locations(self, river_id: int, pagination: PaginationParams):
         query = self.session.query(Location)
 
-        if river_id is not None:
+        is_paginated_response = isinstance(pagination.limit, int) and isinstance(pagination.offset, int)
+
+        if river_id:
             query = query.filter(Location.river_id == river_id)
 
-        data = query.order_by(Location.name.asc()) \
-            .limit(pagination.limit) \
-            .offset(pagination.offset) \
-            .all()
+        query = query.order_by(Location.name.asc())
+
+        if is_paginated_response:
+            query = query.limit(pagination.limit).offset(pagination.offset)
+
+        data = query.all()
 
         return PaginatedLocation(
             total=query.count(),
             limit=pagination.limit,
             offset=pagination.offset,
             data=data
-        )
+        ) if is_paginated_response else data
 
     def create_location(self, location_data: LocationCreate):
         if self.session.query(River).get(location_data.river_id) is None:

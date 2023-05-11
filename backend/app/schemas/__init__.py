@@ -1,9 +1,11 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 
 class PaginationParams(BaseModel):
-    limit: int = 10
-    offset: int = 0
+    limit: Optional[int] = None
+    offset: Optional[int] = 0
 
 
 class PaginatedResponse(BaseModel):
