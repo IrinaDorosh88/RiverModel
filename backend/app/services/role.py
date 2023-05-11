@@ -20,7 +20,7 @@ class RoleService(AppService):
         is_paginated_response = isinstance(pagination.limit, int) and isinstance(pagination.offset, int)
 
         if is_paginated_response:
-            query.limit(pagination.limit).offset(pagination.offset)
+            query = query.limit(pagination.limit).offset(pagination.offset)
 
         data = query.all()
 
