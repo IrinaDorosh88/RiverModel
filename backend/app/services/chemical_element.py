@@ -10,13 +10,15 @@ def get_chemical_elements(db: Session, pagination: PaginationParams):
 
     is_paginated_response = isinstance(pagination.limit, int) and isinstance(pagination.offset, int)
 
+    total = query.count()
+
     if is_paginated_response:
         query = query.limit(pagination.limit).offset(pagination.offset)
 
     data = query.all()
 
     return PaginatedChemicalElement(
-            total=query.count(),
+            total=total,
             limit=pagination.limit,
             offset=pagination.offset,
             data=data
