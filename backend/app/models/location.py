@@ -25,4 +25,5 @@ class Location(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
     modified_at = Column(DateTime(timezone=True), onupdate=func.now(), nullable=True)
 
-    river = relationship("River", back_populates="locations")
+    river = relationship('River', back_populates='locations')
+    chemical_elements = relationship('ChemicalElement', secondary='location_chemical_elements', backref='locations')
