@@ -27,3 +27,4 @@ class Location(Base):
 
     river = relationship('River', back_populates='locations')
     measurements = relationship('Measurement', back_populates='location')
+    chemical_elements = relationship('ChemicalElement', secondary='location_chemical_elements', backref='locations')

@@ -5,6 +5,7 @@ from typing import Optional
 from pydantic import BaseModel
 
 from . import PaginatedResponse
+from .chemical_element import ChemicalElement
 
 
 class LocationBase(BaseModel):
@@ -21,17 +22,18 @@ class Location(LocationBase):
     created_at: Optional[datetime] = None
     modified_at: Optional[datetime] = None
     is_active: Optional[bool] = None
+    chemical_elements: Optional[list[ChemicalElement]] = []
 
     class Config:
         orm_mode = True
 
 
 class LocationCreate(LocationBase):
-    pass
+    chemical_elements: list[int]
 
 
 class LocationUpdate(LocationBase):
-    is_active: bool
+    chemical_elements: list[int]
 
 
 class PaginatedLocation(PaginatedResponse):

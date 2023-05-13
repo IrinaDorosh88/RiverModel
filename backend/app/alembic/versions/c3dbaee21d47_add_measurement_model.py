@@ -1,7 +1,7 @@
 """Add Measurement model
 
 Revision ID: c3dbaee21d47
-Revises: f0156ec83e75
+Revises: 3f074bfdde6e
 Create Date: 2023-05-07 15:18:00.923290
 
 """
@@ -11,7 +11,7 @@ import sqlalchemy as sa
 
 # revision identifiers, used by Alembic.
 revision = 'c3dbaee21d47'
-down_revision = 'f0156ec83e75'
+down_revision = '3f074bfdde6e'
 branch_labels = None
 depends_on = None
 
