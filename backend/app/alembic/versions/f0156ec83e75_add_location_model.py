@@ -1,7 +1,7 @@
 """Add Location model
 
 Revision ID: f0156ec83e75
-Revises: 335ac8591b3d
+Revises: 4b96f1bb4d7f
 Create Date: 2023-05-07 09:54:57.781254
 
 """

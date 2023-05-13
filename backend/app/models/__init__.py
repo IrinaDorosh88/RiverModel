@@ -5,6 +5,7 @@ from .river import River
 from .role import Role
 from .location import Location
 from .chemical_element import ChemicalElement
+from .measurement import Measurement
 from core.db import Base
 
 

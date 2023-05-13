@@ -18,10 +18,10 @@ def get_chemical_elements(db: Session, pagination: PaginationParams):
     data = query.all()
 
     return PaginatedChemicalElement(
-            total=total,
-            limit=pagination.limit,
-            offset=pagination.offset,
-            data=data
+        total=total,
+        limit=pagination.limit,
+        offset=pagination.offset,
+        data=data
     ) if is_paginated_response else data
 
 def create_chemical_element(db: Session, chemical_element: ChemicalElementCreate):
