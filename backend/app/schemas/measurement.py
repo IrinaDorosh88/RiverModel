@@ -6,6 +6,7 @@ from pydantic import BaseModel
 
 from schemas import PaginatedResponse
 from schemas.chemical_element import ChemicalElement
+from schemas.prediction_point import PredictionPoint
 
 
 class MeasurementBase(BaseModel):
@@ -18,6 +19,7 @@ class Measurement(BaseModel):
     location_id: int
     concentration_value: Decimal
     chemical_element: Optional[ChemicalElement]
+    prediction_points: Optional[list[PredictionPoint]]
     is_active: bool
     created_at: Optional[datetime]
     modified_at: Optional[datetime]
