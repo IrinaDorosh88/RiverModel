@@ -14,7 +14,6 @@ def setup_model_params():
 
 def calculate_data(steps, k1, k2, k3, D, h):
     data = []
-    print(steps)
     for i in range(1, steps + 1):
         hs = (h * Decimal(str(i))) ** Decimal('0.5')
         g1 = -k1
@@ -50,8 +49,9 @@ def calculate_kvgs(steps, data, h, V_star):
 def calculate_k1s(steps, kvgs, data, V_star):
     k1s = []
 
-    for i in range(1, steps + 1):
-        a, b, c, d = kvgs[i - 1]
+    for i in range(2, steps + 2):
+        a, b, c, d = kvgs[i - 2]
+
         k11 = (Decimal('2') * data[i - 2][0] + data[i - 2][0] * (data[i - 2][0] + a) * V_star + 2 * a) / b
         k12 = (Decimal('2') * data[i - 2][0] + data[i - 2][0] * (data[i - 2][0] + a) * V_star + 2 * a) / c
         k13 = (Decimal('2') * data[i - 2][0] + data[i - 2][0] * (data[i - 2][0] + a) * V_star + 2 * a) / d
@@ -75,17 +75,17 @@ def calculate_k2s(steps, kvgs):
 
 
 def calculate_result(steps, x0, critical_value, h, k1s, k2s):
-    result = [[x0]]
+    result = [x0]
     tep = result[0]
     for i in range(1, steps + 1):
         b, ls = k1s[i - 1], k2s[i - 1]
         Dx = b[1] - ls[1]*(Decimal('1')-h)
         if i == 1:
             tep = x0 * Dx
-            result.append([tep])
+            result.append(tep)
         else:
-            tep = k2s[i - 2][1] * tep - result[i - 1][0] * k1s[i - 2][1]
-            result.append([tep])
+            tep = k2s[i - 2][1] * tep - result[i - 1] * k1s[i - 2][1]
+            result.append(tep)
 
         if abs(tep) <= critical_value:
             break
@@ -112,7 +112,6 @@ def river_model_algorithm_solution(steps, init_arg, critical_value):
     kvgs = calculate_kvgs(steps, data, h, V_star)
     k1s = calculate_k1s(steps, kvgs, data, V_star)
     k2s = calculate_k2s(steps, kvgs)
-
     return calculate_result(steps, x0, critical_value, h, k1s, k2s)
 
 
