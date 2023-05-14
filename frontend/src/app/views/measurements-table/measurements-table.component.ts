@@ -126,14 +126,15 @@ export class MeasurementsTableComponent implements OnInit {
   private refreshTable() {
     this.apiClient.measurement.getPaginatedEntities(this.params).subscribe({
       next: (next) => {
-        this.length = next.count;
-        this.dataSource.data = next.data.map((item) => ({
-          date: item.date,
-          innerHTML: item.values.reduce((accumulator, item) => {
-            accumulator += `<div><b>${item.substance_name}</b>: ${item.value}</div>`;
-            return accumulator;
-          }, ''),
-        }));
+        // this.length = next.total;
+        // this.dataSource.data = next.data.map((item) => ({
+        //   date: item.date,
+        //   innerHTML: item.values.reduce((accumulator: any, item: any) => {
+        //     accumulator += `<div><b>${item.substance_name}</b>: ${item.value}</div>`;
+        //     return accumulator;
+        //   }, ''),
+        // }));
+        console.log(next)
       },
     });
   }

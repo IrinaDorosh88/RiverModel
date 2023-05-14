@@ -193,7 +193,7 @@ export class SubstancesTableComponent implements OnInit {
   private refreshEntities() {
     this.apiClient.substance.getPaginatedEntities(this.params).subscribe({
       next: (next) => {
-        this.length = next.count;
+        this.length = next.total;
         this.dataSource.data = next.data;
       },
     });

@@ -13,7 +13,7 @@ import { LocationCRUDModel, SubstanceCRUDModel } from '@/features/api-client';
 import { I18N } from '@/features/i18n';
 
 export type ExcessData = {
-  substances: SubstanceCRUDModel['getEntitiesResult'][];
+  excessed_substances: LocationCRUDModel['getEntitiesResult']['chemical_elements'];
   location: LocationCRUDModel['getEntitiesResult'];
 };
 
@@ -53,11 +53,11 @@ export type ExcessResult = number;
         <div class="display-flex justify-content-space-between">
           <div class="p-2 f-weight-700">
             {{
-              I18N[data.substances.length === 1 ? 'Substance' : 'Substances']
+              I18N[data.excessed_substances.length === 1 ? 'Substance' : 'Substances']
             }}
           </div>
           <div class="display-flex flex-direction-column g-2">
-            <ng-template ngFor [ngForOf]="data.substances" let-item>
+            <ng-template ngFor [ngForOf]="data.excessed_substances" let-item>
               <div
                 class="p-2 cursor-pointer"
                 style="background-color: #eee;"
@@ -83,7 +83,7 @@ export class ExcessComponent {
     public data: ExcessData
   ) {}
 
-  public onSubstanceClick(entity: ExcessData['substances'][number]) {
+  public onSubstanceClick(entity: ExcessData['excessed_substances'][number]) {
     this.dialogRef.close(entity.id);
   }
 }

@@ -57,9 +57,40 @@ export type LocationFormData =
           <input matInput formControlName="longitude" />
         </mat-form-field>
         <mat-form-field class="width-full">
+          <mat-label>{{ I18N['River'] }}</mat-label>
+          <mat-select formControlName="river_id">
+            <mat-option [value]="null">---</mat-option>
+            <mat-option
+              *ngFor="let entity of RIVERS$ | async"
+              [value]="entity.id"
+            >
+              {{ entity.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error *ngIf="formGroup.controls['river_id'].errors as errors">
+            {{ errors['message'] }}
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="width-full">
           <mat-label>{{ I18N['Name'] }}</mat-label>
           <input matInput formControlName="name" />
           <mat-error *ngIf="formGroup.controls['name'].errors as errors">
+            {{ errors['message'] }}
+          </mat-error>
+        </mat-form-field>
+        <mat-form-field class="width-full">
+          <mat-label>{{ I18N['Substances'] }}</mat-label>
+          <mat-select multiple formControlName="chemical_elements">
+            <mat-option
+              *ngFor="let entity of SUBSTANCES$ | async"
+              [value]="entity.id"
+            >
+              {{ entity.name }}
+            </mat-option>
+          </mat-select>
+          <mat-error
+            *ngIf="formGroup.controls['chemical_elements'].errors as errors"
+          >
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -83,38 +114,6 @@ export type LocationFormData =
                 .errors as errors
             "
           >
-            {{ errors['message'] }}
-          </mat-error>
-        </mat-form-field>
-        <mat-form-field class="width-full">
-          <mat-label>{{ I18N['Substances'] }}</mat-label>
-          <mat-select multiple formControlName="substances_ids">
-            <mat-option [value]="1">Tmp</mat-option>
-            <mat-option
-              *ngFor="let entity of SUBSTANCES$ | async"
-              [value]="entity.id"
-            >
-              {{ entity.name }}
-            </mat-option>
-          </mat-select>
-          <mat-error
-            *ngIf="formGroup.controls['substances_ids'].errors as errors"
-          >
-            {{ errors['message'] }}
-          </mat-error>
-        </mat-form-field>
-        <mat-form-field class="width-full">
-          <mat-label>{{ I18N['River'] }}</mat-label>
-          <mat-select formControlName="river_id">
-            <mat-option [value]="null">---</mat-option>
-            <mat-option
-              *ngFor="let entity of RIVERS$ | async"
-              [value]="entity.id"
-            >
-              {{ entity.name }}
-            </mat-option>
-          </mat-select>
-          <mat-error *ngIf="formGroup.controls['river_id'].errors as errors">
             {{ errors['message'] }}
           </mat-error>
         </mat-form-field>
@@ -164,7 +163,7 @@ export class LocationFormComponent implements OnInit {
         longitude: fb.control({ value: null, disabled: true }),
         name: fb.control(''),
         river_id: fb.control(null),
-        substances_ids: fb.control(''),
+        chemical_elements: fb.control(''),
         turbulent_diffusive_coefficient: fb.control(0),
       },
       {
@@ -173,7 +172,7 @@ export class LocationFormComponent implements OnInit {
             flow_rate,
             name,
             river_id,
-            substances_ids,
+            chemical_elements,
             turbulent_diffusive_coefficient,
           } = formGroup.controls;
           // Flow Rate
@@ -201,12 +200,12 @@ export class LocationFormComponent implements OnInit {
             river_id.setErrors(null);
           }
           // Substances
-          if (!(substances_ids.value && substances_ids.value.length)) {
-            substances_ids.setErrors({
+          if (!(chemical_elements.value && chemical_elements.value.length)) {
+            chemical_elements.setErrors({
               message: I18N['Choose at least one substance.'],
             });
           } else {
-            substances_ids.setErrors(null);
+            chemical_elements.setErrors(null);
           }
           // Turbulent Diffusive Coefficient Decay
           if (
@@ -237,11 +236,16 @@ export class LocationFormComponent implements OnInit {
       .getPaginatedEntities()
       .pipe(map((next) => next.data));
     if (this.data.entity) {
-      this.formGroup.patchValue(this.data.entity);
+      this.formGroup.patchValue({
+        ...this.data.entity,
+        chemical_elements: this.data.entity.chemical_elements.map(
+          (item) => item.id
+        ),
+      });
       this.TITLE = I18N['Edit $name location'](this.data.entity.name);
       this.SUBMIT_BUTTON_COLOR = 'accent';
       this.HANDLE_ENTITY = this.patchEntity;
-      this.formGroup.controls['substances_ids'].disable();
+      this.formGroup.controls['chemical_elements'].disable();
     } else {
       this.formGroup.patchValue(this.data.coordinates);
       if (this.data.riverId) {

@@ -15,7 +15,13 @@ export interface LocationCRUDModel extends CRUDApiClientModel {
     name: string;
     river_id: number;
     river_name: string;
-    substances_ids: number[];
+    chemical_elements: {
+      id: number;
+      max_value: number;
+      min_value: number;
+      units: string;
+      name: string;
+    }[];
     turbulent_diffusive_coefficient: number;
   };
 }

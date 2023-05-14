@@ -175,7 +175,7 @@ export class RiversTableComponent implements OnInit {
   private refreshEntities() {
     this.apiClient.river.getPaginatedEntities(this.params).subscribe({
       next: (next) => {
-        this.length = next.count;
+        this.length = next.total;
         this.dataSource.data = next.data;
       },
     });

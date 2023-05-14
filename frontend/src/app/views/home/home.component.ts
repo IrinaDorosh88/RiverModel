@@ -192,6 +192,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             this.notificationService.notify(
               I18N['$name location is successfully deleted.'](entity.name)
             );
+            this.refreshLocationsMap();
           })
         );
       },
@@ -218,25 +219,19 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   private onCreateMeasurementClick(
     entity: LocationCRUDModel['getEntitiesResult']
   ) {
-    this.apiClient.substance
-      .getEntities()
+    return this.matDialog
+      .open<
+        MeasurementFormComponent,
+        MeasurementFormData,
+        MeasurementFormResult
+      >(MeasurementFormComponent, {
+        width: '400px',
+        data: {
+          location: entity,
+        },
+      })
+      .afterClosed()
       .pipe(
-        switchMap((next) => {
-          (entity as any).substances_ids = [next[0].id, next[1].id];
-          return this.matDialog
-            .open<
-              MeasurementFormComponent,
-              MeasurementFormData,
-              MeasurementFormResult
-            >(MeasurementFormComponent, {
-              width: '400px',
-              data: {
-                location: entity,
-                substances: next,
-              },
-            })
-            .afterClosed();
-        }),
         switchMap((next) =>
           next && typeof next !== 'boolean'
             ? this.matDialog
@@ -246,7 +241,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
                     width: '400px',
                     data: {
                       location: entity,
-                      substances: next,
+                      excessed_substances: next,
                     },
                   }
                 )
