@@ -9,11 +9,8 @@ import { CommonModule } from '@angular/common';
 import {
   BehaviorSubject,
   EMPTY,
-  Observable,
   ReplaySubject,
-  map,
   scan,
-  startWith,
   switchMap,
   tap,
 } from 'rxjs';
@@ -42,11 +39,6 @@ import { NotificationService } from '@/features/notification';
 
 import { ChartComponent, ChartComponentData } from '@/views/chart';
 import { LocationFormComponent, LocationFormData } from '@/views/location-form';
-import {
-  MeasurementFormComponent,
-  MeasurementFormData,
-  MeasurementFormResult,
-} from '@/views/measurement-form';
 import { RiversTableComponent } from '@/views/rivers-table';
 import { SubstancesTableComponent } from '@/views/substances-table';
 import {
@@ -54,7 +46,6 @@ import {
   MeasurementsTableData,
   MeasurementsTableResult,
 } from '@/views/measurements-table';
-import { ExcessComponent, ExcessData, ExcessResult } from '@/views/excess';
 
 @Component({
   standalone: true,
@@ -172,19 +163,14 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.rivers$$.complete();
   }
 
-  private onCreateClick(coordinates: {
-    longitude: number;
-    latitude: number;
-  }) {
+  private onCreateClick(coordinates: { longitude: number; latitude: number }) {
     this.openDialog({
       coordinates,
       riverId: this.params.river_id,
     });
   }
 
-  private onDeleteClick(
-    entity: LocationCRUDModel['getEntitiesResult']
-  ) {
+  private onDeleteClick(entity: LocationCRUDModel['getEntitiesResult']) {
     this.confirmationDialogService.open({
       title: I18N['Delete $name location'](entity.name),
       confirmCallback: () => {

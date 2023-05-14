@@ -32,7 +32,7 @@ import {
   standalone: true,
   imports: [CommonModule, ...MATERIAL_MODULES],
   encapsulation: ViewEncapsulation.None,
-  selector: 'app-substances',
+  selector: 'app-substances-table',
   template: `
     <div
       class="p-3 display-flex align-items-center justify-content-space-between"

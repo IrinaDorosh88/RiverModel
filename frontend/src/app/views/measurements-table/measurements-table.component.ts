@@ -1,11 +1,5 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  Inject,
-  OnInit,
-  Optional,
-  ViewEncapsulation,
-} from '@angular/core';
+import { Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
@@ -47,7 +41,7 @@ export type MeasurementsTableResult = number;
     ...MATERIAL_MODULES,
   ],
   encapsulation: ViewEncapsulation.None,
-  selector: 'app-substances',
+  selector: 'app-measurements-table',
   template: `
     <div
       class="p-3 display-flex align-items-center justify-content-space-between"
