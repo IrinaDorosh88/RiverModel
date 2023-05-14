@@ -15,7 +15,7 @@ def get_roles(pagination: PaginationParams = Depends(), service: RoleService = D
 def create_role(role_data: RoleCreate, service: RoleService = Depends()):
     return service.create_role(role_data=role_data)
 
-@router.patch("/{role_id}", description="This endpoint updates role information with the given ID. "
+@router.patch("/{role_id}/", description="This endpoint updates role information with the given ID. "
                                          "The request body should contain a JSON object with the fields to be updated.",
                response_model=Role)
 def update_role(role_id: int, role_data: RoleUpdate, service: RoleService = Depends()):
