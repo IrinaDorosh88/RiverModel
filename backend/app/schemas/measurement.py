@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 from typing import Optional
 
@@ -28,10 +28,18 @@ class Measurement(BaseModel):
         orm_mode = True
 
 
+class GroupedMeasurement(BaseModel):
+    date: date
+    measurements: list[Measurement]
+
+    class Config:
+        orm_mode = True
+
+
 class MeasurementCreate(BaseModel):
     location_id: int
     values: list[MeasurementBase]
 
 
 class PaginatedMeasurement(PaginatedResponse):
-    data: list[Measurement]
+    data: list[GroupedMeasurement]
