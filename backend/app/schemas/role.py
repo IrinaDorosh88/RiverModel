@@ -25,7 +25,6 @@ class RoleCreate(RoleBase):
 
 
 class RoleUpdate(RoleBase):
-    is_active: Optional[bool] = None
     pass
 
 
