@@ -17,4 +17,4 @@ LocationChemicalElements = Table('location_chemical_elements', Base.metadata,
     UniqueConstraint('location_id', 'chemical_element_id')
 )
 
-__all__ = ['User', 'Role', 'River', 'ChemicalElement', 'Location', 'LocationChemicalElements', 'PredictionPoint']
+__all__ = ['User', 'Role', 'River', 'ChemicalElement', 'Location', 'LocationChemicalElements', 'PredictionPoint', 'Measurement']
