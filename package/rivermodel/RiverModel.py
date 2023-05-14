@@ -51,7 +51,6 @@ def calculate_k1s(steps, kvgs, data, V_star):
 
     for i in range(2, steps + 2):
         a, b, c, d = kvgs[i - 2]
-
         k11 = (Decimal('2') * data[i - 2][0] + data[i - 2][0] * (data[i - 2][0] + a) * V_star + 2 * a) / b
         k12 = (Decimal('2') * data[i - 2][0] + data[i - 2][0] * (data[i - 2][0] + a) * V_star + 2 * a) / c
         k13 = (Decimal('2') * data[i - 2][0] + data[i - 2][0] * (data[i - 2][0] + a) * V_star + 2 * a) / d
@@ -112,6 +111,7 @@ def river_model_algorithm_solution(steps, init_arg, critical_value):
     kvgs = calculate_kvgs(steps, data, h, V_star)
     k1s = calculate_k1s(steps, kvgs, data, V_star)
     k2s = calculate_k2s(steps, kvgs)
+
     return calculate_result(steps, x0, critical_value, h, k1s, k2s)
 
 
