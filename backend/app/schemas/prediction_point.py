@@ -6,13 +6,13 @@ from pydantic import BaseModel
 
 
 class PredictionPointBase(BaseModel):
-    measurement_id: int
     value: Decimal
     time: int
 
 
 class PredictionPoint(PredictionPointBase):
     id: int
+    measurement_id: int
 
     created_at: Optional[datetime] = None
     modified_at: Optional[datetime] = None
@@ -22,5 +22,6 @@ class PredictionPoint(PredictionPointBase):
         orm_mode = True
 
 
-class PredictionPointCreate(PredictionPointBase):
-    pass
+class PredictionPointCreate(BaseModel):
+    measurement_id: int
+    values: list[PredictionPointBase]

@@ -4,9 +4,12 @@ from sqlalchemy import desc
 from services import AppService
 from models.location import Location
 from models.measurement import Measurement
+from models.chemical_element import ChemicalElement
 from schemas import PaginationParams
 from schemas.measurement import MeasurementCreate, PaginatedMeasurement
 from sqlalchemy.orm import joinedload
+from services.prediction_point import PredictionPointService
+from schemas.prediction_point import PredictionPointCreate
 
 
 class MeasurementService(AppService):
@@ -43,6 +46,13 @@ class MeasurementService(AppService):
         self.session.commit()
         for measurement in measurements:
             self.session.refresh(measurement)
+
+        prediction_point_service = PredictionPointService(self.session)
+        for measurement in measurements:
+            if measurement.concentration_value > measurement.chemical_element.max_value:
+                print(measurement.concentration_value)
+                prediction_points_data = prediction_point_service.run_model(measurement.concentration_value, measurement.chemical_element.max_value)
+                prediction_point_service.create_prediction_points(prediction_point_data=PredictionPointCreate(measurement_id=measurement.id, values=prediction_points_data))
 
         return measurements
 

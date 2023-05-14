@@ -16,8 +16,8 @@ services:
   backend:
     restart: always
     build:
-      context: ../backend
-      dockerfile: ../backend/Dockerfile
+      context: ../
+      dockerfile: ./backend/Dockerfile
     image: backend-river-model
     volumes:
       - ../backend/app:/app
