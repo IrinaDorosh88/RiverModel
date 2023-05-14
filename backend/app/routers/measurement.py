@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends
 
 from schemas import PaginationParams
-from schemas.measurement import Measurement, MeasurementCreate, PaginatedMeasurement
+from schemas.measurement import Measurement, MeasurementCreate, PaginatedMeasurement, GroupedMeasurement
 from services.measurement import MeasurementService
 
 router = APIRouter()
 
 @router.get("/", description="This endpoint returns present measurements data by location_id.",
-            response_model=list[Measurement] | PaginatedMeasurement)
+            response_model=list[GroupedMeasurement] | PaginatedMeasurement)
 def get(location_id: int, pagination: PaginationParams = Depends(), service: MeasurementService = Depends()):
     return service.get_measurements(location_id, pagination)
 
