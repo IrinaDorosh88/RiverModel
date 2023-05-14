@@ -53,7 +53,11 @@ export type ExcessResult = number;
         <div class="display-flex justify-content-space-between">
           <div class="p-2 f-weight-700">
             {{
-              I18N[data.excessed_substances.length === 1 ? 'Substance' : 'Substances']
+              I18N[
+                data.excessed_substances.length === 1
+                  ? 'Substance'
+                  : 'Substances'
+              ]
             }}
           </div>
           <div class="display-flex flex-direction-column g-2">

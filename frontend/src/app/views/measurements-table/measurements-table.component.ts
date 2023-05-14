@@ -2,26 +2,15 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   Inject,
-  OnDestroy,
   OnInit,
   Optional,
-  ViewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import { Subscription, tap } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
-import {
-  MAT_DIALOG_DATA,
-  MatDialog,
-  MatDialogRef,
-} from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import {
-  MatPaginator,
-  MatPaginatorModule,
-  PageEvent,
-} from '@angular/material/paginator';
+import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 const MATERIAL_MODULES = [
   MatButtonModule,
@@ -30,34 +19,54 @@ const MATERIAL_MODULES = [
   MatTableModule,
 ];
 
-import { SubstanceCRUDModel, ApiClient } from '@/features/api-client';
-import { ConfirmationDialogService } from '@/features/confirmation-dialog';
+import { ApiClient, LocationCRUDModel } from '@/features/api-client';
 import { I18N } from '@/features/i18n';
-import { NotificationService } from '@/features/notification';
 
-import {
-  SubstanceFormComponent,
-  SubstanceFormData,
-} from '@/views/substance-form';
 import { HttpClientQueryParams } from '@/features/http-client-extensions';
+import {
+  MeasurementFormComponent,
+  MeasurementFormData,
+  MeasurementFormResult,
+} from '@/views/measurement-form';
+import { EMPTY, switchMap, tap } from 'rxjs';
+import { ExcessComponent, ExcessData, ExcessResult } from '../excess';
+import { MatDialogRef } from '@angular/material/dialog';
 
-export type MeasurementsData = {
-  location_id?: number;
+export type MeasurementsTableData = {
+  location: LocationCRUDModel['getEntitiesResult'];
 };
+
+export type MeasurementsTableResult = number;
 
 @Component({
   standalone: true,
-  imports: [CommonModule, ...MATERIAL_MODULES],
+  imports: [
+    CommonModule,
+    ExcessComponent,
+    MeasurementFormComponent,
+    ...MATERIAL_MODULES,
+  ],
   encapsulation: ViewEncapsulation.None,
   selector: 'app-substances',
   template: `
-    <mat-paginator
-      [length]="length"
-      [hidePageSize]="true"
-      [pageSize]="10"
-      [showFirstLastButtons]="true"
-      (page)="onPaginatorPage($event)"
-    ></mat-paginator>
+    <div
+      class="p-3 display-flex align-items-center justify-content-space-between"
+    >
+      <button
+        mat-mini-fab
+        class="color-white background-color-primary"
+        (click)="onCreateClick()"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+      <mat-paginator
+        [length]="length"
+        [hidePageSize]="true"
+        [pageSize]="10"
+        [showFirstLastButtons]="true"
+        (page)="onPaginatorPage($event)"
+      ></mat-paginator>
+    </div>
     <table mat-table class="p-3" [dataSource]="dataSource">
       <ng-container matColumnDef="date">
         <th *matHeaderCellDef mat-header-cell>{{ I18N['Date'] }}</th>
@@ -96,7 +105,12 @@ export class MeasurementsTableComponent implements OnInit {
   public length: number;
 
   constructor(
-    @Optional() @Inject(MAT_DIALOG_DATA) private data: MeasurementsData | null,
+    @Inject(MAT_DIALOG_DATA) private data: MeasurementsTableData,
+    private matDialog: MatDialog,
+    private dialogRef: MatDialogRef<
+      MeasurementsTableComponent,
+      MeasurementsTableResult
+    >,
     private apiClient: ApiClient
   ) {
     this.dataSource = new MatTableDataSource([] as any);
@@ -107,8 +121,8 @@ export class MeasurementsTableComponent implements OnInit {
   }
 
   public ngOnInit() {
-    if (this.data?.location_id) {
-      this.filtrationParams['location_id'] = this.data.location_id;
+    if (this.data?.location.id) {
+      this.filtrationParams['location_id'] = this.data.location.id;
     }
     this.refreshTable();
   }
@@ -123,18 +137,58 @@ export class MeasurementsTableComponent implements OnInit {
     this.refreshTable();
   }
 
+  public onCreateClick() {
+    return this.matDialog
+      .open<
+        MeasurementFormComponent,
+        MeasurementFormData,
+        MeasurementFormResult
+      >(MeasurementFormComponent, {
+        width: '400px',
+        data: {
+          location: this.data!.location,
+        },
+      })
+      .afterClosed()
+      .pipe(
+        tap(() => this.refreshTable()),
+        switchMap((next) =>
+          next && typeof next !== 'boolean'
+            ? this.matDialog
+                .open<ExcessComponent, ExcessData, ExcessResult>(
+                  ExcessComponent,
+                  {
+                    width: '400px',
+                    data: {
+                      location: this.data.location,
+                      excessed_substances: next,
+                    },
+                  }
+                )
+                .afterClosed()
+            : EMPTY
+        )
+      )
+      .subscribe({
+        next: (next) => {
+          if (next) {
+            this.dialogRef.close(next);
+          }
+        },
+      });
+  }
+
   private refreshTable() {
     this.apiClient.measurement.getPaginatedEntities(this.params).subscribe({
       next: (next) => {
-        // this.length = next.total;
-        // this.dataSource.data = next.data.map((item) => ({
-        //   date: item.date,
-        //   innerHTML: item.values.reduce((accumulator: any, item: any) => {
-        //     accumulator += `<div><b>${item.substance_name}</b>: ${item.value}</div>`;
-        //     return accumulator;
-        //   }, ''),
-        // }));
-        console.log(next)
+        this.length = next.total;
+        this.dataSource.data = next.data.map((item) => ({
+          date: item.date,
+          innerHTML: item.measurements.reduce((accumulator, item) => {
+            accumulator += `<div><b>${item.chemical_element.name}</b>: ${item.concentration_value}</div>`;
+            return accumulator;
+          }, ''),
+        }));
       },
     });
   }

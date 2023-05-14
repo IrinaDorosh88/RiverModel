@@ -51,7 +51,8 @@ import { RiversTableComponent } from '@/views/rivers-table';
 import { SubstancesTableComponent } from '@/views/substances-table';
 import {
   MeasurementsTableComponent,
-  MeasurementsData,
+  MeasurementsTableData,
+  MeasurementsTableResult,
 } from '@/views/measurements-table';
 import { ExcessComponent, ExcessData, ExcessResult } from '@/views/excess';
 
@@ -205,50 +206,15 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private onMeasurementsClick(entity: LocationCRUDModel['getEntitiesResult']) {
     this.matDialog
-      .open<MeasurementsTableComponent, MeasurementsData>(
-        MeasurementsTableComponent,
-        {
-          width: '400px',
-          data: { location_id: entity.id },
-        }
-      )
-      .afterClosed()
-      .subscribe();
-  }
-
-  private onCreateMeasurementClick(
-    entity: LocationCRUDModel['getEntitiesResult']
-  ) {
-    return this.matDialog
       .open<
-        MeasurementFormComponent,
-        MeasurementFormData,
-        MeasurementFormResult
-      >(MeasurementFormComponent, {
+        MeasurementsTableComponent,
+        MeasurementsTableData,
+        MeasurementsTableResult
+      >(MeasurementsTableComponent, {
         width: '400px',
-        data: {
-          location: entity,
-        },
+        data: { location: entity },
       })
       .afterClosed()
-      .pipe(
-        switchMap((next) =>
-          next && typeof next !== 'boolean'
-            ? this.matDialog
-                .open<ExcessComponent, ExcessData, ExcessResult>(
-                  ExcessComponent,
-                  {
-                    width: '400px',
-                    data: {
-                      location: entity,
-                      excessed_substances: next,
-                    },
-                  }
-                )
-                .afterClosed()
-            : EMPTY
-        )
-      )
       .subscribe({
         next: (next) => {
           if (next) {
@@ -262,18 +228,30 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     entity: LocationCRUDModel['getEntitiesResult'],
     substance_id?: number
   ) {
-    this.apiClient.prediction
-      .getEntityByLocationId(entity.id)
+    this.apiClient.measurement
+      .getEntities({ location_id: entity.id })
       .pipe(
         switchMap((next) =>
-          this.matDialog
-            .open<ChartComponent, ChartComponentData>(ChartComponent, {
-              data: {
-                prediction: next,
-                substance_id: 2,
-              },
-            })
-            .afterClosed()
+          next.length
+            ? this.matDialog
+                .open<ChartComponent, ChartComponentData>(ChartComponent, {
+                  data: {
+                    measurement: next[0],
+                    substance_id,
+                  },
+                })
+                .afterClosed()
+            : EMPTY.pipe(
+                tap({
+                  complete: () => {
+                    this.notificationService.notify(
+                      I18N[
+                        'You should add at least one measurement before prediction modeling.'
+                      ]
+                    );
+                  },
+                })
+              )
         )
       )
       .subscribe();
@@ -366,7 +344,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const content = document.createElement('div');
     content.classList.add('display-flex', 'flex-wrap', 'g-2');
     content.style.justifyContent = 'center';
-    content.style.width = '160px';
+    content.style.width = '120px';
     let button = this.getButton('edit_location_alt');
     button.addEventListener('click', () => {
       this.popup.remove();
@@ -377,12 +355,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     button.addEventListener('click', () => {
       this.popup.remove();
       this.onDeleteLocationClick(entity);
-    });
-    content.appendChild(button);
-    button = this.getButton('post_add');
-    button.addEventListener('click', () => {
-      this.popup.remove();
-      this.onCreateMeasurementClick(entity);
     });
     content.appendChild(button);
     button = this.getButton('list_alt');
@@ -408,7 +380,6 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       | 'add_location_alt'
       | 'edit_location_alt'
       | 'wrong_location'
-      | 'post_add'
       | 'list_alt'
       | 'show_chart'
   ) {

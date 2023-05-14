@@ -19,11 +19,11 @@ const MATERIAL_MODULES = [
   MatSelectModule,
 ];
 
-import { PredictionCRUDModel } from '@/features/api-client';
+import { MeasurementCRUDModel } from '@/features/api-client';
 import { I18N } from '@/features/i18n';
 
 export type ChartComponentData = {
-  prediction: PredictionCRUDModel['getEntityResult'];
+  measurement: MeasurementCRUDModel['getEntityResult'];
   substance_id?: number | undefined;
 };
 
@@ -42,10 +42,10 @@ export type ChartComponentData = {
             (selectionChange)="onSubstanceSelectionChange($event.value)"
           >
             <mat-option
-              *ngFor="let entity of data.prediction.substances"
+              *ngFor="let entity of data.measurement.measurements"
               [value]="entity"
             >
-              {{ entity.name }}
+              {{ entity.chemical_element.name }}
             </mat-option>
           </mat-select>
         </mat-form-field>
@@ -60,7 +60,7 @@ export class ChartComponent implements AfterViewInit {
   public I18N = I18N;
 
   public chart!: Chart<'line', number[], number>;
-  public substanceSelectValue!: PredictionCRUDModel['getEntityResult']['substances'][number];
+  public substanceSelectValue!: MeasurementCRUDModel['getEntitiesResult']['measurements'][number];
 
   constructor(
     @Inject(MAT_DIALOG_DATA)
@@ -92,28 +92,34 @@ export class ChartComponent implements AfterViewInit {
       },
     });
     if (this.data.substance_id) {
-      this.substanceSelectValue = this.data.prediction.substances.find(
-        (item) => item.id === this.data.substance_id
+      this.substanceSelectValue = this.data.measurement.measurements.find(
+        (item) => item.chemical_element.id === this.data.substance_id
       )!;
       this.refreshChart(this.substanceSelectValue);
     }
   }
 
   public onSubstanceSelectionChange(
-    entity: PredictionCRUDModel['getEntityResult']['substances'][number]
+    entity: MeasurementCRUDModel['getEntityResult']['measurements'][number]
   ) {
     this.refreshChart(entity);
   }
 
   private refreshChart(
-    entity: PredictionCRUDModel['getEntityResult']['substances'][number]
+    entity: MeasurementCRUDModel['getEntityResult']['measurements'][number]
   ) {
     if (entity) {
-      this.chart.data.labels = entity.values.map((value) => value.x);
+      this.chart.data.labels = entity.prediction_points.map(
+        (item) => item.time
+      );
       this.chart.data.datasets = [
-        { label: entity.name, data: entity.values.map((value) => value.y) },
+        {
+          label: entity.chemical_element.name,
+          data: entity.prediction_points.map((item) => item.value),
+        },
       ];
-      this.chart.options.scales!['y']!.title!.text = entity.unit;
+      this.chart.options.scales!['y']!.title!.text =
+        entity.chemical_element.units;
     } else {
       this.chart.data = { datasets: [] };
       this.chart.options.scales!['y']!.title!.text = '';

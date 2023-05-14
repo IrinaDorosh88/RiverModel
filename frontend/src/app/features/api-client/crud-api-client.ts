@@ -45,8 +45,8 @@ export abstract class CRUDApiClient<
 
   public getPaginatedEntities(
     params?: HttpClientQueryParams
-  ) {
-    return this.httpClient.get<PaginatedData<T['getPaginatedEntitiesResult']>>(this.url, { params }).pipe(
+  ): Observable<PaginatedData<T['getPaginatedEntitiesResult']>> {
+    return this.httpClient.get<any>(this.url, { params }).pipe(
       map((next) =>
         next instanceof Array
           ? {

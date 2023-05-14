@@ -92,6 +92,7 @@ const I18N_ENG = {
   // ...
   "Rivers": 'Rivers',
   "Substances": 'Substances',
+  "You should add at least one measurement before prediction modeling.": "You should add at least one measurement before prediction modeling.",
   // excess
   "PAY ATTENTION!": 'PAY ATTENTION!',
   "Exceeding the norm!": "Exceeding the norm!",
@@ -148,7 +149,7 @@ const I18N_UKR: typeof I18N_ENG = {
   'Min': 'Мін.',
   'Max': 'Макс.',
   'Unit': 'Одиниця виміру',
-  'Time delta decay': 'Час дельта розпаду',
+  'Time delta decay': 'Час повернення до норми',
   'Min must be a number.': 'Мін. повинно бути числом.',
   'Min must be greater or equal to 0.': 'Мін. повинно бути більше рівне 0.',
   'Max must be a number.': 'Макс. повинно бути числом.',
@@ -192,6 +193,7 @@ const I18N_UKR: typeof I18N_ENG = {
   // ...
   "Rivers": 'Річки',
   "Substances": 'Речовини',
+  "You should add at least one measurement before prediction modeling.": "Вам необхідно додати принаймні один вимір перед моделюванням передбачення.",
   // excess
   "PAY ATTENTION!": 'ЗВЕРНІТЬ УВАГУ!',
   "Exceeding the norm!": "Перевищення норми!",

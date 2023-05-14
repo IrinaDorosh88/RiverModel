@@ -1,4 +1,5 @@
 export {
   MeasurementsTableComponent,
-  MeasurementsData,
+  MeasurementsTableData,
+  MeasurementsTableResult,
 } from './measurements-table.component';

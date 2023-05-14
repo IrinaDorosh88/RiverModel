@@ -1,16 +1,28 @@
 import { Injectable } from '@angular/core';
-import { of } from 'rxjs';
-
-import { HttpClientQueryParams } from '@/features/http-client-extensions';
 
 import { CRUDApiClientModel, CRUDApiClient } from './crud-api-client';
 
-export interface MeasurementCRUDModel extends CRUDApiClientModel {
-  getPaginatedEntitiesResult: {
+type GetEntityResult = {
+  date: Date;
+  measurements: {
     location_id: number;
-    created_at: Date;
-    values: { substance_name: string; value: number }[];
-  };
+    concentration_value: number;
+    chemical_element: {
+      id: number;
+      name: string;
+      units: string;
+    };
+    prediction_points: {
+      value: number;
+      time: number;
+    }[];
+  }[];
+};
+
+export interface MeasurementCRUDModel extends CRUDApiClientModel {
+  getPaginatedEntitiesResult: GetEntityResult;
+  getEntitiesResult: GetEntityResult;
+  getEntityResult: GetEntityResult;
 }
 
 @Injectable({
@@ -20,50 +32,6 @@ export class MeasurementApiClient extends CRUDApiClient<MeasurementCRUDModel> {
   constructor() {
     super('measurements');
   }
-
-  // public override getPaginatedEntities(params?: HttpClientQueryParams) {
-  // let result = {
-  //   data: [
-  //     {
-  //       created_at: new Date(),
-  //       location_id: 1,
-  //       values: [
-  //         { substance_name: 'S1', value: 12 },
-  //         { substance_name: 'S2', value: 16 },
-  //         { substance_name: 'S4', value: 13.3 },
-  //       ],
-  //     },
-  //     {
-  //       created_at: new Date(),
-  //       location_id: 1,
-  //       values: [
-  //         { substance_name: 'S1', value: 22 },
-  //         { substance_name: 'S2', value: 13 },
-  //         { substance_name: 'S4', value: 11.8 },
-  //       ],
-  //     },
-  //     {
-  //       created_at: new Date(),
-  //       location_id: 2,
-  //       values: [
-  //         { substance_name: 'S1', value: 11.5 },
-  //         { substance_name: 'S3', value: 15.9 },
-  //       ],
-  //     },
-  //   ],
-  //   total: 3,
-  // };
-  // if (params?.['location_id']) {
-  //   const data = result.data.filter(
-  //     (item) => item.location_id === params['location_id']
-  //   );
-  //   result = {
-  //     data,
-  //     total: data.length,
-  //   };
-  // }
-  // return of(result);
-  // }
 
   public override patchEntity() {
     return this.methodNotImplemented();
