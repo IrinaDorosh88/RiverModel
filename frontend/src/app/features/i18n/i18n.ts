@@ -93,6 +93,8 @@ const I18N_ENG = {
   "Rivers": 'Rivers',
   "Substances": 'Substances',
   "You should add at least one measurement before prediction modeling.": "You should add at least one measurement before prediction modeling.",
+  "Validaton error.": "Validaton error.",
+  "Internal server error.": "Internal eerver error.",
   // excess
   "PAY ATTENTION!": 'PAY ATTENTION!',
   "Exceeding the norm!": "Exceeding the norm!",
@@ -194,6 +196,8 @@ const I18N_UKR: typeof I18N_ENG = {
   "Rivers": 'Річки',
   "Substances": 'Речовини',
   "You should add at least one measurement before prediction modeling.": "Вам необхідно додати принаймні один вимір перед моделюванням передбачення.",
+  "Validaton error.": "Помилка валідації.",
+  "Internal server error.": "Внутрішня помилка серверу.",
   // excess
   "PAY ATTENTION!": 'ЗВЕРНІТЬ УВАГУ!',
   "Exceeding the norm!": "Перевищення норми!",

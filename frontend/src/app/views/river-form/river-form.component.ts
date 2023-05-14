@@ -1,6 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -21,6 +22,7 @@ const MATERIAL_MODULES = [
 import { ApiClient, RiverCRUDModel } from '@/features/api-client';
 import { I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
+
 
 export type RiverFormData =
   | RiverCRUDModel['getPaginatedEntitiesResult']
@@ -119,8 +121,18 @@ export class RiverFormComponent implements OnInit {
       next: () => {
         this.dialogRef.close(true);
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.isFormSubmitted = false;
+        switch (error.status) {
+          case HttpStatusCode.UnprocessableEntity:
+            this.notificationService.notify(I18N['Validaton error.']);
+            break;
+          case HttpStatusCode.InternalServerError:
+            this.notificationService.notify(I18N['Internal server error.']);
+            break;
+          default:
+            this.notificationService.notify(I18N['Something went wrong.']);
+        }
       },
     });
   }

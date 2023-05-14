@@ -172,17 +172,17 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.rivers$$.complete();
   }
 
-  private onCreateLocationClick(coordinates: {
+  private onCreateClick(coordinates: {
     longitude: number;
     latitude: number;
   }) {
-    this.openLocationDialog({
+    this.openDialog({
       coordinates,
       riverId: this.params.river_id,
     });
   }
 
-  private onDeleteLocationClick(
+  private onDeleteClick(
     entity: LocationCRUDModel['getEntitiesResult']
   ) {
     this.confirmationDialogService.open({
@@ -200,8 +200,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     });
   }
 
-  private onEditLocationClick(entity: LocationCRUDModel['getEntitiesResult']) {
-    this.openLocationDialog({ entity });
+  private onEditClick(entity: LocationCRUDModel['getEntitiesResult']) {
+    this.openDialog({ entity });
   }
 
   private onMeasurementsClick(entity: LocationCRUDModel['getEntitiesResult']) {
@@ -292,7 +292,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.refreshLocationsMap();
   }
 
-  private openLocationDialog(data: LocationFormData) {
+  private openDialog(data: LocationFormData) {
     this.matDialog
       .open<LocationFormComponent, LocationFormData, boolean>(
         LocationFormComponent,
@@ -332,7 +332,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const content = this.getButton('add_location_alt');
     content.addEventListener('click', () => {
       this.popup.remove();
-      this.onCreateLocationClick(coordinates);
+      this.onCreateClick(coordinates);
     });
     this.popup
       .setLngLat([coordinates.longitude, coordinates.latitude])
@@ -348,13 +348,13 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     let button = this.getButton('edit_location_alt');
     button.addEventListener('click', () => {
       this.popup.remove();
-      this.onEditLocationClick(entity);
+      this.onEditClick(entity);
     });
     content.appendChild(button);
     button = this.getButton('wrong_location');
     button.addEventListener('click', () => {
       this.popup.remove();
-      this.onDeleteLocationClick(entity);
+      this.onDeleteClick(entity);
     });
     content.appendChild(button);
     button = this.getButton('list_alt');

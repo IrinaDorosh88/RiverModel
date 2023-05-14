@@ -6,6 +6,7 @@ import {
   FormGroup,
   ReactiveFormsModule,
 } from '@angular/forms';
+import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatDatepickerModule } from '@angular/material/datepicker';
@@ -175,8 +176,18 @@ export class MeasurementFormComponent implements OnInit {
         }, [] as LocationCRUDModel['getEntitiesResult']['chemical_elements']);
         this.dialogRef.close(substances.length ? substances : true);
       },
-      error: () => {
+      error: (error: HttpErrorResponse) => {
         this.isFormSubmitted = false;
+        switch (error.status) {
+          case HttpStatusCode.UnprocessableEntity:
+            this.notificationService.notify(I18N['Validaton error.']);
+            break;
+          case HttpStatusCode.InternalServerError:
+            this.notificationService.notify(I18N['Internal server error.']);
+            break;
+          default:
+            this.notificationService.notify(I18N['Something went wrong.']);
+        }
       },
     });
   }

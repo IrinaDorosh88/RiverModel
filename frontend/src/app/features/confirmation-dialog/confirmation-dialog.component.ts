@@ -11,6 +11,7 @@ import {
 const MATERIAL_MODULES = [MatButtonModule, MatDialogModule];
 
 import { I18N } from '@/features/i18n';
+import { NotificationService } from '@/features/notification';
 
 import { ConfirmationDialogData } from './confirmation-dialog.models';
 
@@ -44,6 +45,7 @@ export class ConfirmationDialogComponent {
 
   constructor(
     private dialogRef: MatDialogRef<ConfirmationDialogComponent>,
+    private notificationService: NotificationService,
     @Inject(MAT_DIALOG_DATA) public data: ConfirmationDialogData
   ) {
     this.isConfirmButtonDisabled = false;
@@ -57,6 +59,7 @@ export class ConfirmationDialogComponent {
       },
       error: () => {
         this.isConfirmButtonDisabled = false;
+        this.notificationService.notify(I18N['Something went wrong.']);
       },
     });
   }
