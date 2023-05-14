@@ -1,35 +1,46 @@
+from collections import defaultdict
+
 from fastapi import HTTPException, status
 from sqlalchemy import desc
+from sqlalchemy.orm import joinedload, aliased
 
 from services import AppService
+from services.prediction_point import PredictionPointService
 from models.location import Location
 from models.measurement import Measurement
 from models.chemical_element import ChemicalElement
 from schemas import PaginationParams
-from schemas.measurement import MeasurementCreate, PaginatedMeasurement
-from sqlalchemy.orm import joinedload
-from services.prediction_point import PredictionPointService
+from schemas.measurement import MeasurementCreate, PaginatedMeasurement, GroupedMeasurement
 from schemas.prediction_point import PredictionPointCreate
 
 
 class MeasurementService(AppService):
     def get_measurements(self, location_id: int, pagination: PaginationParams):
-        query = self.session.query(Measurement) \
-            .options(joinedload(Measurement.chemical_element)) \
+        chemical_element_alias = aliased(ChemicalElement)
+
+        data = self.session.query(Measurement) \
+            .options(joinedload(Measurement.chemical_element), joinedload(Measurement.prediction_points)) \
+            .join(chemical_element_alias, Measurement.chemical_element) \
             .filter(Measurement.location_id == location_id) \
-            .order_by(desc(Measurement.created_at))
+            .order_by(desc(Measurement.created_at), chemical_element_alias.name) \
+            .all()
 
         is_paginated_response = isinstance(pagination.limit, int) and isinstance(pagination.offset, int)
 
-        total = query.count()
+        grouped_data = defaultdict(list)
+        for item in data:
+            grouped_data[getattr(item, 'created_at')].append(item)
+
+        data = [
+            GroupedMeasurement(date=created_at.date(), measurements=measurements)
+            for created_at, measurements in grouped_data.items()
+        ]
 
         if is_paginated_response:
-            query = query.limit(pagination.limit).offset(pagination.offset)
-
-        data = query.all()
+            data = data[pagination.offset:pagination.limit]
 
         return PaginatedMeasurement(
-            total=total,
+            total=len(data),
             limit=pagination.limit,
             offset=pagination.offset,
             data=data
