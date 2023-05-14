@@ -20,3 +20,4 @@ class Measurement(Base):
 
     location = relationship('Location', back_populates='measurements')
     chemical_element = relationship('ChemicalElement', back_populates='measurements')
+    prediction_points = relationship('PredictionPoint', back_populates='measurement')

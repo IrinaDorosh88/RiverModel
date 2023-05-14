@@ -1,8 +1,8 @@
-"""Add PredictionPoint model without foreignkey to Measurement
+"""Add Prediction Point model
 
-Revision ID: 249cc62f423a
-Revises: f0156ec83e75
-Create Date: 2023-05-07 11:39:00.676745
+Revision ID: f4fc5cd2afb4
+Revises: c3dbaee21d47
+Create Date: 2023-05-14 10:43:00.031385
 
 """
 from alembic import op
@@ -10,8 +10,8 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '249cc62f423a'
-down_revision = 'f0156ec83e75'
+revision = 'f4fc5cd2afb4'
+down_revision = 'c3dbaee21d47'
 branch_labels = None
 depends_on = None
 
@@ -26,6 +26,7 @@ def upgrade() -> None:
     sa.Column('is_active', sa.Boolean(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('now()'), nullable=False),
     sa.Column('modified_at', sa.DateTime(timezone=True), nullable=True),
+    sa.ForeignKeyConstraint(['measurement_id'], ['measurements.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('measurement_id', 'time')
     )
