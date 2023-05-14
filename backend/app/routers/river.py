@@ -16,13 +16,13 @@ def get_rivers(pagination: PaginationParams = Depends(), service: RiverService =
 def create_river(river_data: RiverCreate, service: RiverService = Depends()):
     return service.create_river(river_data=river_data)
 
-@router.patch("/{river_id}", description="This endpoint updates river information with the given ID. "
+@router.patch("/{river_id}/", description="This endpoint updates river information with the given ID. "
                                          "The request body should contain a JSON object with the fields to be updated.",
                response_model=River)
 def update(river_id: int, river_data: RiverUpdate, service: RiverService = Depends()):
     return service.update_river(river_id=river_id, river_data=river_data)
 
-@router.delete("/{river_id}", description="This endpoint deletes a river entity with the specified ID "
+@router.delete("/{river_id}/", description="This endpoint deletes a river entity with the specified ID "
                                               "from the database. Returns a 204 No Content response if the river "
                                               "entity was successfully deleted. Returns a 404 Not Found response "
                                               "if no river entity exists with the specified ID.")
