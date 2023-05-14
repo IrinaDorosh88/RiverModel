@@ -7,6 +7,7 @@ from routers.chemical_element import router as chemical_element_router
 from routers.river import router as river_router
 from routers.role import router as role_router
 from routers.location import router as location_router
+from routers.measurement import router as measurement_router
 
 
 app = FastAPI()
@@ -30,3 +31,4 @@ app.include_router(chemical_element_router, prefix='/elements', tags=['elements'
 app.include_router(river_router, prefix='/rivers', tags=['rivers'])
 app.include_router(role_router, prefix='/roles', tags=['roles'])
 app.include_router(location_router, prefix='/locations', tags=['locations'])
+app.include_router(measurement_router, prefix='/measurements', tags=['measurements'])

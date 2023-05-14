@@ -30,7 +30,6 @@ const I18N_ENG = {
   // home
   'River': 'River',
   'Substance': 'Substance',
-  'Rivers & Substances': 'Rivers & Substances',
   'Map': 'Map',
   'Chart': 'Chart',
   // location-filter
@@ -49,6 +48,7 @@ const I18N_ENG = {
   'Min': 'Min',
   'Max': 'Max',
   'Unit': 'Unit',
+  'Time delta decay': 'Time delta decay',
   'Min must be a number.': 'Min must be a number.',
   'Min must be greater or equal to 0.': 'Min must be greater or equal to 0.',
   'Max must be a number.': 'Max must be a number.',
@@ -64,19 +64,23 @@ const I18N_ENG = {
   // location-form
   'Latitude': 'Latitude',
   'Longitude': 'Longitude',
-  'Substances': 'Substances',
   'River is required.': 'River is required.',
   'Choose at least one substance.': 'Choose at least one substance.',
   'Edit $name location': (name: string) => `Edit ${name} location`,
   'New Location': 'New Location',
   '$name location is successfully created.': (name: string) => `${name} location is successfully created.`,
   '$name location is successfully edited.': (name: string) => `${name} location is successfully edited.`,
+  'Flow rate': 'Flow rate',
+  'Turbulent diffusive coefficient': 'Turbulent diffusive coefficient',
+  'Must be a number.': 'Must be a number.',
+  'Must be greater or equal to 0.': 'Must be greater or equal to 0.',
   // measurement-form
   'New Measurement': 'New Measurement',
   'Date': 'Date',
   'Measurement must be a number.': 'Measurement must be a number.',
-  'Measurement must be greater or equal to 0.': 'Measurement must be greater or equal to 0.',
+  'Measurement must be greater or equal to $number.': (number: number) => `Measurement must be greater or equal to ${number}.`,
   'Measurement is successfully added.': 'Measurement is successfully added.',
+  'Maximum value exceeding: $number': (number: number) => `Maximum value exceeding: ${number}`,
   // map
   'Values': 'Values',
   'Choose location to display measurements.': 'Choose location to display Measurements.',
@@ -85,6 +89,13 @@ const I18N_ENG = {
   // chart
   'Choose location to display predictions.': 'Choose location to display data.',
   'days': 'days',
+  // ...
+  "Rivers": 'Rivers',
+  "Substances": 'Substances',
+  // excess
+  "PAY ATTENTION!": 'PAY ATTENTION!',
+  "Exceeding the norm!": "Exceeding the norm!",
+  "* Click on a substance to display the graph.": "* Click on a substance to display the graph.",
 };
 
 const I18N_UKR: typeof I18N_ENG = {
@@ -119,7 +130,6 @@ const I18N_UKR: typeof I18N_ENG = {
   // home
   'River': 'Річка',
   'Substance': 'Речовина',
-  'Rivers & Substances': 'Річки & Речовини',
   'Map': 'Мапа',
   'Chart': 'Діаграма',
   // location-filter
@@ -138,6 +148,7 @@ const I18N_UKR: typeof I18N_ENG = {
   'Min': 'Мін.',
   'Max': 'Макс.',
   'Unit': 'Одиниця виміру',
+  'Time delta decay': 'Час дельта розпаду',
   'Min must be a number.': 'Мін. повинно бути числом.',
   'Min must be greater or equal to 0.': 'Мін. повинно бути більше рівне 0.',
   'Max must be a number.': 'Макс. повинно бути числом.',
@@ -153,19 +164,23 @@ const I18N_UKR: typeof I18N_ENG = {
   // location-form
   'Latitude': 'Широта',
   'Longitude': 'Довгота',
-  'Substances': 'Речовини',
   'River is required.': 'Річка обов\'язкова.',
   'Choose at least one substance.': 'Оберіть принаймні одну речовину.',
   'Edit $name location': (name: string) => `Редагування локації ${name}`,
   'New Location': 'Створення локації',
   '$name location is successfully created.': (name: string) => `Локація ${name} успішно створена.`,
   '$name location is successfully edited.': (name: string) => `Локація ${name} успішно редагована.`,
+  'Flow rate': 'Швидкість потоку',
+  'Turbulent diffusive coefficient': 'Коефіцієнт турбулентної дифузії',
+  'Must be a number.': 'Повинно бути числом.',
+  'Must be greater or equal to 0.': 'Повинно бути більше рівне 0.',
   // measurement-form
   'New Measurement': 'Створення виміру',
   'Date': 'Дата',
   'Measurement must be a number.': 'Вимір повинен бути числом.',
-  'Measurement must be greater or equal to 0.': 'Вимір повинен бути більший рівний 0',
+  'Measurement must be greater or equal to $number.': (number: number) => `Вимір повинен бути більший рівний ${number}`,
   'Measurement is successfully added.': 'Вимір успішно додано.',
+  'Maximum value exceeding: $number': (number: number) => `Перевищення максимального значення: ${number}`,
   // map
   'Values': 'Значення',
   'Choose location to display measurements.': 'Оберіть локацію для виведення вимірів.',
@@ -174,6 +189,13 @@ const I18N_UKR: typeof I18N_ENG = {
   // chart
   'Choose location to display predictions.': 'Оберіть локацію для виведення передбачень.',
   'days': 'дні',
+  // ...
+  "Rivers": 'Річки',
+  "Substances": 'Речовини',
+  // excess
+  "PAY ATTENTION!": 'ЗВЕРНІТЬ УВАГУ!',
+  "Exceeding the norm!": "Перевищення норми!",
+  "* Click on a substance to display the graph.": "* Натисність на речовину, щоб відобразити графік.",
 };
 
 export const I18N = { ...I18N_UKR };

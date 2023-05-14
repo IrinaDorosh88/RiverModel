@@ -13,9 +13,9 @@ function getRandomDate(max: Date = new Date(), min: Date = new Date(0)) {
   return new Date(getRandomInt(max.getTime(), min.getTime()));
 }
 
-type GetEntitiesResult = {
+type GetEntityResult = {
   id: number;
-  locationId: number;
+  location_id: number;
   substances: {
     id: number;
     name: string;
@@ -25,11 +25,11 @@ type GetEntitiesResult = {
       y: number;
     }[];
   }[];
-}[];
+};
 
 export interface PredictionCRUDModel extends CRUDApiClientModel {
-  getPaginatedEntitiesResult: GetEntitiesResult;
-  getEntityByLocationIdResult: GetEntitiesResult[number];
+  getPaginatedEntitiesResult: GetEntityResult[];
+  getEntityResult: GetEntityResult;
 }
 
 @Injectable({
@@ -41,62 +41,79 @@ export class PredictionApiClient extends CRUDApiClient<PredictionCRUDModel> {
   }
 
   public getEntityByLocationId(
-    id: number
-  ): Observable<PredictionCRUDModel['getEntityByLocationIdResult']> {
+    location_id: number
+  ): Observable<PredictionCRUDModel['getEntityResult']> {
     const predictions = [
       {
         id: 1,
-        locationId: 1,
+        location_id: 1,
         substances: [
           {
             id: 1,
             name: 'Hydrogen',
             unit: 'g/mol',
-            values: new Array(getRandomInt(20, 5)).fill(null).map(() => {
-              return { x: getRandomInt(20), y: getRandomInt(20) };
-            }).sort((a,b) => a.x - b.x),
+            values: new Array(getRandomInt(20, 5))
+              .fill(null)
+              .map(() => {
+                return { x: getRandomInt(20), y: getRandomInt(20) };
+              })
+              .sort((a, b) => a.x - b.x),
           },
           {
             id: 2,
             name: 'Helium',
             unit: 'g/mol',
-            values: new Array(getRandomInt(20, 5)).fill(null).map(() => {
-              return { x: getRandomInt(20), y: getRandomInt(20) };
-            }).sort((a,b) => a.x - b.x),
+            values: new Array(getRandomInt(20, 5))
+              .fill(null)
+              .map(() => {
+                return { x: getRandomInt(20), y: getRandomInt(20) };
+              })
+              .sort((a, b) => a.x - b.x),
           },
           {
             id: 4,
             name: 'Beryllium',
             unit: 'g/mol',
-            values: new Array(getRandomInt(20, 5)).fill(null).map(() => {
-              return { x: getRandomInt(20), y: getRandomInt(20) };
-            }).sort((a,b) => a.x - b.x),
+            values: new Array(getRandomInt(20, 5))
+              .fill(null)
+              .map(() => {
+                return { x: getRandomInt(20), y: getRandomInt(20) };
+              })
+              .sort((a, b) => a.x - b.x),
           },
         ],
       },
       {
         id: 2,
-        locationId: 2,
+        location_id: 2,
         substances: [
           {
             id: 2,
             name: 'Lithium',
             unit: 'g/mol',
-            values: new Array(getRandomInt(20, 5)).fill(null).map(() => {
-              return { x: getRandomInt(20), y: getRandomInt(20) };
-            }).sort((a,b) => a.x - b.x),
+            values: new Array(getRandomInt(20, 5))
+              .fill(null)
+              .map(() => {
+                return { x: getRandomInt(20), y: getRandomInt(20) };
+              })
+              .sort((a, b) => a.x - b.x),
           },
           {
             id: 4,
             name: 'Beryllium',
             unit: 'g/mol',
-            values: new Array(getRandomInt(20, 5)).fill(null).map(() => {
-              return { x: getRandomInt(20), y: getRandomInt(20) };
-            }).sort((a,b) => a.x - b.x),
+            values: new Array(getRandomInt(20, 5))
+              .fill(null)
+              .map(() => {
+                return { x: getRandomInt(20), y: getRandomInt(20) };
+              })
+              .sort((a, b) => a.x - b.x),
           },
         ],
       },
     ];
-    return of(predictions.find((entity) => entity.locationId === id)!);
+    return of(
+      predictions.find((entity) => entity.location_id === location_id)!
+    );
   }
 }

@@ -3,6 +3,8 @@ from typing import Optional
 
 from pydantic import BaseModel
 
+from . import PaginatedResponse
+
 
 class RoleBase(BaseModel):
     name: str
@@ -25,3 +27,7 @@ class RoleCreate(RoleBase):
 class RoleUpdate(RoleBase):
     is_active: Optional[bool] = None
     pass
+
+
+class PaginatedRole(PaginatedResponse):
+    data: list[Role]

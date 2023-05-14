@@ -1,16 +1,14 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
-from core.utils import RoleChecker
-
-from schemas.role import Role, RoleCreate, RoleUpdate
+from schemas import PaginationParams
+from schemas.role import Role, RoleCreate, RoleUpdate, PaginatedRole
 from services.role import RoleService
 
 router = APIRouter()
 
-@router.get("/", description="This endpoint returns all role data.",
-            response_model=list[Role])
-def get_roles(service: RoleService = Depends()):
-    return service.get_roles()
+@router.get("/", description="This endpoint returns all role data.", response_model=list[Role] | PaginatedRole)
+def get_roles(pagination: PaginationParams = Depends(), service: RoleService = Depends()):
+    return service.get_roles(pagination)
 
 @router.post("/", description="This endpoint creates a new role with the provided information and returns the role's data.",
              response_model=Role)

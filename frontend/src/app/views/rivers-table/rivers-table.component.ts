@@ -1,15 +1,9 @@
 import { CommonModule } from '@angular/common';
-import {
-  Component,
-  OnDestroy,
-  OnInit,
-  ViewChild,
-  ViewEncapsulation,
-} from '@angular/core';
+import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { Subscription, tap } from 'rxjs';
 
 import { MatButtonModule } from '@angular/material/button';
-import { MatDialog } from '@angular/material/dialog';
+import { MatDialog, MatDialogRef } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import {
   MatPaginator,
@@ -29,8 +23,6 @@ import { ConfirmationDialogService } from '@/features/confirmation-dialog';
 import { I18N } from '@/features/i18n';
 import { NotificationService } from '@/features/notification';
 
-import { TOOLBAR_ACTION$$ } from '@/views/home';
-
 import { RiverFormComponent, RiverFormData } from '@/views/river-form';
 
 @Component({
@@ -39,117 +31,106 @@ import { RiverFormComponent, RiverFormData } from '@/views/river-form';
   encapsulation: ViewEncapsulation.None,
   selector: 'app-rivers',
   template: `
-    <mat-paginator
-      [length]="length"
-      [hidePageSize]="true"
-      [pageSize]="10"
-      [showFirstLastButtons]="true"
-      (page)="onPaginatorPage($event)"
-    ></mat-paginator>
-    <table mat-table class="p-2" [dataSource]="DATA_SOURCE">
+    <div
+      class="p-3 display-flex align-items-center justify-content-space-between"
+    >
+      <button
+        mat-mini-fab
+        class="color-white background-color-primary"
+        (click)="onCreateClick()"
+      >
+        <mat-icon>add</mat-icon>
+      </button>
+      <mat-paginator
+        [length]="length"
+        [hidePageSize]="true"
+        [pageSize]="10"
+        [showFirstLastButtons]="true"
+        (page)="onPaginatorPage($event)"
+      ></mat-paginator>
+    </div>
+    <table mat-table class="p-2" [dataSource]="dataSource">
       <ng-container matColumnDef="name">
         <th *matHeaderCellDef mat-header-cell>{{ I18N['Name'] }}</th>
         <td *matCellDef="let item" mat-cell>{{ item.name }}</td>
       </ng-container>
       <ng-container matColumnDef="actions">
-        <th *matHeaderCellDef mat-header-cell style="width: 48px"></th>
-        <td *matCellDef="let item" mat-cell>
-          <div class="display-flex gap-2">
-            <button mat-mini-fab color="accent" (click)="onEditClick(item)">
-              <mat-icon>edit</mat-icon>
-            </button>
-          </div>
-        </td>
-      </ng-container>
-      <!-- <ng-container matColumnDef="actions">
         <th *matHeaderCellDef mat-header-cell style="width: 96px"></th>
         <td *matCellDef="let item" mat-cell>
-          <div class="display-flex gap-2">
-            <button mat-mini-fab color="accent" (click)="onEditClick(item)">
+          <div class="display-flex g-2">
+            <button
+              mat-mini-fab
+              class="color-white background-color-accent"
+              (click)="onEditClick(item)"
+            >
               <mat-icon>edit</mat-icon>
             </button>
-            <button mat-mini-fab color="warn" (click)="onDeleteClick(item)">
+            <button
+              mat-mini-fab
+              class="color-white background-color-warn"
+              (click)="onDeleteClick(item)"
+            >
               <mat-icon>delete</mat-icon>
             </button>
           </div>
         </td>
-      </ng-container> -->
-      <tr mat-header-row *matHeaderRowDef="DISPLAYED_COLUMNS"></tr>
-      <tr mat-row *matRowDef="let row; columns: DISPLAYED_COLUMNS"></tr>
+      </ng-container>
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
     </table>
   `,
 })
-export class RiversComponent implements OnInit, OnDestroy {
+export class RiversTableComponent implements OnInit {
   public readonly I18N = I18N;
-
   @ViewChild(MatPaginator) public paginator!: MatPaginator;
-  private readonly SUBSCRIPTIONS;
-  public readonly DISPLAYED_COLUMNS;
-  public readonly DATA_SOURCE;
-  public readonly paginationParams: { limit: number; offset?: number };
-  public length;
-  private get params() {
-    return this.paginationParams;
-  }
+  private readonly subscriptions: Subscription;
+  public readonly dataSource: MatTableDataSource<
+    RiverCRUDModel['getPaginatedEntitiesResult']
+  >;
+  public readonly displayedColumns: string[];
+  public readonly params: { limit: number; offset?: number };
+  private dialogCloseResult: boolean;
+  public length: number;
 
   constructor(
     private readonly matDialog: MatDialog,
+    private readonly dialogRef: MatDialogRef<RiversTableComponent>,
+    private readonly apiClient: ApiClient,
     private readonly confirmationDialogService: ConfirmationDialogService,
-    private readonly notificationService: NotificationService,
-    private readonly apiClient: ApiClient
+    private readonly notificationService: NotificationService
   ) {
-    this.SUBSCRIPTIONS = new Subscription();
-    this.DISPLAYED_COLUMNS = ['name', 'actions'];
-    this.DATA_SOURCE = new MatTableDataSource<
-      RiverCRUDModel['getPaginatedEntitiesResult']['data'][number]
-    >([]);
-    this.paginationParams = { limit: 10 };
+    this.subscriptions = new Subscription();
+    this.dataSource = new MatTableDataSource([] as any);
+    this.displayedColumns = ['name', 'actions'];
+    this.params = { limit: 10 };
+    this.dialogCloseResult = false;
     this.length = 0;
   }
 
   public ngOnInit() {
-    this.refreshEntities();
-
-    this.SUBSCRIPTIONS.add(
-      TOOLBAR_ACTION$$.subscribe({
-        next: ({ key }) => {
-          switch (key) {
-            case 'RIVERS_NEW_RIVER':
-              this.onCreateClick();
-              break;
-          }
-        },
+    this.dialogRef.disableClose = true;
+    this.subscriptions.add(
+      this.dialogRef.backdropClick().subscribe({
+        next: () => this.dialogRef.close(this.dialogCloseResult),
       })
     );
-  }
-
-  public ngOnDestroy() {
-    this.SUBSCRIPTIONS.unsubscribe();
+    this.refreshEntities();
   }
 
   public onPaginatorPage(event: PageEvent) {
     if (event.pageIndex) {
-      this.paginationParams.offset =
-        event.pageIndex * this.paginationParams.limit;
+      this.params['offset'] = event.pageIndex * this.params['limit'];
     } else {
-      delete this.paginationParams.offset;
+      delete this.params['offset'];
     }
     this.refreshEntities();
   }
 
-  private onCreateClick() {
+  public onCreateClick() {
     this.openDialog();
   }
 
-  public onEditClick(
-    item: RiverCRUDModel['getPaginatedEntitiesResult']['data'][number]
-  ) {
-    this.openDialog(item);
-  }
-
-  public onDeleteClick(
-    item: RiverCRUDModel['getPaginatedEntitiesResult']['data'][number]
-  ) {
+  public onDeleteClick(item: RiverCRUDModel['getPaginatedEntitiesResult']) {
     this.confirmationDialogService.open({
       title: I18N['Delete $name river'](item.name),
       confirmCallback: () => {
@@ -158,20 +139,23 @@ export class RiversComponent implements OnInit, OnDestroy {
             this.notificationService.notify(
               I18N['$name river is successfully deleted.'](item.name)
             );
-            if (!this.DATA_SOURCE.data.length && this.paginationParams.offset) {
+            if (!this.dataSource.data.length && this.params.offset) {
               this.paginator.previousPage();
             } else {
               this.refreshEntities();
             }
+            this.dialogCloseResult = true;
           })
         );
       },
     });
   }
 
-  private openDialog(
-    data?: RiverCRUDModel['getPaginatedEntitiesResult']['data'][number]
-  ) {
+  public onEditClick(item: RiverCRUDModel['getPaginatedEntitiesResult']) {
+    this.openDialog(item);
+  }
+
+  private openDialog(data?: RiverCRUDModel['getPaginatedEntitiesResult']) {
     this.matDialog
       .open<RiverFormComponent, RiverFormData, boolean>(RiverFormComponent, {
         width: '400px',
@@ -182,6 +166,7 @@ export class RiversComponent implements OnInit, OnDestroy {
         next: (next) => {
           if (next) {
             this.refreshEntities();
+            this.dialogCloseResult = true;
           }
         },
       });
@@ -191,7 +176,7 @@ export class RiversComponent implements OnInit, OnDestroy {
     this.apiClient.river.getPaginatedEntities(this.params).subscribe({
       next: (next) => {
         this.length = next.count;
-        this.DATA_SOURCE.data = next.data;
+        this.dataSource.data = next.data;
       },
     });
   }

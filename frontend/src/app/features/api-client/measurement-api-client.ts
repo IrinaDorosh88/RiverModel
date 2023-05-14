@@ -2,17 +2,15 @@ import { Injectable } from '@angular/core';
 import { Observable, delay, of } from 'rxjs';
 
 import { HttpClientQueryParams } from '@/features/http-client-extensions';
-import { PaginatedData } from '@/features/paginated-data';
 
 import { CRUDApiClientModel, CRUDApiClient } from './crud-api-client';
 
 export interface MeasurementCRUDModel extends CRUDApiClientModel {
-  getPaginatedEntitiesResult: PaginatedData<{
+  getPaginatedEntitiesResult: {
+    location_id: number;
     date: Date;
-    id: number;
-    locationId: number;
-    values: { [key: number]: number };
-  }>;
+    values: { substance_name: string; value: number }[];
+  };
 }
 
 @Injectable({
@@ -24,32 +22,40 @@ export class MeasurementApiClient extends CRUDApiClient<MeasurementCRUDModel> {
   }
 
   public override getPaginatedEntities(params?: HttpClientQueryParams) {
-    let result: MeasurementCRUDModel['getPaginatedEntitiesResult'] = {
+    let result = {
       data: [
         {
           date: new Date(),
-          id: 1,
-          locationId: 1,
-          values: { 1: 12, 2: 16, 4: 13.3 },
+          location_id: 1,
+          values: [
+            { substance_name: 'S1', value: 12 },
+            { substance_name: 'S2', value: 16 },
+            { substance_name: 'S4', value: 13.3 },
+          ],
         },
         {
           date: new Date(),
-          id: 2,
-          locationId: 1,
-          values: { 1: 22, 2: 13, 4: 11.8 },
+          location_id: 1,
+          values: [
+            { substance_name: 'S1', value: 22 },
+            { substance_name: 'S2', value: 13 },
+            { substance_name: 'S4', value: 11.8 },
+          ],
         },
         {
           date: new Date(),
-          id: 3,
-          locationId: 2,
-          values: { 2: 11.4, 3: 15.9 },
+          location_id: 2,
+          values: [
+            { substance_name: 'S1', value: 11.5 },
+            { substance_name: 'S3', value: 15.9 },
+          ],
         },
       ],
       count: 3,
     };
-    if (params?.['location']) {
+    if (params?.['location_id']) {
       const data = result.data.filter(
-        (item) => item.locationId === params['location']
+        (item) => item.location_id === params['location_id']
       );
       result = {
         data,
@@ -59,15 +65,15 @@ export class MeasurementApiClient extends CRUDApiClient<MeasurementCRUDModel> {
     return of(result);
   }
 
-  public override postEntity(value: any): Observable<unknown> {
+  public override postEntity(value: any) {
     return of(true).pipe(delay(2000));
   }
 
-  public override patchEntity(id: number, value: any): Observable<unknown> {
-    return of(true).pipe(delay(2000));
+  public override patchEntity() {
+    return this.methodNotImplemented();
   }
 
-  public override deleteEntity(id: number): Observable<unknown> {
-    return of(true).pipe(delay(2000));
+  public override deleteEntity() {
+    return this.methodNotImplemented();
   }
 }

@@ -1,6 +1,11 @@
+from datetime import datetime
 from decimal import Decimal
+from typing import Optional
 
 from pydantic import BaseModel
+
+from . import PaginatedResponse
+from .chemical_element import ChemicalElement
 
 
 class LocationBase(BaseModel):
@@ -10,19 +15,26 @@ class LocationBase(BaseModel):
     latitude: float
     flow_rate: Decimal
     turbulent_diffusive_coefficient: Decimal
-    is_active: bool
 
 
 class Location(LocationBase):
     id: int
+    created_at: Optional[datetime] = None
+    modified_at: Optional[datetime] = None
+    is_active: Optional[bool] = None
+    chemical_elements: Optional[list[ChemicalElement]] = []
 
     class Config:
         orm_mode = True
 
 
 class LocationCreate(LocationBase):
-    pass
+    chemical_elements: list[int]
 
 
 class LocationUpdate(LocationBase):
-    pass
+    chemical_elements: list[int]
+
+
+class PaginatedLocation(PaginatedResponse):
+    data: list[Location]
