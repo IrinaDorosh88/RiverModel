@@ -17,7 +17,7 @@ class ChemicalElementCreate(ChemicalElementBase):
     pass
 
 class ChemicalElementUpdate(ChemicalElementBase):
-    is_active: bool
+    pass
 
 class ChemicalElement(ChemicalElementBase):
     id: int

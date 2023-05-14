@@ -28,7 +28,7 @@ class RiverCreate(RiverBase):
 
 
 class RiverUpdate(RiverBase):
-    is_active: bool
+    pass
 
 
 class PaginatedRiver(PaginatedResponse):
