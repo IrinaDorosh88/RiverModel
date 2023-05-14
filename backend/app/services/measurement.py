@@ -50,7 +50,6 @@ class MeasurementService(AppService):
         prediction_point_service = PredictionPointService(self.session)
         for measurement in measurements:
             if measurement.concentration_value > measurement.chemical_element.max_value:
-                print(measurement.concentration_value)
                 prediction_points_data = prediction_point_service.run_model(measurement.concentration_value, measurement.chemical_element.max_value)
                 prediction_point_service.create_prediction_points(prediction_point_data=PredictionPointCreate(measurement_id=measurement.id, values=prediction_points_data))
 
