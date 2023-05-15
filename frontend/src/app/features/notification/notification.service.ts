@@ -7,7 +7,7 @@ export class NotificationService {
 
   public notify(message: string) {
     this.snackBar.open(message, undefined, {
-      duration: 2000,
+      duration: 3000,
       horizontalPosition: 'end',
       verticalPosition: 'top',
     });

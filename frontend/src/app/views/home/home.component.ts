@@ -46,6 +46,11 @@ import {
   MeasurementsTableData,
   MeasurementsTableResult,
 } from '@/views/measurements-table';
+import {
+  LocationCurrentStateComponent,
+  LocationCurrentStateData,
+  LocationCurrentStateResult,
+} from '@/views/location-current-state';
 
 @Component({
   standalone: true,
@@ -220,9 +225,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         switchMap((next) => {
           if (!next.length) {
             this.notificationService.notify(
-              I18N[
-                'You should add at least one measurement before prediction modeling.'
-              ]
+              `${I18N['Prediction modeling']}: ${I18N['You should add at least one measurement.']}`
             );
             return EMPTY;
           }
@@ -241,7 +244,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
             )
           ) {
             this.notificationService.notify(
-              I18N['There are no excessing now.']
+              `${I18N['Prediction modeling']}: ${I18N['There are no excessing now.']}`
             );
             return EMPTY;
           }
@@ -259,7 +262,62 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private onCurrentStateClick(entity: LocationCRUDModel['getEntitiesResult']) {
-    console.log(entity);
+    this.apiClient.measurement
+      .getEntities({ location_id: entity.id })
+      .pipe(
+        switchMap((next) => {
+          if (
+            !next.length ||
+            !next[0].measurements.some(
+              (item) =>
+                new Date() <
+                new Date(
+                  new Date(next[0].date).getTime() +
+                    ((item.prediction_points.length || 1) - 1) *
+                      24 *
+                      60 *
+                      60 *
+                      1000
+                )
+            )
+          ) {
+            this.notificationService.notify(
+              `${I18N['Current state']}: ${I18N['There are no excessing now.']}`
+            );
+            return EMPTY;
+          }
+          return this.matDialog
+            .open<
+              LocationCurrentStateComponent,
+              LocationCurrentStateData,
+              LocationCurrentStateResult
+            >(LocationCurrentStateComponent, {
+              data: {
+                measurement: next[0],
+                excesses: next[0].measurements.filter(
+                  (item) =>
+                    new Date() <
+                    new Date(
+                      new Date(next[0].date).getTime() +
+                        ((item.prediction_points.length || 1) - 1) *
+                          24 *
+                          60 *
+                          60 *
+                          1000
+                    )
+                ),
+              },
+            })
+            .afterClosed();
+        })
+      )
+      .subscribe({
+        next: (next) => {
+          if (next) {
+            this.onChartClick(entity, next);
+          }
+        },
+      });
   }
 
   public onRiversClick() {
