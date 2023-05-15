@@ -88,7 +88,7 @@ const I18N_ENG = {
   'Delete $name location': (name: string) => `Delete ${name} location`,
   // chart
   'Choose location to display predictions.': 'Choose location to display data.',
-  'days': 'days',
+  'days before normalization': 'days before normalization',
   // ...
   "Rivers": 'Rivers',
   "Substances": 'Substances',
@@ -191,7 +191,7 @@ const I18N_UKR: typeof I18N_ENG = {
   '$name location is successfully deleted.': (name: string) => `Локація ${name} успішно видалена.`,
   // chart
   'Choose location to display predictions.': 'Оберіть локацію для виведення передбачень.',
-  'days': 'дні',
+  'days before normalization': 'днів до нормалізації',
   // ...
   "Rivers": 'Річки',
   "Substances": 'Речовини',

@@ -243,6 +243,10 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       .subscribe();
   }
 
+  private onCurrentStateClick(entity: LocationCRUDModel['getEntitiesResult']) {
+    console.log(entity);
+  }
+
   public onRiversClick() {
     this.matDialog
       .open(RiversTableComponent, {
@@ -330,7 +334,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     const content = document.createElement('div');
     content.classList.add('display-flex', 'flex-wrap', 'g-2');
     content.style.justifyContent = 'center';
-    content.style.width = '120px';
+    content.style.width = '160px';
     let button = this.getButton('edit_location_alt');
     button.addEventListener('click', () => {
       this.popup.remove();
@@ -343,10 +347,16 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       this.onDeleteClick(entity);
     });
     content.appendChild(button);
-    button = this.getButton('list_alt');
+    button = this.getButton('history');
     button.addEventListener('click', () => {
       this.popup.remove();
       this.onMeasurementsClick(entity);
+    });
+    content.appendChild(button);
+    button = this.getButton('view_list');
+    button.addEventListener('click', () => {
+      this.popup.remove();
+      this.onCurrentStateClick(entity);
     });
     content.appendChild(button);
     button = this.getButton('show_chart');
@@ -366,7 +376,8 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
       | 'add_location_alt'
       | 'edit_location_alt'
       | 'wrong_location'
-      | 'list_alt'
+      | 'history'
+      | 'view_list'
       | 'show_chart'
   ) {
     const result = document.createElement('button');

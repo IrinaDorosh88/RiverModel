@@ -108,6 +108,10 @@ canvas:not(:active) {
 
 // utility
 
+.position-relative {
+  position: relative;
+}
+
 .width-full {
   width: 100% !important;
 }

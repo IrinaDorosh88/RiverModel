@@ -11,6 +11,8 @@ type GetEntityResult = {
       id: number;
       name: string;
       units: string;
+      max_value: number;
+      min_value: number;
     };
     prediction_points: {
       value: number;

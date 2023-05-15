@@ -22,7 +22,7 @@ import {
   MeasurementFormData,
   MeasurementFormResult,
 } from '@/views/measurement-form';
-import { EMPTY, switchMap, tap } from 'rxjs';
+import { EMPTY, filter, switchMap, tap } from 'rxjs';
 import { ExcessComponent, ExcessData, ExcessResult } from '../excess';
 import { MatDialogRef } from '@angular/material/dialog';
 
@@ -145,9 +145,10 @@ export class MeasurementsTableComponent implements OnInit {
       })
       .afterClosed()
       .pipe(
+        filter((next): next is MeasurementFormResult => !!next),
         tap(() => this.refreshTable()),
         switchMap((next) =>
-          next && typeof next !== 'boolean'
+          typeof next !== 'boolean'
             ? this.matDialog
                 .open<ExcessComponent, ExcessData, ExcessResult>(
                   ExcessComponent,

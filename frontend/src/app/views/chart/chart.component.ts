@@ -2,7 +2,6 @@ import {
   AfterViewInit,
   Component,
   Inject,
-  OnInit,
   ViewEncapsulation,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -27,6 +26,9 @@ export type ChartComponentData = {
   substance_id?: number | undefined;
 };
 
+import Annotation from 'chartjs-plugin-annotation';
+Chart.register(Annotation);
+
 @Component({
   standalone: true,
   imports: [CommonModule, ...MATERIAL_MODULES],
@@ -34,7 +36,14 @@ export type ChartComponentData = {
   selector: 'app-chart',
   template: `
     <div style="width: 1000px">
-      <div mat-dialog-title style="padding-top: 1.5rem; text-align: end;">
+      <div
+        class="p-3 display-flex align-items-center justify-content-space-between"
+      >
+        <div>
+          {{
+            I18N['Date'] + ': ' + (data.measurement.date | date : 'dd-MM-YYYY')
+          }}
+        </div>
         <mat-form-field>
           <mat-label>{{ I18N['Substance'] }}</mat-label>
           <mat-select
@@ -50,7 +59,7 @@ export type ChartComponentData = {
           </mat-select>
         </mat-form-field>
       </div>
-      <div mat-dialog-content class="display-flex justify-content-center">
+      <div class="position-relative display-flex justify-content-center">
         <canvas id="chart-container"></canvas>
       </div>
     </div>
@@ -58,7 +67,6 @@ export type ChartComponentData = {
 })
 export class ChartComponent implements AfterViewInit {
   public I18N = I18N;
-
   public chart!: Chart<'line', number[], number>;
   public substanceSelectValue!: MeasurementCRUDModel['getEntitiesResult']['measurements'][number];
 
@@ -74,6 +82,7 @@ export class ChartComponent implements AfterViewInit {
         datasets: [],
       },
       options: {
+        responsive: true,
         scales: {
           y: {
             beginAtZero: true,
@@ -85,7 +94,7 @@ export class ChartComponent implements AfterViewInit {
           x: {
             title: {
               display: true,
-              text: I18N['days'],
+              text: I18N['days before normalization'],
             },
           },
         },
@@ -110,15 +119,43 @@ export class ChartComponent implements AfterViewInit {
   ) {
     if (entity) {
       entity.prediction_points.sort((a, b) => a.time - b.time);
-      this.chart.data.labels = entity.prediction_points.map(
-        (item) => item.time
-      );
-      this.chart.data.datasets = [
-        {
-          label: entity.chemical_element.name,
-          data: entity.prediction_points.map((item) => item.value),
+      (this.chart.options.plugins as any).annotation = {
+        annotations: {
+          max_value: {
+            type: 'line',
+            label: {
+              content: I18N['Max'],
+              display: true,
+              position: 'end',
+            },
+            yMin: entity.chemical_element.max_value,
+            yMax: entity.chemical_element.max_value,
+            borderColor: 'rgb(255, 99, 132)',
+            borderWidth: 2,
+          },
+          min_value: {
+            type: 'line',
+            label: {
+              content: I18N['Min'],
+              display: true,
+              position: 'start',
+            },
+            yMin: entity.chemical_element.min_value,
+            yMax: entity.chemical_element.min_value,
+            borderColor: 'rgb(75, 192, 192)',
+            borderWidth: 2,
+          },
         },
-      ];
+      };
+      this.chart.data = {
+        labels: entity.prediction_points.map((item) => item.time),
+        datasets: [
+          {
+            label: entity.chemical_element.name,
+            data: entity.prediction_points.map((item) => item.value),
+          },
+        ],
+      };
       this.chart.options.scales!['y']!.title!.text =
         entity.chemical_element.units;
     } else {
