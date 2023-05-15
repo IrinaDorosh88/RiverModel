@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { CRUDApiClientModel, CRUDApiClient } from './crud-api-client';
 
 type GetEntityResult = {
-  date: Date;
+  date: string;
   measurements: {
     location_id: number;
     concentration_value: number;

@@ -1,4 +1,4 @@
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { Component, Inject, OnInit, ViewEncapsulation } from '@angular/core';
 
 import { MatButtonModule } from '@angular/material/button';
@@ -41,6 +41,7 @@ export type MeasurementsTableResult = number;
     ...MATERIAL_MODULES,
   ],
   encapsulation: ViewEncapsulation.None,
+  providers: [DatePipe],
   selector: 'app-measurements-table',
   template: `
     <div
@@ -70,7 +71,9 @@ export type MeasurementsTableResult = number;
       </ng-container>
 
       <ng-container matColumnDef="values">
-        <th *matHeaderCellDef mat-header-cell>{{ I18N['Values'] }}</th>
+        <th *matHeaderCellDef mat-header-cell>
+          {{ I18N['Values (Normalization date)'] }}
+        </th>
         <td *matCellDef="let item" mat-cell>
           <div [innerHTML]="item.innerHTML"></div>
         </td>
@@ -83,7 +86,7 @@ export type MeasurementsTableResult = number;
 export class MeasurementsTableComponent implements OnInit {
   public readonly I18N = I18N;
   public readonly dataSource: MatTableDataSource<{
-    date: Date;
+    date: string;
     innerHTML: string;
   }>;
   public readonly displayedColumns: string[];
@@ -101,6 +104,7 @@ export class MeasurementsTableComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) private data: MeasurementsTableData,
     private matDialog: MatDialog,
+    private datePipe: DatePipe,
     private dialogRef: MatDialogRef<
       MeasurementsTableComponent,
       MeasurementsTableResult
@@ -179,8 +183,20 @@ export class MeasurementsTableComponent implements OnInit {
         this.length = next.total;
         this.dataSource.data = next.data.map((item) => ({
           date: item.date,
-          innerHTML: item.measurements.reduce((accumulator, item) => {
-            accumulator += `<div><b>${item.chemical_element.name}</b>: ${item.concentration_value}</div>`;
+          innerHTML: item.measurements.reduce((accumulator, measurement) => {
+            accumulator += `<div><b>${measurement.chemical_element.name}</b>: ${
+              measurement.concentration_value
+            } (${this.datePipe.transform(
+              new Date(
+                new Date(item.date).getTime() +
+                  ((measurement.prediction_points.length || 1) - 1) *
+                    24 *
+                    60 *
+                    60 *
+                    1000
+              ),
+              'dd-MM-YYYY'
+            )})</div>`;
             return accumulator;
           }, ''),
         }));

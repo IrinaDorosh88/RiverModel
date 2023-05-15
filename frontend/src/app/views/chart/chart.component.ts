@@ -50,10 +50,7 @@ Chart.register(Annotation);
             [value]="substanceSelectValue"
             (selectionChange)="onSubstanceSelectionChange($event.value)"
           >
-            <mat-option
-              *ngFor="let entity of data.measurement.measurements"
-              [value]="entity"
-            >
+            <mat-option *ngFor="let entity of excesses" [value]="entity">
               {{ entity.chemical_element.name }}
             </mat-option>
           </mat-select>
@@ -68,6 +65,7 @@ Chart.register(Annotation);
 export class ChartComponent implements AfterViewInit {
   public I18N = I18N;
   public chart!: Chart<'line', number[], number>;
+  public excesses!: MeasurementCRUDModel['getEntitiesResult']['measurements'];
   public substanceSelectValue!: MeasurementCRUDModel['getEntitiesResult']['measurements'][number];
 
   constructor(
@@ -100,12 +98,22 @@ export class ChartComponent implements AfterViewInit {
         },
       },
     });
+    this.excesses = this.data.measurement.measurements.filter(
+      (item) =>
+        new Date() <
+        new Date(
+          new Date(this.data.measurement.date).getTime() +
+            ((item.prediction_points.length || 1) - 1) * 24 * 60 * 60 * 1000
+        )
+    );
     if (this.data.substance_id) {
-      this.substanceSelectValue = this.data.measurement.measurements.find(
+      this.substanceSelectValue = this.excesses.find(
         (item) => item.chemical_element.id === this.data.substance_id
       )!;
-      this.refreshChart(this.substanceSelectValue);
+    } else {
+      this.substanceSelectValue = this.excesses[0];
     }
+    this.refreshChart(this.substanceSelectValue);
   }
 
   public onSubstanceSelectionChange(

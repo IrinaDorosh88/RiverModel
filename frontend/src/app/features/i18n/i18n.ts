@@ -82,7 +82,7 @@ const I18N_ENG = {
   'Measurement is successfully added.': 'Measurement is successfully added.',
   'Maximum value exceeding: $number': (number: number) => `Maximum value exceeding: ${number}`,
   // map
-  'Values': 'Values',
+  'Values (Normalization date)': 'Values(Normalization date)',
   'Choose location to display measurements.': 'Choose location to display Measurements.',
   '$name location is successfully deleted.': (name: string) => `${name} location is successfully deleted.`,
   'Delete $name location': (name: string) => `Delete ${name} location`,
@@ -95,6 +95,7 @@ const I18N_ENG = {
   "You should add at least one measurement before prediction modeling.": "You should add at least one measurement before prediction modeling.",
   "Validaton error.": "Validaton error.",
   "Internal server error.": "Internal eerver error.",
+  "There are no excessing now.": "There are no excessing now.",
   // excess
   "PAY ATTENTION!": 'PAY ATTENTION!',
   "Exceeding the norm!": "Exceeding the norm!",
@@ -185,7 +186,7 @@ const I18N_UKR: typeof I18N_ENG = {
   'Measurement is successfully added.': 'Вимір успішно додано.',
   'Maximum value exceeding: $number': (number: number) => `Перевищення максимального значення: ${number}`,
   // map
-  'Values': 'Значення',
+  'Values (Normalization date)': 'Значення(Дата нормалізації)',
   'Choose location to display measurements.': 'Оберіть локацію для виведення вимірів.',
   'Delete $name location': (name: string) => `Видалення локації ${name}`,
   '$name location is successfully deleted.': (name: string) => `Локація ${name} успішно видалена.`,
@@ -198,6 +199,7 @@ const I18N_UKR: typeof I18N_ENG = {
   "You should add at least one measurement before prediction modeling.": "Вам необхідно додати принаймні один вимір перед моделюванням передбачення.",
   "Validaton error.": "Помилка валідації.",
   "Internal server error.": "Внутрішня помилка серверу.",
+  "There are no excessing now.": "Перевищення норм на даний момент немає.",
   // excess
   "PAY ATTENTION!": 'ЗВЕРНІТЬ УВАГУ!',
   "Exceeding the norm!": "Перевищення норми!",

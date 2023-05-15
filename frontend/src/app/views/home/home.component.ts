@@ -197,7 +197,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
         MeasurementsTableData,
         MeasurementsTableResult
       >(MeasurementsTableComponent, {
-        width: '400px',
+        width: '500px',
         data: { location: entity },
       })
       .afterClosed()
@@ -217,28 +217,43 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
     this.apiClient.measurement
       .getEntities({ location_id: entity.id })
       .pipe(
-        switchMap((next) =>
-          next.length
-            ? this.matDialog
-                .open<ChartComponent, ChartComponentData>(ChartComponent, {
-                  data: {
-                    measurement: next[0],
-                    substance_id,
-                  },
-                })
-                .afterClosed()
-            : EMPTY.pipe(
-                tap({
-                  complete: () => {
-                    this.notificationService.notify(
-                      I18N[
-                        'You should add at least one measurement before prediction modeling.'
-                      ]
-                    );
-                  },
-                })
-              )
-        )
+        switchMap((next) => {
+          if (!next.length) {
+            this.notificationService.notify(
+              I18N[
+                'You should add at least one measurement before prediction modeling.'
+              ]
+            );
+            return EMPTY;
+          }
+          if (
+            !next[0].measurements.some(
+              (item) =>
+                new Date() <
+                new Date(
+                  new Date(next[0].date).getTime() +
+                    ((item.prediction_points.length || 1) - 1) *
+                      24 *
+                      60 *
+                      60 *
+                      1000
+                )
+            )
+          ) {
+            this.notificationService.notify(
+              I18N['There are no excessing now.']
+            );
+            return EMPTY;
+          }
+          return this.matDialog
+            .open<ChartComponent, ChartComponentData>(ChartComponent, {
+              data: {
+                measurement: next[0],
+                substance_id,
+              },
+            })
+            .afterClosed();
+        })
       )
       .subscribe();
   }
