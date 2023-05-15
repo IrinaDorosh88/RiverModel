@@ -109,6 +109,7 @@ export class ChartComponent implements AfterViewInit {
     entity: MeasurementCRUDModel['getEntityResult']['measurements'][number]
   ) {
     if (entity) {
+      entity.prediction_points.sort((a, b) => a.time - b.time);
       this.chart.data.labels = entity.prediction_points.map(
         (item) => item.time
       );
