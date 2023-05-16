@@ -292,7 +292,9 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
               LocationCurrentStateData,
               LocationCurrentStateResult
             >(LocationCurrentStateComponent, {
+              width: '400px',
               data: {
+                location: entity,
                 measurement: next[0],
                 excesses: next[0].measurements.filter(
                   (item) =>

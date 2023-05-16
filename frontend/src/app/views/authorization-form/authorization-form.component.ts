@@ -201,7 +201,7 @@ export class AuthorizationFormComponent implements OnInit {
       this.apiClient.authorization.login(model).subscribe({
         next: (next) => {
           this.notificationService.notify(
-            I18N['You are successfully signed in']
+            I18N['You are successfully signed in.']
           );
           User.fromToken(next.access_token);
           localStorage.setItem('token', JSON.stringify(next.access_token));

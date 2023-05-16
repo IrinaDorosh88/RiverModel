@@ -132,7 +132,7 @@ export class ChartComponent implements AfterViewInit {
           max_value: {
             type: 'line',
             label: {
-              content: I18N['Max'],
+              content: `${I18N['Max']}: ${entity.chemical_element.max_value}`,
               display: true,
               position: 'end',
             },
@@ -144,7 +144,7 @@ export class ChartComponent implements AfterViewInit {
           min_value: {
             type: 'line',
             label: {
-              content: I18N['Min'],
+              content: `${I18N['Min']}: ${entity.chemical_element.min_value}`,
               display: true,
               position: 'start',
             },

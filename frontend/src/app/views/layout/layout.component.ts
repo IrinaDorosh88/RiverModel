@@ -104,7 +104,7 @@ export class LayoutComponent implements OnInit {
   public onLogoutClick() {
     this.apiClient.authorization.logout().subscribe({
       next: () => {
-        this.notificationService.notify('You are successfully signed out!');
+        this.notificationService.notify(I18N['You are successfully signed out.']);
         User.unset();
         localStorage.removeItem('token');
       },

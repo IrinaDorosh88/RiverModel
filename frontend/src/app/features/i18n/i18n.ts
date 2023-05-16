@@ -16,7 +16,7 @@ const I18N_ENG = {
   'Password': 'Password',
   'Confirm': 'Confirm',
   'Sign in?': 'Sign in?',
-  'Sign up?': 'Sign up?',
+  'Sign up?': 'Sign up?',  'You are successfully signed out.': 'You are successfully signed out.',
   'Submit': 'Submit',
   'Close': 'Close',
   'Login is required.': 'Login is required.',
@@ -24,7 +24,8 @@ const I18N_ENG = {
   'Confirm is required.': 'Confirm is required.',
   'Passwords do not match.': 'Passwords do not match.',
   'You are successfully signed up.': 'You are successfully signed up.',
-  'You are successfully signed in': 'You are successfully signed in',
+  'You are successfully signed in.': 'You are successfully signed in.',
+
   'Invalid credentials.': 'Invalid credentials',
   'Something went wrong.': 'Something went wrong.',
   // home
@@ -45,8 +46,8 @@ const I18N_ENG = {
   'Delete $name river': (name: string) => `Delete ${name} river`,
   '$name river is successfully deleted.': (name: string) => `${name} river is successfully deleted.`,
   // substance-form
-  'Min': 'Min',
-  'Max': 'Max',
+  'Min': 'Minimum value',
+  'Max': 'Maximum value',
   'Unit': 'Unit',
   'Time delta decay': 'Time delta decay',
   'Min must be a number.': 'Min must be a number.',
@@ -98,6 +99,10 @@ const I18N_ENG = {
   "There are no excessing now.": "There are no excessing now.",
   "Current state": "Current state",
   "Prediction modeling": "Prediction modeling",
+  "Location $name current state": (name: string) => `Location ${name} current state`,
+  "Last measurement date: $date": (date: string) =>  `Last measurement date: ${date}`,
+  "Current value": "Current value",
+  "Normalization date": "Normalization date",
   // excess
   "PAY ATTENTION!": 'PAY ATTENTION!',
   "Exceeding the norm!": "Exceeding the norm!",
@@ -130,7 +135,8 @@ const I18N_UKR: typeof I18N_ENG = {
   'Confirm is required.': 'Підтвердження паролю обов\'язкове.',
   'Passwords do not match.': 'Паролі не співпадають.',
   'You are successfully signed up.': 'Ви успішно зареєструвалися.',
-  'You are successfully signed in': 'Ви успішно авторизувалися.',
+  'You are successfully signed in.': 'Ви успішно авторизувалися.',
+  'You are successfully signed out.': 'Ви успішно вийшли.',
   'Invalid credentials.': 'Щось пішло не так.',
   'Something went wrong.': 'Щось пішло не так.',
   // home
@@ -151,8 +157,8 @@ const I18N_UKR: typeof I18N_ENG = {
   'Delete $name river': (name: string) => `Видалення річки ${name}`,
   '$name river is successfully deleted.': (name: string) => `Річка ${name} успішно видалена`,
   // substance-form
-  'Min': 'Мін.',
-  'Max': 'Макс.',
+  'Min': 'Мінімальне значення',
+  'Max': 'Максимальне значення',
   'Unit': 'Одиниця виміру',
   'Time delta decay': 'Час повернення до норми',
   'Min must be a number.': 'Мін. повинно бути числом.',
@@ -204,6 +210,10 @@ const I18N_UKR: typeof I18N_ENG = {
   "There are no excessing now.": "Перевищення норм на даний момент немає.",
   "Current state": "Поточний стан",
   "Prediction modeling": "Моделювання передбачення",
+  "Location $name current state": (name: string) => `Поточний стан локації ${name}`,
+  "Last measurement date: $date": (date: string) =>  `Дата останнього виміру: ${date}`,
+  "Current value": "Поточне значення",
+  "Normalization date": "Дата нормалізації",
   // excess
   "PAY ATTENTION!": 'ЗВЕРНІТЬ УВАГУ!',
   "Exceeding the norm!": "Перевищення норми!",
