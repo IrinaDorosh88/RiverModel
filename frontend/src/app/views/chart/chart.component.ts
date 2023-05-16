@@ -18,20 +18,22 @@ const MATERIAL_MODULES = [
   MatSelectModule,
 ];
 
-import { MeasurementCRUDModel } from '@/features/api-client';
+import { LocationCRUDModel, MeasurementCRUDModel } from '@/features/api-client';
 import { I18N } from '@/features/i18n';
-
-export type ChartComponentData = {
-  measurement: MeasurementCRUDModel['getEntityResult'];
-  substance_id?: number | undefined;
-};
+import { CallPipe } from '@/features/call-pipe';
 
 import Annotation from 'chartjs-plugin-annotation';
 Chart.register(Annotation);
 
+export type ChartComponentData = {
+  location: LocationCRUDModel['getEntitiesResult'];
+  measurement: MeasurementCRUDModel['getEntityResult'];
+  substance_id?: number | undefined;
+};
+
 @Component({
   standalone: true,
-  imports: [CommonModule, ...MATERIAL_MODULES],
+  imports: [CommonModule, ...MATERIAL_MODULES, CallPipe],
   encapsulation: ViewEncapsulation.None,
   selector: 'app-chart',
   template: `
@@ -40,9 +42,15 @@ Chart.register(Annotation);
         class="p-3 display-flex align-items-center justify-content-space-between"
       >
         <div>
-          {{
-            I18N['Date'] + ': ' + (data.measurement.date | date : 'dd-MM-YYYY')
-          }}
+          <div class="p-2">
+            {{ I18N['Location'] + ': ' + data.location.name }}
+          </div>
+          <div class="p-2">
+            {{
+              I18N['Last measurement date: $date']
+                | call : (data.measurement.date | date : 'dd-MM-YYYY')
+            }}
+          </div>
         </div>
         <mat-form-field>
           <mat-label>{{ I18N['Substance'] }}</mat-label>

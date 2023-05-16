@@ -251,6 +251,7 @@ export class HomeComponent implements OnInit, AfterViewInit, OnDestroy {
           return this.matDialog
             .open<ChartComponent, ChartComponentData>(ChartComponent, {
               data: {
+                location: entity,
                 measurement: next[0],
                 substance_id,
               },

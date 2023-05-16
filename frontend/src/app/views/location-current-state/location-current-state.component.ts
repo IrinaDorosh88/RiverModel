@@ -107,7 +107,6 @@ export class LocationCurrentStateComponent implements OnInit {
       (currentDate.getTime() - measurementDate.getTime()) /
         (24 * 60 * 60 * 1000)
     );
-
     this.dataSource.data = this.data.excesses.map((item) => {
       item.prediction_points.sort((a, b) => a.time - b.time);
       return {
