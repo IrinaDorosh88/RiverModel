@@ -27,6 +27,6 @@ def update(location_id: int, location_data: LocationUpdate, service: LocationSer
                                               "entity was successfully deleted. Returns a 404 Not Found response "
                                               "if no location entity exists with the specified ID.")
 def delete_location(location_id: int, response: Response, service: LocationService = Depends()):
-    service.delete_location(location_id=location_id)
+    service.soft_delete_location(location_id=location_id)
     response.status_code = status.HTTP_204_NO_CONTENT
     response.headers["X-Status-Message"] = "Location deleted successfully."

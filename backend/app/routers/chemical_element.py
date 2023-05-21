@@ -30,6 +30,6 @@ def update_chemical_element(chemical_element_id:int, chemical_element: ChemicalE
                                               "entity was successfully deleted. Returns a 404 Not Found response "
                                               "if no chemical element entity exists with the specified ID.")
 def delete_chemical_element(chemical_element_id: int, response: Response, db: Session = Depends(get_db)):
-    chemical_element_service.delete_chemical_element(db, chemical_element_id=chemical_element_id)
+    chemical_element_service.soft_delete_chemical_element(db, chemical_element_id=chemical_element_id)
     response.status_code = status.HTTP_204_NO_CONTENT
     response.headers["X-Status-Message"] = "Chemical element deleted successfully."
