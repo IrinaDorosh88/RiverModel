@@ -27,6 +27,6 @@ def update(river_id: int, river_data: RiverUpdate, service: RiverService = Depen
                                               "entity was successfully deleted. Returns a 404 Not Found response "
                                               "if no river entity exists with the specified ID.")
 def delete_river(river_id: int, response: Response, service: RiverService = Depends()):
-    service.delete_river(river_id=river_id)
+    service.soft_delete_river(river_id=river_id)
     response.status_code = status.HTTP_204_NO_CONTENT
     response.headers["X-Status-Message"] = "River deleted successfully."

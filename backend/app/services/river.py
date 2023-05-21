@@ -9,7 +9,9 @@ from schemas.river import PaginatedRiver, River, RiverCreate, RiverUpdate
 
 class RiverService(AppService):
     def get_rivers(self, pagination: PaginationParams) -> PaginatedRiver:
-        query = self.session.query(RiverModel).order_by(RiverModel.name.asc())
+        query = self.session.query(RiverModel) \
+            .filter(RiverModel.is_active) \
+            .order_by(RiverModel.name.asc())
 
         is_paginated_response = isinstance(pagination.limit, int) and isinstance(pagination.offset, int)
 
@@ -48,6 +50,14 @@ class RiverService(AppService):
         db_river = self.session.query(RiverModel).filter(RiverModel.id == river_id).first()
         if db_river:
             self.session.delete(db_river)
+            self.session.commit()
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="River not found.")
+
+    def soft_delete_river(self, river_id: int):
+        db_river = self.session.query(RiverModel).filter(RiverModel.id == river_id, RiverModel.is_active).first()
+        if db_river:
+            setattr(db_river, 'is_active', False)
             self.session.commit()
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="River not found.")

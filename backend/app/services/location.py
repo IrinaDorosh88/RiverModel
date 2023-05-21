@@ -1,6 +1,7 @@
 from fastapi import HTTPException, status
+from sqlalchemy import or_, func
 from sqlalchemy.exc import IntegrityError
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import contains_eager
 
 from services import AppService
 from models import Location, River, ChemicalElement, LocationChemicalElements
@@ -20,16 +21,29 @@ class LocationService(AppService):
         return self.session.query(Location).get(location_id)
 
     def get_locations(self, river_id: int, pagination: PaginationParams):
-        query = self.session.query(Location).options(joinedload(Location.chemical_elements))
+        query = self.session.query(Location) \
+            .join(River, Location.river_id == River.id) \
+            .join(LocationChemicalElements, Location.id == LocationChemicalElements.c.location_id, isouter=True) \
+            .join(ChemicalElement, ChemicalElement.id == LocationChemicalElements.c.chemical_element_id, isouter=True) \
+            .options(contains_eager(Location.chemical_elements)) \
+            .populate_existing() \
+            .filter(
+                River.is_active,
+                Location.is_active,
+                or_(ChemicalElement.is_active.isnot(False), ChemicalElement.is_active.is_(None))
+            )
+
+        total_query = self.session.query(func.count(Location.id)) \
+            .join(River, Location.river_id == River.id) \
+            .filter(River.is_active, Location.is_active)
 
         is_paginated_response = isinstance(pagination.limit, int) and isinstance(pagination.offset, int)
 
         if river_id:
             query = query.filter(Location.river_id == river_id)
+            total_query = total_query.filter(Location.river_id == river_id)
 
         query = query.order_by(Location.name.asc())
-
-        total = query.count()
 
         if is_paginated_response:
             query = query.limit(pagination.limit).offset(pagination.offset)
@@ -37,20 +51,20 @@ class LocationService(AppService):
         data = query.all()
 
         return PaginatedLocation(
-            total=total,
+            total=total_query.scalar(),
             limit=pagination.limit,
             offset=pagination.offset,
             data=data
         ) if is_paginated_response else data
 
     def create_location(self, location_data: LocationCreate):
-        if self.session.query(River).get(location_data.river_id) is None:
+        if self.session.query(River).filter(River.id == location_data.river_id, River.is_active).first() is None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Specified an unknown river')
 
         location_data_dict = location_data.dict()
         input_chemical_elements = location_data_dict.pop('chemical_elements')
         db_chemical_elements = self.session.query(ChemicalElement) \
-            .filter(ChemicalElement.id.in_(input_chemical_elements)).all()
+            .filter(ChemicalElement.id.in_(input_chemical_elements), ChemicalElement.is_active).all()
 
         if len(db_chemical_elements) != len(input_chemical_elements):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Specified an unknown chemical element')
@@ -68,13 +82,13 @@ class LocationService(AppService):
         return db_location
 
     def update_location(self, location_id: int, location_data: LocationUpdate):
-        if self.session.query(River).get(location_data.river_id) is None:
+        if self.session.query(River).filter(River.id == location_data.river_id, River.is_active).first() is None:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Specified an unknown river')
 
         location_data_dict = location_data.dict(exclude_unset=True)
         input_chemical_elements = location_data_dict.pop('chemical_elements')
         db_chemical_elements = self.session.query(ChemicalElement) \
-            .filter(ChemicalElement.id.in_(input_chemical_elements)).all()
+            .filter(ChemicalElement.id.in_(input_chemical_elements), ChemicalElement.is_active).all()
 
         if len(db_chemical_elements) != len(input_chemical_elements):
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Specified an unknown chemical element')
@@ -101,6 +115,14 @@ class LocationService(AppService):
         if db_location:
             db_location.chemical_elements = []
             self.session.delete(db_location)
+            self.session.commit()
+        else:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Location not found.")
+
+    def soft_delete_location(self, location_id: int):
+        db_location = self.get_location_by_id(location_id)
+        if db_location.is_active:
+            setattr(db_location, 'is_active', False)
             self.session.commit()
         else:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Location not found.")

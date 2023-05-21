@@ -6,7 +6,7 @@ from schemas import PaginationParams
 from schemas.chemical_element import ChemicalElementCreate, ChemicalElementUpdate, PaginatedChemicalElement
 
 def get_chemical_elements(db: Session, pagination: PaginationParams):
-    query = db.query(ChemicalElement).order_by(ChemicalElement.name.asc())
+    query = db.query(ChemicalElement).filter(ChemicalElement.is_active).order_by(ChemicalElement.name.asc())
 
     is_paginated_response = isinstance(pagination.limit, int) and isinstance(pagination.offset, int)
 
@@ -46,6 +46,15 @@ def delete_chemical_element(db: Session, chemical_element_id: int):
     db_chemical_element = db.query(ChemicalElement).filter(ChemicalElement.id == chemical_element_id).first()
     if db_chemical_element:
         db.delete(db_chemical_element)
+        db.commit()
+    else:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="River not found.")
+
+def soft_delete_chemical_element(db: Session, chemical_element_id: int):
+    db_chemical_element = db.query(ChemicalElement) \
+        .filter(ChemicalElement.id == chemical_element_id, ChemicalElement.is_active).first()
+    if db_chemical_element:
+        setattr(db_chemical_element, 'is_active', False)
         db.commit()
     else:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="River not found.")
