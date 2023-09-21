@@ -7,11 +7,10 @@ RiverModel is a project for monitoring the quality of river water and data analy
 
 ### _Key Features:_
 
-Map Viewing: Ability to display a geographical map with marked rivers. Interactive interface for navigating the map.
-River Addition: Adding new rivers to the database for further analysis. The ability to set the geographical coordinates of rivers.
-Substance Addition: Adding various substances (e.g., pollutants) for water quality analysis in rivers.
-Assigning substances to specific rivers and determining concentrations.
-Data Deletion and Editing: Ability to delete rivers and substances from the database. Editing existing data about rivers and substances for information updates.
+1. __Map Viewing:__ Ability to display a geographical map with marked rivers. Interactive interface for navigating the map.
+2. __River Addition:__ Adding new rivers to the database for further analysis. The ability to set the geographical coordinates of rivers.
+3. __Substance Addition:__ Adding various substances (e.g., pollutants) for water quality analysis in rivers. Assigning substances to specific rivers and determining concentrations.
+4. __Data Deletion and Editing:__ Ability to delete rivers and substances from the database. Editing existing data about rivers and substances for information updates.
 
 ## __V2__
 
