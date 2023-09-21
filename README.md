@@ -17,10 +17,10 @@ Data Deletion and Editing: Ability to delete rivers and substances from the data
 
 ### _Key Development Tasks for the "Analytics" Module:_
 
-Data Analysis and Processing: The "Analytics" module provides tools for processing and analyzing collected data, including statistical analysis and graph plotting.
-Data Visualization: The module allows for creating summary graphs and charts to visualize water quality analysis results.
-Printing Capability: The system offers the ability to print analytical tables and charts for further use and archiving of results.
-User-Friendly Interface: The website features a user-friendly interface that makes it easy for users to work with analytical tools and display results.
-Automatic Data Updates: The system can automatically update water quality data from available sources in real-time.
+1. __Data Analysis and Processing:__ The "Analytics" module provides tools for processing and analyzing collected data, including statistical analysis and graph plotting.
+2. __Data Visualization:__ The module allows for creating summary graphs and charts to visualize water quality analysis results.
+3. __Printing Capability:__ The system offers the ability to print analytical tables and charts for further use and archiving of results.
+4. __User-Friendly Interface:__ The website features a user-friendly interface that makes it easy for users to work with analytical tools and display results.
+5. __Automatic Data Updates:__ The system can automatically update water quality data from available sources in real-time.
 
 This project is designed to establish monitoring of river water quality and provides tools for analyzing this data, which can be valuable for researchers, organizations, and the public interested in the state of river bodies.
